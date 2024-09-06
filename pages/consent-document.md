@@ -20,13 +20,11 @@ If you have any questions about this study, you may contact either of the resear
 
 If you have questions about your rights or complaints about the research, you may contact the UNL Institutional Review Board (contact information listed below).
 
-### Revocation of Consent, Study Data Removal, and Individual Opt-Out
+### Opt-Out, Revocation of Consent, and Study Data Removal
 
-You may revoke your consent to participate in this study at any time.  To do so, respond with `@UNLPALBOTUSERACCT REVOKECONSENT`, which will have the effect of opting you out of further requests across any of our monitored projects.  You may choose to consent again at any time thereafter.
+You may opt-out of this study at any time, using the command `@UNLPALBOTUSERACCT OPTOUT`.  This will opt you out of future requests across any of our monitored projects.  If you would like to opt-in again, you may use the command `@UNLPALBOTUSERACCT CONSENT` on any monitored project commit.
 
-During the course of data collection, you may request that your study data is removed.  We will remove all study-related data to which you are connected from our server, except for record of your initial consent, revocation of consent, and request for data removal.  These records will not be released as part of the normal research process.  To start this process, respond with `@UNLPALBOTUSERACCT REVOKEREMOVE`.
-
-Finally, if you have not consented, and would like us not to bother you, respond with `@UNLPALBOTUSERACCT OPTOUT`, and we will not respond with a request for participation on any commits you make to any monitored projects.
+You may request that your data is removed from the study at any time before data collection is completed by using the command `@UNLPALBOTUSERACCT REMOVE`.  This will also have the effect of opting you out of the study.  Upon receiving this command, we will remove all study-related data to which you are directly connected from our server, except for that which is necessary for us to maintain the opt-out list.  We will retain only the record of your initial consent and your request for data removal.
 
 ## Study Related Resources
 
