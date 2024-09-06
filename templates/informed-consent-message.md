@@ -7,4 +7,4 @@ Your contribution in this commit makes you a candidate to participate in the stu
 * `@UNLPALBOTUSERACCT CONSENT`
   * If you consent to participate in the study.  After consenting, you will receive at most XX comments per day asking for your response.  You can opt out at any time and stop receiving comments.
 * `@UNLPALBOTUSERACCT OPTOUT`
-  * If you would like us to stop receiving comments now and not participate in the study.
+  * If you would like us to stop sending you comments now and not participate in the study.
