@@ -49,7 +49,7 @@ Otherwise, place committer on list of contacted committers and send request for 
 # Send Survey {#send-survey}
 
 Committer is not on opt-out list, and has consented to participate in the study.
-Based on the last time the participant was asked to respond, we will send a short survey (abridged form shown here for space), so that participants are not contacted more than 3 times in a 24-hour period (see [Figure 5](#fig:survey)).
+Based on the last time the participant was asked to respond, we will send a short survey (abridged form shown here for space), so that participants are not contacted more than one time a 24-hour period (see [Figure 5](#fig:survey)).
 The survey will be submitted on the line which introduces the type change.
 
 ![Participant sent survey (abridged)](./survey-sent.png){#fig:survey}
