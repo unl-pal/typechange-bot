@@ -30,10 +30,9 @@ A commit which adds or removes a type annotation has been detected (see [Figure 
  - If the committer is on the opt-out list, do nothing.
  - If the committer is not listed, go to [Participant Not Listed](#not-listed)
  - If the committer has consented, go to [Send Survey](#send-survey)
+ - If the committer is listed as having been contacted, but has not consented, STOP.
 
 # Participant Not Listed {#not-listed}
-
-If the committer has already been contacted requesting participation, STOP.
 
 Otherwise, place committer on list of contacted committers and send request for consent message (see [Figure 2](#fig:request-consent)).
 
