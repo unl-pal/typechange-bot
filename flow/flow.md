@@ -7,7 +7,6 @@ classoption:
 linkcolor: blue
 papersize: letter
 fontsize: 11pt
-numbersections: true
 ---
 
 At any time during the monitoring period, a person may submit an opt out command as a commit comment (at which point the [Participant Opts Out][] flow is followed).
