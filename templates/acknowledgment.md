@@ -1,3 +1,3 @@
-We have recorded your response.
+Thank you.  We have recorded your response.
 
 {{footer.md}}
