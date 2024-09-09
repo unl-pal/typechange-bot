@@ -2,15 +2,14 @@
 title: Workflow for "Understanding Developers' Addition and Removal of Type Annotations" (IRB 23988)
 documentclass: scrartcl
 classoption:
- - parskip=half
  - DIV=14
 linkcolor: blue
 papersize: letter
 fontsize: 11pt
 ---
 
-At any time during the monitoring period, a person may submit an opt out command as a commit comment (at which point the [Participant Opts Out][] flow is followed).
-They may likewise request removal of their data (and the [Participant Requests Removal Of Data][] flow is followed).
+At any time during the monitoring period, a person may submit an opt out command as a commit comment on a commit in any monitored project (at which point the [Participant Opts Out](#opts-out) flow is followed).
+They may likewise request removal of their data (and the [Participant Requests Removal Of Data](#removal-requested) flow is followed).
 
 #### Note on Conventions and Assumptions {-}
 
@@ -22,39 +21,57 @@ Additionally, we assume that we are dealing with projects which have agreed to p
 Finally, some small details (exact location of study website, the name of the bot) have not yet been determined.
 In particular, in this document, the bot referred to as `@UNLPALBOTACCT` will be given a slightly different name.
 
+# Start {#start}
 
-# Start
+A commit which adds or removes a type annotation has been detected (see [Figure 1](#fig:commit-detected)).
 
-A commit which adds or removes a type annotation has been detected.
+![Commit with addition or removal of type annotation detected](./commit-detected.png){#fig:commit-detected}
 
  - If the committer is on the opt-out list, do nothing.
- - If the committer has consented, go to [Send Survey][]
- - If the committer is not listed, go to [Participant Not Listed][]
+ - If the committer is not listed, go to [Participant Not Listed](#not-listed)
+ - If the committer has consented, go to [Send Survey](#send-survey)
 
-# Participant Not Listed
+# Participant Not Listed {#not-listed}
 
-If already contacted, do nothing.
+If the committer has already been contacted requesting participation, STOP.
 
-Else, obtain consent TODO
+Otherwise, place committer on list of contacted committers and send request for consent message (see [Figure 2](#fig:request-consent)).
 
-# Participant Opts Out
+![Request for consent](./request-consent.png){#fig:request-consent}
 
-The participant has sent the `@UNLPALBOTACCT OPTOUT` command.
+ - If the committer ignores the message, do nothing.
+ - If the committer responds with `@UNLPALBOTACCT CONSENT` (see [Figure 3](#fig:consented)), record consent information, and go to [Send Survey](#send-survey).
+ - If the committer responds with `@UNLPALBOTACCT OPTOUT` (see [Figure 4](#fig:optout)) go to [Participant Opts Out](#opts-out)
+ 
+![Participant responds with consent message](./consented.png){#fig:consented}
 
-Place participant on opt-out list.
+![Participant has requested to opt-out (Note: this can happen on any commit made to a monitored project)](./optsout.png){#fig:optout}
 
-# Participant Consents
+# Send Survey {#send-survey}
 
-Record participant's consent information.
+Committer is not on opt-out list, and has consented to participate in the study.
+Based on the last time the participant was asked to respond, we will send a short survey (abridged form shown here for space), so that participants are not contacted more than 3 times in a 24-hour period (see [Figure 5](#fig:survey)).
+The survey will be submitted on the line which introduces the type change.
 
-Go to [Send Survey][].
+![Participant sent survey (abridged)](./survey-sent.png){#fig:survey}
 
-# Send Survey
+ - If the participant responds to the survey, record the response, and show an acknowledgment (see [Figure 6](#fig:survey-response)).
+ - If the participant submits `@UNLPALBOTACCT OPTOUT` (see [Figure 4](#fig:optout)), go to [Participant Opts Out](#opts-out)
+ - If the participant submits `@UNLPALBOTACCT REMOVE` (see [Figure 7](#fig:removal-request)), go to [Participant Requests Removal of Data](#removal-requested)
+ 
+![Participant responds to survey](./survey-response.png){#fig:survey-response}
+ 
+![Participant requests removal of data](./removal-request.png){#fig:removal-request}
 
-TODO
+# Participant Opts Out {#opts-out}
 
-# Participant Requests Removal Of Data
+The participant/committer is placed on the opt-out list, and sent an acknowledgment (see [Figure 8](#fig:opt-out-removal-ack)).
+
+![Acknowledgment of opt-out or data removal request](./acknowledgment-removal.png){#fig:opt-out-removal-ack}
+
+# Participant Requests Removal Of Data {#removal-requested}
 
 A participant has submitted the command `@UNLPALBOTACCT REMOVE`.
 A record of the removal request, and opt-out is made.
-Data than removal request, opt-out, and initial consent is removed from the server.
+Data other than removal request, opt-out, and initial consent is removed from the server.
+We then send an acknowledgment of the request (see [Figure 8](#fig:opt-out-removal-ack)).
