@@ -49,14 +49,19 @@ Otherwise, place committer on list of contacted committers and send request for 
 # Send Survey {#send-survey}
 
 Committer is not on opt-out list, and has consented to participate in the study.
-Based on the last time the participant was asked to respond, we will send a short survey (abridged form shown here for space), so that participants are not contacted more than one time a 24-hour period (see [Figure 5](#fig:survey)).
+
+If this is the first a participant is surveyed, we will send a one-question general survey, as shown in [Figure 5](#fig:general-survey).
+
+![General, single-question pre-survey](./presurvey.png){#fig:general-survey}
+
+Based on the last time the participant was asked to respond, we will send a short survey, ensuring that participants are not contacted more than one time a 24-hour period (see [Figure 6](#fig:survey)).
 The survey will be submitted on the line which introduces the type change.
 
-![Participant sent survey (abridged)](./survey-sent.png){#fig:survey}
+![Participant sent survey](./survey-sent.png){#fig:survey}
 
- - If the participant responds to the survey, record the response, and show an acknowledgment (see [Figure 6](#fig:survey-response)).
- - If the participant submits `@UNLPALBOTACCT OPTOUT` (see [Figure 4](#fig:optout)), go to [Participant Opts Out](#opts-out)
- - If the participant submits `@UNLPALBOTACCT REMOVE` (see [Figure 7](#fig:removal-request)), go to [Participant Requests Removal of Data](#removal-requested)
+ - If the participant responds to the survey, record the response, and show an acknowledgment (see [Figure 7](#fig:survey-response)).
+ - If the participant submits `@UNLPALBOTACCT OPTOUT` (see [Figure 8](#fig:optout)), go to [Participant Opts Out](#opts-out)
+ - If the participant submits `@UNLPALBOTACCT REMOVE` (see [Figure 9](#fig:removal-request)), go to [Participant Requests Removal of Data](#removal-requested)
  
 ![Participant responds to survey](./survey-response.png){#fig:survey-response}
  
@@ -64,7 +69,7 @@ The survey will be submitted on the line which introduces the type change.
 
 # Participant Opts Out {#opts-out}
 
-The participant/committer is placed on the opt-out list, and sent an acknowledgment (see [Figure 8](#fig:opt-out-removal-ack)).
+The participant/committer is placed on the opt-out list, and sent an acknowledgment (see [Figure 10](#fig:opt-out-removal-ack)).
 
 ![Acknowledgment of opt-out or data removal request](./acknowledgment-removal.png){#fig:opt-out-removal-ack}
 
@@ -73,4 +78,4 @@ The participant/committer is placed on the opt-out list, and sent an acknowledgm
 A participant has submitted the command `@UNLPALBOTACCT REMOVE`.
 A record of the removal request, and opt-out is made.
 Data other than removal request, opt-out, and initial consent is removed from the server.
-We then send an acknowledgment of the request (see [Figure 8](#fig:opt-out-removal-ack)).
+We then send an acknowledgment of the request (see [Figure 10](#fig:opt-out-removal-ack)).
