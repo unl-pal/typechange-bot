@@ -1,0 +1,67 @@
+\documentclass[paper=letter,fontsize=11pt,DIV=14]{scrartcl}
+
+\KOMAoptions{captions=tableheading,bibliography=totoc}
+
+\usepackage[cleanlook,british]{isodate}
+\usepackage{amsmath,amsthm,amssymb}
+% \usepackage[plextt,lucida]{mycommon}
+\usepackage{csquotes}
+\usepackage{booktabs,tabularx}
+\usepackage{caption,subcaption}
+\usepackage[export]{adjustbox}
+\usepackage{graphicx}
+\usepackage[inline]{enumitem}
+\usepackage{float}
+
+\title{Questionnaires for ``Understanding Developers' Addition and Removal of Type Annotations'' (IRB 23988)}
+\author{}
+\date{}
+
+
+\usepackage{nameref}
+\usepackage[pdfa,colorlinks]{hyperref}
+\usepackage{hyperxmp}
+\usepackage[nameinlink]{cleveref}
+
+\begin{document}
+
+\maketitle
+
+\section*{Post-Consent Questionnaire}
+
+To answer \enquote{When declaring a variable, why do developers include (or not) a type annotation?}, we ask the following questions:
+
+\begin{quote}
+  \begin{enumerate}
+  \item When initially defining a variable, which of the following factors do you consider in deciding whether or not a type annotation should be included? (Select all that apply)
+    \begin{itemize}[label=$\square$]
+    \item Code Location (scope, etc.)
+    \item Complexity of the type annotation
+    \item Complexity of the initial value
+    \item Compliance with code style requirements
+    \item As an aid in documentation
+    \item Other, explain briefly below:
+    \end{itemize}
+  \item Are there situations where you always include a type annotation?
+    If so, please list them below, if not, leave blank.
+  \item Are there situations where you never include a type annotation?
+    If so, please list them below, if not, leave blank.
+  % \item TODO: Others?
+  \end{enumerate}
+\end{quote}
+
+
+\section*{Post-Change Questionnaire}
+
+To answer \enquote{Why do developers add or remove type annotations?}, we ask one question:
+
+\begin{quote}
+  Briefly (1-2 sentences), why did you add/remove type annotation(s) in this code change?
+\end{quote}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: t
+%%% End:
