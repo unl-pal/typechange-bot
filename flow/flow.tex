@@ -4,7 +4,7 @@
 
 \usepackage[cleanlook,british]{isodate}
 \usepackage{amsmath,amsthm,amssymb}
-\usepackage[plextt,lucida]{mycommon}
+% \usepackage[plextt,lucida]{mycommon}
 \usepackage{csquotes}
 \usepackage{booktabs,tabularx}
 \usepackage{caption,subcaption}
@@ -13,12 +13,15 @@
 \usepackage[inline]{enumitem}
 \usepackage{float}
 
+\usepackage{tikz}
+\usetikzlibrary{positioning,shapes,quotes,arrows.meta}
+
 \title{Workflow for ``Understanding Developers' Addition and Removal of Type Annotations'' (IRB 23988)}
 \author{}
 \date{}
 
 \usepackage{nameref}
-\usepackage[pdfa]{hyperref}
+\usepackage[pdfa,colorlinks]{hyperref}
 \usepackage{hyperxmp}
 \usepackage[nameinlink]{cleveref}
 
@@ -30,6 +33,42 @@
 
 At any time during the monitoring period, a person may submit an opt out command as a commit comment on a commit in any monitored project (at which point the \flowref{opts-out} is followed).
 They may likewise request removal of their data (and the \flowref{removal-requested} is followed).
+The overall workflow is shown in \Cref{fig:workflow}.
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[node distance=2cm,
+    entity/.style={rectangle,draw, very thick,align=center,text width=3cm},
+    every path/.style={thick,-{Latex}},
+    every edge quotes/.style={auto,sloped,font=\footnotesize,text width=1.5cm}]
+
+    \node [entity] (start) {Commit Identified (\S\ref{start})};
+    \node [entity,below left=of start] (rqconsent) {Request Consent (\S\ref{not-listed})};
+    \node [entity,below right=of start] (survey) {Send Survey (\S\ref{send-primary-survey})};
+    \node [entity,below left=of survey] (optout) {Record Opt Out (\S\ref{opts-out})};
+    \node [entity,below= of survey] (recordprimary) {Record Response (\S\ref{send-primary-survey})};
+    \node [entity,below=of optout] (removal) {Process Data Removal (\S\ref{removal-requested})};
+    \node [entity,below = of rqconsent] (first-survey) {Send Pre-Survey (\S\ref{send-survey})};
+    \node [entity,below=of first-survey] (recordpre) {Record Pre-Survey Response (\S\ref{send-survey})};
+
+    \draw (start) edge["Participant Consented"] (survey);
+    \draw (survey) edge["Participant Responds"] (recordprimary);
+    
+    \draw (start) edge["Committer not contacted or opted-out"] (rqconsent);
+    \draw (rqconsent) edge["Participant Consents"] (first-survey);
+    \draw (first-survey) edge["Participant Responds"] (recordpre);
+
+    \draw (rqconsent) edge["Opts-Out"] (optout);
+    \draw (survey) edge["Opts-Out"] (optout);
+    \draw (rqconsent) edge["Removal"] (removal);
+    \draw (survey) edge["Removal"] (removal);
+    
+  \end{tikzpicture}
+  \caption{Overall Workflow Diagram. 
+    We omit the case that the committer/participant ignores the bot leading to the process stopping for the sake of clarity.
+    Additionally, opt-out and data removal can be processed at any time.}
+  \label{fig:workflow}
+\end{figure}
 
 \paragraph*{Note on Conventions and Assumptions}
 \label{note-on-conventions-and-assumptions}
@@ -47,9 +86,9 @@ In particular, in this document, the bot referred to as \texttt{@UNLPALBOTACCT} 
 
 A commit which adds or removes a type annotation has been detected (see \Cref{fig:commit-detected}).
 
-\begin{figure}[H]
+\begin{figure}[h]
 \centering
-\includegraphics[height=6cm,frame]{./commit-detected.png}
+\includegraphics[width=\linewidth,frame]{./commit-detected.png}
 \caption{Commit with addition or removal of type annotation detected}
 \label{fig:commit-detected}
 \end{figure}
@@ -57,8 +96,8 @@ A commit which adds or removes a type annotation has been detected (see \Cref{fi
 Then,
 \begin{itemize}[noitemsep]
 \item If the committer is on the opt-out list, do nothing.
-\item If the committer is not listed, go to the \flowref{not-listed}
-\item If the committer has consented, go to the \flowref{send-survey}
+\item If the committer is not listed, go to the \flowref{not-listed}.
+\item If the committer has consented, go to the \flowref{send-survey}.
 \item If the committer is listed as having been contacted, but has not consented, STOP.
 \end{itemize}
 
@@ -67,9 +106,9 @@ Then,
 
 Place committer on list of contacted committers and send request for consent message (see \Cref{fig:request-consent}).
 
-\begin{figure}[H]
+\begin{figure}[h]
 \centering
-\includegraphics[keepaspectratio,width=\linewidth,height=8cm,frame]{./request-consent.png}
+\includegraphics[width=\linewidth,frame]{./request-consent.png}
 \caption{Request for consent}
 \label{fig:request-consent}
 \end{figure}
@@ -78,9 +117,9 @@ Then,
 \begin{itemize}[noitemsep]
 \item If the committer ignores the message, do nothing.
 \item If the committer responds with \texttt{@UNLPALBOTACCT\ CONSENT} (see \Cref{fig:consented}), record consent information, and go to the \flowref{send-survey}.
-  \begin{figure}[H]
+  \begin{figure}[h]
     \centering
-    \includegraphics[height=4cm,frame]{./consented.png}
+    \includegraphics[width=\linewidth,frame]{./consented.png}
     \caption{Participant responds with consent message}
     \label{fig:consented}
   \end{figure}
@@ -94,7 +133,8 @@ Then,
   \end{figure}
 \end{itemize}
 
-\section{Participant Consents}\label{send-survey}
+\section{Participant Consents}
+\label{send-survey}
 
 Committer is not on opt-out list, and has consented to participate in the study.
 
