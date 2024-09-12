@@ -43,6 +43,7 @@ The overall workflow is shown in \Cref{fig:workflow}.
     every edge quotes/.style={auto,sloped,font=\footnotesize,text width=1.5cm}]
 
     \node [entity] (start) {Commit Identified (\S\ref{start})};
+    \node [entity, right=of start] (stop) {\textbf{STOP}};
     \node [entity,below left=of start] (rqconsent) {Request Consent (\S\ref{not-listed})};
     \node [entity,below right=of start] (survey) {Send Survey (\S\ref{send-primary-survey})};
     \node [entity,below left=of survey] (optout) {Record Opt Out (\S\ref{opts-out})};
@@ -51,10 +52,12 @@ The overall workflow is shown in \Cref{fig:workflow}.
     \node [entity,below = of rqconsent] (first-survey) {Send Pre-Survey (\S\ref{send-survey})};
     \node [entity,below=of first-survey] (recordpre) {Record Pre-Survey Response (\S\ref{send-survey})};
 
+    \draw (start) edge["Committer Opted-Out"] (stop);
+    
     \draw (start) edge["Participant Consented"] (survey);
     \draw (survey) edge["Participant Responds"] (recordprimary);
     
-    \draw (start) edge["Committer not contacted or opted-out"] (rqconsent);
+    \draw (start) edge["Committer not contacted and not opted-out"] (rqconsent);
     \draw (rqconsent) edge["Participant Consents"] (first-survey);
     \draw (first-survey) edge["Participant Responds"] (recordpre);
 
@@ -65,7 +68,7 @@ The overall workflow is shown in \Cref{fig:workflow}.
     
   \end{tikzpicture}
   \caption{Overall Workflow Diagram. 
-    We omit the case that the committer/participant ignores the bot leading to the process stopping for the sake of clarity.
+    We omit the case that the committer/participant ignores the bot, and other lines to \enquote{\textbf{STOP}} for the sake of clarity.
     Additionally, opt-out and data removal can be processed at any time.}
   \label{fig:workflow}
 \end{figure}
