@@ -5,7 +5,7 @@ Notably, we do not yet have a study homepage, so the link for additional informa
 This information will include researcher contact information, a list of projects which are part of the study, and a list of common questions we receive.
 Additionally, the exact name of the bot has not yet been determined.
 
-Finally, we assume that a participant will only see the informed consent message once, on the first time they are contacted to participate, across any monitored project.
+Finally, we assume that a participant will only see the informed consent message once, on the first time they are contacted to participate, across any monitored project, however, we note that they may see this document multiple times.
 
 Those pieces of the form which have been added are marked in **bold**.
 
@@ -18,6 +18,7 @@ The purpose of this research is to understand the reasons why developers add and
 **Reasonable steps will be taken to protect the privacy and the confidentiality of your study data; however, in some circumstances we cannot guarantee absolute privacy and/or confidentiality. Research records will be stored electronically through University approved methods and where they originate on GitHub. Records will only be seen by the research team and/or those authorized to view, access, or use the records during and after the study is complete. Your GitHub username will be included with the data and published in the results.**
 
 Participation in this study will require approximately five minutes each time you choose to participate.  You will be asked to respond to a brief question about a commit you have made in public.  Participation will take place through GitHub commit comments.
+**You may see this notice of informed consent multiple times, based on how many projects you contribute to.**
 
 Society may benefit from this research by having increased information and understanding of developer behavior, which may lead to better developer tooling, increased productivity, and better education of future software developers.
 
