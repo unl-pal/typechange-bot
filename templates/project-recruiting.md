@@ -1,0 +1,14 @@
+Hello {{NAME}},
+
+I'm Samuel Flint, and I'm working with Dr. Robert Dyer from the University of Nebraska-Lincoln on a study about type annotations in dynamic languages.  Your project, {{PROJECT}}, is highly relevant to our research, and we'd like your permission to monitor it.
+
+If you agree, we will provide a bot that tracks changes related to type annotations.  The bot will notify committers after relevant changes, asking them to participate in the study (no more than once every 24 hours, and they can opt-out or request data removal at any time).
+
+Would you be willing to have us monitor your project?  If so, please install the bot using the instructions here:
+[Install Bot]()
+
+Thanks for considering!
+
+Samuel W. Flint and Robert Dyer
+
+This study as been approved by the University of Nebraska-Lincoln [Institutional Review Board](https://research.unl.edu/researchcompliance/human-subjects-research/) with the title "Understanding Developers' Addition and Removal of Type Annotations", IRB# 23988.
