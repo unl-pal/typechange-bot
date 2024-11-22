@@ -11,6 +11,7 @@ from .models import Committer, Commit, Project
 
 from django.conf import settings
 from django.utils import timezone
+from django.template import loader
 
 from github import Github, Auth
 import re
@@ -61,7 +62,15 @@ def process_commit(commit_pk):
 
 @app.task()
 def process_new_committer(committer_pk, commit_pk):
-    pass
+    committer = Committer.objects.get(id=committer_pk)
+    commit = Commit.objects.get(id=commit_pk)
+    gh_commit = g.get_repo(f'{commit.project.owner}/{commit.project.name}') \
+        .get_commit(sha=commit.hash)
+
+    template = loader.get_template('informed-consent-message.md')
+    message = template.render({'USER': f'@{committer.username}'})
+    gh_commit.create_comment(message)
+
 
 @app.task()
 def process_comment(comment_user, comment_body, comment_payload):
