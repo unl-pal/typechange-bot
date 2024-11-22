@@ -25,7 +25,7 @@ def github_webhook(request):
     payload = json.loads(request.body)
 
     match github_event:
-        case "installation_repositories":
+        case "installation":
             process_installation(payload)
         case "push":
             repo_owner = payload['repository']['owner']['name']
@@ -40,14 +40,15 @@ def github_webhook(request):
 
 @atomic
 def process_installation(payload):
-    # TODO
-    if action == "added":
-        for repo in payload['repositories_added']:
-            owner, repo = repo['full_name'].split('/')
-            if not repo['private']:
-                if Project.objects.filter(owner=owner, repo=repo).count() == 0:
-                    project = Project(owner=owner, repo=repo)
-                    project.save()
+
+    if payload['action'] == "created":
+        installation_id = payload['installation']['id']
+        for repo in payload['repositories']:
+            print(repo)
+            owner, name = repo['full_name'].split('/')
+            if Project.objects.filter(owner=owner, name=name).count() == 0:
+                project = Project(owner=owner, name=name, installation_id=installation_id)
+                project.save()
     else:
         for repo in payload['repositories_removed']:
             # Find repository
