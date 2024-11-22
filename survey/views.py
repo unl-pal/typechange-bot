@@ -1,6 +1,8 @@
 from django.shortcuts import render
 
-from .models import Project
+from django.db.models import Q
+from .models import Project, Commit
+from .tasks import process_commit
 
 import json
 
@@ -26,6 +28,7 @@ def github_webhook(request):
         case "installation_repositories":
             process_installation(payload)
         case "push":
+            process_push(payload)
             pass
         case "commit_comment":
             pass
@@ -37,11 +40,21 @@ def github_webhook(request):
 @atomic
 def process_push(payload):
     print(payload['repository'])
+    repo = payload['repository']['name']
+    owner = payload['repository']['owner']['name']
+    project = Project.objects.get(Q(owner=owner) & Q(name=repo))
 
-    pass
+    for commit_data in payload['commits']:
+        commit = Commit(project=project,
+                        hash=commit_data['id'],
+                        message=commit_data['message'],
+                        diff = '\n'.join(commit_data['modified']))
+        commit.save()
+        process_commit.delay(commit)
 
 @atomic
 def process_installation(payload):
+    # TODO
     if action == "added":
         for repo in payload['repositories_added']:
             owner, repo = repo['full_name'].split('/')
