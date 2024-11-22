@@ -78,6 +78,7 @@ def process_comment(comment_user, comment_body, comment_payload):
     # TODO: Check if we're on a commit we're interested in...
     commit_id = comment_payload['commit_id']
     if Commit.objects.filter(hash=commit_id).count() == 1:
+        commit = Commit.objects.get(hash=commit_id)
         commenter_new = False
         try:
             committer = Committer.objects.get(Q(username=comment_user))
@@ -92,8 +93,17 @@ def process_comment(comment_user, comment_body, comment_payload):
                 committer.opt_out = None
             committer.save()
             commenter_new = False
-
-        if optout_command.search(comment_body):
+            if committer.initial_survey_response is not None:
+                gh_commit = g.get_repo(f'{commit.project.owner}/{commit.project.name}') \
+                    .get_commit(sha=commit_id)
+                template = loader.get_template('initial-survey.md')
+                gh_commit.create_comment(template.render({'USER': f'@{committer.username}'}))
+        elif optout_command.search(comment_body):
             committer.opt_out = timezone.now()
             committer.save()
             commenter_new = False
+            gh_commit = g.get_repo(f'{commit.project.owner}/{commit.project.name}') \
+                         .get_commit(sha=commit_id)
+            template = loader.get_template('acknowledgment-optout.md')
+            gh_commit.create_comment(template.render())
+
