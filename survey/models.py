@@ -30,7 +30,8 @@ class Project(models.Model):
 class Commit(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     hash = models.CharField(max_length=40)
-    diff = models.TextField()
+    message = models.TextField(blank=True)
+    diff = models.TextField(blank=True)
 
     def __str__(self):
         return f'{self.project}/commit/{self.hash}'
