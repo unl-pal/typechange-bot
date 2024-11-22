@@ -38,7 +38,7 @@ def process_commit(commit_pk):
     pass
 
 @app.task()
-def process_new_committer(committer_pk):
+def process_new_committer(committer_pk, commit_pk):
     pass
 
 @app.task()
