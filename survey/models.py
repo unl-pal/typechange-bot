@@ -16,6 +16,7 @@ class Committer(models.Model):
 class Project(models.Model):
     owner = models.CharField('project owner', max_length=200, editable=False)
     name = models.CharField('project name', max_length=200, editable=False)
+    installation_id = models.IntegerField('installation ID', editable=False)
     add_date = models.DateTimeField('project add date', auto_now_add=True, editable=False)
     remove_date = models.DateTimeField('project remove date', blank=True, null=True, editable=False)
 
