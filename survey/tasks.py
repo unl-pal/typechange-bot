@@ -35,7 +35,29 @@ def process_push_data(owner, repo, commits):
 
 @app.task()
 def process_commit(commit_pk):
-    pass
+    commit = Commit.objects.get(id=commit_pk)
+    hash = commit.hash
+    gh_commit = g.get_repo(f'{commit.project.owner}/{commit.project.name}') \
+        .get_commit(sha=hash)
+
+    commit_is_relevant = True     # TODO: Check if commit is relevant
+    if commit_is_relevant:
+        try:
+            author = Committer.objects.get(username=gh_commit.author.login)
+        except Committer.DoesNotExist:
+            author = Committer(username=gh_commit.author.login)
+            process_new_committer.delay(author.pk, commit_pk)
+            author.save()
+
+        try:
+            committer = Committer.objects.get(username=gh_commit.committer.login)
+        except Committer.DoesNotExist:
+            committer = Committer(username=gh_commit.committer.login)
+            committer.save()
+            process_new_committer.delay(committer.pk, commit_pk)
+    else:
+        commit.is_relevant = False
+        commit.save()
 
 @app.task()
 def process_new_committer(committer_pk, commit_pk):
