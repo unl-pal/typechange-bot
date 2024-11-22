@@ -38,8 +38,8 @@ class Commit(models.Model):
 
 class Response(models.Model):
     commit = models.ForeignKey(Commit, on_delete=models.CASCADE)
-    person = models.ForeignKey(Committer, on_delete=models.CASCADE)
+    committer = models.ForeignKey(Committer, on_delete=models.CASCADE)
     survey_response = models.TextField()
 
     def __str__(self):
-        return f'Response of {self.person} on {self.commit}'
+        return f'Response of {self.committer} on {self.commit}'
