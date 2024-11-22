@@ -1,8 +1,8 @@
 from django.shortcuts import render
 
 from django.db.models import Q
-from .models import Project, Commit
-from .tasks import process_commit
+from .models import Project, Commit, Response, Committer
+from .tasks import process_commit, process_new_committer
 
 import json
 
@@ -30,11 +30,29 @@ def github_webhook(request):
         case "push":
             process_push(payload)
         case "commit_comment":
-            pass
+            process_comment(payload)
         case _:
             pass
 
     return HttpResponse()
+
+@atomic
+def process_comment(payload):
+    comment_data = payload['comment']
+    commit_id = comment_data['commit_id']
+    commit = Commit.objects.get(Q(hash=commit_id))
+    committer_id = comment_data['user']['login']
+    try:
+        committer = Committer.objects.get(Q(username=committer_id))
+        response = Response(commit=commit,
+                            committer=committer,
+                            survey_response = comment_data['body'])
+        response.save()
+    except Committer.DoesNotExist:
+        committer = Committer(username = committer_id)
+        committer.save()
+        process_new_committer.delay(committer.pk)
+
 
 @atomic
 def process_push(payload):
