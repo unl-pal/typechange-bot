@@ -85,7 +85,7 @@ def process_comment(comment_user, comment_body, comment_payload):
     if Commit.objects.filter(hash=commit_id).count() == 1:
         commit = Commit.objects.get(hash=commit_id)
         installation_id = commit.project.installation_id
-        authenticator = Auth.AppInstillationAuth(app_auth, installation_id)
+        authenticator = Auth.AppInstallationAuth(app_auth, installation_id)
         github = Github(auth=authenticator)
         commenter_new = False
         try:
