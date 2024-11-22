@@ -2,7 +2,7 @@ from django.shortcuts import render
 
 from django.db.models import Q
 from .models import Project, Commit, Response, Committer
-from .tasks import process_push_data, process_new_committer
+from .tasks import process_push_data, process_new_committer, process_comment
 
 import json
 
@@ -32,29 +32,11 @@ def github_webhook(request):
             repo_name = payload['repository']['name']
             process_push_data(repo_owner, repo_name, payload['commits'])
         case "commit_comment":
-            process_comment(payload)
+            process_comment.delay(payload['comment']['user']['login'], payload['comment']['body'], payload['comment'])
         case _:
             pass
 
     return HttpResponse()
-
-@atomic
-def process_comment(payload):
-    comment_data = payload['comment']
-    commit_id = comment_data['commit_id']
-    commit = Commit.objects.get(Q(hash=commit_id))
-    committer_id = comment_data['user']['login']
-    try:
-        committer = Committer.objects.get(Q(username=committer_id))
-        response = Response(commit=commit,
-                            committer=committer,
-                            survey_response = comment_data['body'])
-        response.save()
-    except Committer.DoesNotExist:
-        committer = Committer(username = committer_id)
-        committer.save()
-        process_new_committer.delay(committer.pk)
-
 
 @atomic
 def process_push(payload):
@@ -88,3 +70,6 @@ def process_installation(payload):
 
 def index(request):
     return HttpResponse("")
+
+def list_projects(request):
+    pass

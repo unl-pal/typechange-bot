@@ -30,3 +30,32 @@ def process_commit(commit_pk):
 @app.task()
 def process_new_committer(committer_pk):
     pass
+
+@app.task()
+def process_comment(comment_user, comment_body, comment_payload):
+    # TODO: Check if we're on a commit we're interested in...
+    commit_id = comment_payload['commit_id']
+    if Commit.objects.filter(hash=commit_id).count() == 1:
+        commenter_new = False
+        try:
+            committer = Committer.objects.get(Q(username=comment_user))
+        except Committer.DoesNotExist:
+            committer = Committer(username = comment_user)
+            committer.save()
+            commenter_new = True
+
+        if re.search(r'@unlpalbotuseracct consent', comment_body, re.I):
+            committer.consent_timestamp = timezone.now()
+            if committer.opt_out and committer.opt_out < committer.consent_timestamp:
+                committer.opt_out = None
+            committer.save()
+            commenter_new = False
+
+        if re.search(r'@unlpalbotuseracct optout', comment_body, re.I):
+            committer.opt_out = timezone.now()
+            committer.save()
+            commenter_new = False
+
+        if commenter_new:
+            # TODO: Delay this
+            process_new_committer.delay(committer.pk, commit_id)
