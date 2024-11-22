@@ -10,7 +10,7 @@ from django.conf import settings
 from django.utils import timezone
 
 @app.task()
-def process_commit(commit):
+def process_commit(commit_pk):
     pass
 
 @app.task()
