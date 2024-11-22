@@ -39,20 +39,6 @@ def github_webhook(request):
     return HttpResponse()
 
 @atomic
-def process_push(payload):
-    repo = payload['repository']['name']
-    owner = payload['repository']['owner']['name']
-    project = Project.objects.get(Q(owner=owner) & Q(name=repo))
-
-    for commit_data in payload['commits']:
-        commit = Commit(project=project,
-                        hash=commit_data['id'],
-                        message=commit_data['message'],
-                        diff = '\n'.join(commit_data['modified']))
-        commit.save()
-        process_commit.delay(commit.pk)
-
-@atomic
 def process_installation(payload):
     # TODO
     if action == "added":
@@ -70,6 +56,3 @@ def process_installation(payload):
 
 def index(request):
     return HttpResponse("")
-
-def list_projects(request):
-    pass
