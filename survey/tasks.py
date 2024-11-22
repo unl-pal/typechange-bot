@@ -12,3 +12,7 @@ from django.utils import timezone
 @app.task()
 def process_commit(commit):
     pass
+
+@app.task()
+def process_new_committer(committer_pk):
+    pass
