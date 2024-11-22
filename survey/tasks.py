@@ -93,7 +93,7 @@ def process_comment(comment_user, comment_body, comment_payload):
                 committer.opt_out = None
             committer.save()
             commenter_new = False
-            if committer.initial_survey_response is not None:
+            if committer.initial_survey_response is None:
                 gh_commit = g.get_repo(f'{commit.project.owner}/{commit.project.name}') \
                     .get_commit(sha=commit_id)
                 template = loader.get_template('initial-survey.md')
