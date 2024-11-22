@@ -124,6 +124,10 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# GitHub Settings
+GITHUB_NAME = "@unlpalbotuseracct"
+GITHUB_AUTH = "Foo"
+
 # Celery Configuration
 CELERY_TIMEZONE = "America/Chicago"
 CELERY_TASK_TRACK_STARTED = True
