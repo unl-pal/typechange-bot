@@ -12,6 +12,15 @@ from .models import Committer, Commit, Project
 from django.conf import settings
 from django.utils import timezone
 
+from github import Github, Auth
+import re
+
+auth = Auth.Token(settings.GITHUB_AUTH)
+g = Github(auth=auth)
+
+consent_command = re.compile(f'{settings.GITHUB_NAME}\sconsent', re.IGNORECASE)
+optout_command = re.compile(f'{settings.GITHUB_NAME}\soptout', re.IGNORECASE)
+
 @app.task(ignore_result = True)
 def process_push_data(owner, repo, commits):
     project = Project.objects.get(Q(owner=owner) & Q(name=repo))
@@ -45,14 +54,14 @@ def process_comment(comment_user, comment_body, comment_payload):
             committer.save()
             commenter_new = True
 
-        if re.search(r'@unlpalbotuseracct consent', comment_body, re.I):
+        if consent_command.search(comment_body):
             committer.consent_timestamp = timezone.now()
             if committer.opt_out and committer.opt_out < committer.consent_timestamp:
                 committer.opt_out = None
             committer.save()
             commenter_new = False
 
-        if re.search(r'@unlpalbotuseracct optout', comment_body, re.I):
+        if optout_command.search(comment_body):
             committer.opt_out = timezone.now()
             committer.save()
             commenter_new = False
