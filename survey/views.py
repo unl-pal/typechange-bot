@@ -29,7 +29,6 @@ def github_webhook(request):
             process_installation(payload)
         case "push":
             process_push(payload)
-            pass
         case "commit_comment":
             pass
         case _:
