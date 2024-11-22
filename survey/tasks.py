@@ -56,6 +56,7 @@ def process_commit(commit_pk):
             committer = Committer(username=gh_commit.committer.login)
             committer.save()
             process_new_committer.delay(committer.pk, commit_pk)
+
     else:
         commit.is_relevant = False
         commit.save()
