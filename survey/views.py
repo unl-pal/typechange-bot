@@ -50,7 +50,7 @@ def process_push(payload):
                         message=commit_data['message'],
                         diff = '\n'.join(commit_data['modified']))
         commit.save()
-        process_commit.delay(commit)
+        process_commit.delay(commit.pk)
 
 @atomic
 def process_installation(payload):
