@@ -27,6 +27,8 @@ def github_webhook(request):
     match github_event:
         case "installation":
             process_installation(payload)
+        case "installation_repositories":
+            process_installation_repositories(payload)
         case "push":
             repo_owner = payload['repository']['owner']['name']
             repo_name = payload['repository']['name']
@@ -40,20 +42,42 @@ def github_webhook(request):
 
 @atomic
 def process_installation(payload):
+    repositories = payload['repositories']
+    match payload['action']:
+        case 'created':
+            installation_id = payload['installation']['id']
+            for repo in repositories:
+                owner, name = repo['full_name'].split('/')
+                if Project.objects.filter(owner=owner, name=name).count() == 0:
+                    project = Project(owner=owner, name=name, installation_id=installation_id)
+                    project.save()
+        case 'deleted':
+            for repo in repositories:
+                owner, name = repo['full_name'].split('/')
+                if Project.objects.filter(owner=owner, name=name).count() > 0:
+                    for project in Project.objects.filter(owner=owner, name=name):
+                        project.installation_id = None
+                        project.remove_date = timezone.now()
+                        project.save()
 
-    if payload['action'] == "created":
-        installation_id = payload['installation']['id']
-        for repo in payload['repositories']:
-            print(repo)
-            owner, name = repo['full_name'].split('/')
-            if Project.objects.filter(owner=owner, name=name).count() == 0:
-                project = Project(owner=owner, name=name, installation_id=installation_id)
-                project.save()
-    else:
-        for repo in payload['repositories_removed']:
-            # Find repository
-            # Mark removed
-            pass
+@atomic
+def process_installation_repositories(payload):
+    match payload['action']:
+        case 'added':
+            installation_id = payload['installation']['id']
+            for repo in payload['repositories_added']:
+                owner, name = repo['full_name'].split('/')
+                if Project.objects.filter(owner=owner, name=name).count() == 0:
+                    project = Project(owner=owner, name=name, installation_id=installation_id)
+                    project.save()
+        case 'removed':
+            for repo in payload['repositories_removed']:
+                owner, name = repo['full_name'].split('/')
+                if Project.objects.filter(owner=owner, name=name).count() > 0:
+                    for project in Project.objects.filter(owner=owner, name=name):
+                        project.installation_id = None
+                        project.remove_date = timezone.now()
+                        project.save()
 
 def index(request):
     return HttpResponse("")
