@@ -2,7 +2,7 @@ from django.shortcuts import render
 
 from django.db.models import Q
 from .models import Project, Commit, Response, Committer
-from .tasks import process_commit, process_new_committer
+from .tasks import process_push_data, process_new_committer
 
 import json
 
@@ -28,7 +28,9 @@ def github_webhook(request):
         case "installation_repositories":
             process_installation(payload)
         case "push":
-            process_push(payload)
+            repo_owner = payload['repository']['owner']['name']
+            repo_name = payload['repository']['name']
+            process_push_data(repo_owner, repo_name, payload['commits'])
         case "commit_comment":
             process_comment(payload)
         case _:
