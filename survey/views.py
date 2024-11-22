@@ -39,7 +39,6 @@ def github_webhook(request):
 
 @atomic
 def process_push(payload):
-    print(payload['repository'])
     repo = payload['repository']['name']
     owner = payload['repository']['owner']['name']
     project = Project.objects.get(Q(owner=owner) & Q(name=repo))
