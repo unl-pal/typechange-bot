@@ -6,6 +6,9 @@ from typechangesapp.celery import app
 from celery.utils.log import get_task_logger
 celery_logger = get_task_logger(__name__)
 
+from django.db.models import Q
+from .models import Committer, Commit, Project
+
 from django.conf import settings
 from django.utils import timezone
 
