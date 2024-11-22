@@ -32,6 +32,7 @@ class Commit(models.Model):
     hash = models.CharField(max_length=40, editable=False)
     message = models.TextField(blank=True, editable=False)
     diff = models.TextField(blank=True, editable=False)
+    is_relevant = models.BooleanField(default=True)
 
     def __str__(self):
         return f'{self.project}/commit/{self.hash}'
