@@ -24,7 +24,7 @@ def github_webhook(request):
 
     match github_event:
         case "installation_repositories":
-            pass
+            process_installation(payload)
         case "push":
             pass
         case "commit_comment":
