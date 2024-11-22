@@ -17,6 +17,7 @@ class Project(models.Model):
     owner = models.CharField('project owner', max_length=200)
     name = models.CharField('project name', max_length=200)
     add_date = models.DateTimeField('project add date', auto_now_add=True)
+    remove_date = models.DateTimeField('project_remove_date', blank=True, null=True)
 
     def __str__(self):
         return f'https://github.com/{self.owner}/{self.name}'
