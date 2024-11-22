@@ -16,11 +16,11 @@ from django.template import loader
 from github import Github, Auth
 import re
 
-auth = Auth.AppAuthToken(settings.GITHUB_AUTH)
+auth = Auth.AppAuth(settings.GITHUB_APP_ID, settings.GITHUB_APP_KEY)
 g = Github(auth=auth)
 
-consent_command = re.compile(f'{settings.GITHUB_NAME}\\sconsent', re.IGNORECASE)
-optout_command = re.compile(f'{settings.GITHUB_NAME}\\soptout', re.IGNORECASE)
+consent_command = re.compile(f'@{settings.GITHUB_APP_NAME}\\sconsent', re.IGNORECASE)
+optout_command = re.compile(f'@{settings.GITHUB_APP_NAME}\\soptout', re.IGNORECASE)
 
 @app.task(ignore_result = True)
 def process_push_data(owner, repo, commits):
