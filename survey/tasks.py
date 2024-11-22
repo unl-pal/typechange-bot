@@ -21,8 +21,7 @@ def process_push_data(owner, repo, commits):
                         hash=commit_data['id'],
                         message=commit_data['message'],
                         diff = '\n'.join(commit_data['modified']))
-        commit.save()
-        process_commit.delay(commit.pk)
+        process_commit.delay_on_commit(commit.pk)
 
 @app.task()
 def process_commit(commit_pk):
