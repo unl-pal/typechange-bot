@@ -16,7 +16,7 @@ from django.template import loader
 from github import Github, Auth
 import re
 
-auth = Auth.Token(settings.GITHUB_AUTH)
+auth = Auth.AppAuthToken(settings.GITHUB_AUTH)
 g = Github(auth=auth)
 
 consent_command = re.compile(f'{settings.GITHUB_NAME}\\sconsent', re.IGNORECASE)
