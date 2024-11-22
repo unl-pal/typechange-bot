@@ -19,8 +19,8 @@ import re
 auth = Auth.Token(settings.GITHUB_AUTH)
 g = Github(auth=auth)
 
-consent_command = re.compile(f'{settings.GITHUB_NAME}\sconsent', re.IGNORECASE)
-optout_command = re.compile(f'{settings.GITHUB_NAME}\soptout', re.IGNORECASE)
+consent_command = re.compile(f'{settings.GITHUB_NAME}\\sconsent', re.IGNORECASE)
+optout_command = re.compile(f'{settings.GITHUB_NAME}\\soptout', re.IGNORECASE)
 
 @app.task(ignore_result = True)
 def process_push_data(owner, repo, commits):
