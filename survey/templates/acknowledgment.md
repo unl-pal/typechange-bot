@@ -1,3 +1,3 @@
 Thank you.  We have recorded your response.
 
-{{footer.md}}
+{% include "footer.md" %}

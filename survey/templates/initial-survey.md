@@ -1,6 +1,6 @@
-{{USER}}, thank you for agreeing to participate in this study.  In addition to responding commit-specific questions, please respond to this question by copying the text at the bottom, below the horizontal line, into a reply.
+{{ USER }}, thank you for agreeing to participate in this study.  In addition to responding commit-specific questions, please respond to this question by copying the text at the bottom, below the horizontal line, into a reply.
 
-{{footer.md}}
+{% include "footer.md" %}
 
 -----
 
