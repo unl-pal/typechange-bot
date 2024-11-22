@@ -32,7 +32,7 @@ def process_push_data(owner, repo, commits):
                         message=commit_data['message'],
                         diff = '\n'.join(commit_data['modified']))
         commit.save()
-        process_commit.delay_on_commit(commit.pk)
+        process_commit.delay(commit.pk)
 
 @app.task()
 def process_commit(commit_pk):
@@ -47,14 +47,14 @@ def process_commit(commit_pk):
             author = Committer.objects.get(username=gh_commit.author.login)
         except Committer.DoesNotExist:
             author = Committer(username=gh_commit.author.login)
-            process_new_committer.delay_on_commit(author.pk, commit_pk)
             author.save()
+            process_new_committer.delay(author.pk, commit_pk)
 
         try:
             committer = Committer.objects.get(username=gh_commit.committer.login)
         except Committer.DoesNotExist:
             committer = Committer(username=gh_commit.committer.login)
-            process_new_committer.delay_on_commit(committer.pk, commit_pk)
+            process_new_committer.delay(committer.pk, commit_pk)
             committer.save()
 
     else:

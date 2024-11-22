@@ -126,7 +126,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # GitHub Settings
 GITHUB_NAME = "@unlpalbotuseracct"
-GITHUB_AUTH = "Foo"
+GITHUB_AUTH = "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"
 
 # Celery Configuration
 CELERY_TIMEZONE = "America/Chicago"
