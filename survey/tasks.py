@@ -80,6 +80,8 @@ def process_new_committer(committer_pk, commit_pk):
 
 @app.task()
 def process_comment(comment_user, comment_body, comment_payload):
+    if comment_user.lower() == f'{settings.GITHUB_APP_NAME}[bot]'.lower():
+        return
     # TODO: Check if we're on a commit we're interested in...
     commit_id = comment_payload['commit_id']
     if Commit.objects.filter(hash=commit_id).count() == 1:
