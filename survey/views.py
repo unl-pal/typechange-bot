@@ -46,7 +46,7 @@ def process_installation(payload):
         for repo in payload['repositories_added']:
             owner, repo = repo['full_name'].split('/')
             if not repo['private']:
-                if Project.objects.filter(owner=owner, repo=owner).count() == 0:
+                if Project.objects.filter(owner=owner, repo=repo).count() == 0:
                     project = Project(owner=owner, repo=repo)
                     project.save()
     else:
