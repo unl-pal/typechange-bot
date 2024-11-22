@@ -22,6 +22,11 @@ class Project(models.Model):
     def __str__(self):
         return f'https://github.com/{self.owner}/{self.name}'
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['owner', 'name'], name="unique_project_name")
+        ]
+
 class Commit(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     hash = models.CharField(max_length=40)
