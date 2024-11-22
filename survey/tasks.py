@@ -87,7 +87,3 @@ def process_comment(comment_user, comment_body, comment_payload):
             committer.opt_out = timezone.now()
             committer.save()
             commenter_new = False
-
-        if commenter_new:
-            # TODO: Delay this
-            process_new_committer.delay(committer.pk, commit_id)
