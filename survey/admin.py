@@ -1,8 +1,10 @@
 from django.contrib import admin
 
-from .models import Committer, Project, Commit, Response
+from .models import Committer, Project, Commit, Response, ProjectCommitter
 
 # Register your models here.
+
+admin.site.register(ProjectCommitter)
 
 @admin.register(Committer)
 class CommitterAdmin(admin.ModelAdmin):
