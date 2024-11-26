@@ -8,7 +8,7 @@ class Committer(models.Model):
     last_contact_date = models.DateTimeField("date of last contact", auto_now=True, editable=False)
     consent_timestamp = models.DateTimeField("date of consent", null=True, editable=False)
     opt_out = models.DateTimeField("date of opt-out", null=True, blank=True, editable=False)
-    initial_survey_response = models.TextField('response to initial survey', null=True, blank=True, editable=False)
+    projects = models.ManyToManyField('Project', through='ProjectCommitter')
 
     def __str__(self):
         return f'https://github.com/{self.username}'
@@ -19,6 +19,7 @@ class Project(models.Model):
     installation_id = models.IntegerField('installation ID', editable=False, null=True)
     add_date = models.DateTimeField('project add date', auto_now_add=True, editable=False)
     remove_date = models.DateTimeField('project remove date', blank=True, null=True, editable=False)
+    committers = models.ManyToManyField(Committer, through='ProjectCommitter')
 
     def __str__(self):
         return f'https://github.com/{self.owner}/{self.name}'
@@ -26,6 +27,16 @@ class Project(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['owner', 'name'], name="unique_project_name")
+        ]
+
+class ProjectCommitter(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, editable=False)
+    committer = models.ForeignKey(Committer, on_delete=models.CASCADE, editable=False)
+    initial_survey_response = models.TextField('response to initial survey', null=True, blank=True, editable=False)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['project', 'committer'], name='unique_project_committer')
         ]
 
 class Commit(models.Model):
@@ -40,7 +51,7 @@ class Commit(models.Model):
 
 class Response(models.Model):
     commit = models.ForeignKey(Commit, on_delete=models.CASCADE, editable=False)
-    committer = models.ForeignKey(Committer, on_delete=models.CASCADE, editable=False)
+    committer = models.ForeignKey(ProjectCommitter, on_delete=models.CASCADE, editable=False)
     survey_response = models.TextField(editable=False)
 
     def __str__(self):
