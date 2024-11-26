@@ -1,4 +1,8 @@
 from django.db import models
+from django.conf import settings
+from github import Github, Auth
+
+application_auth = Auth.AppAuth(settings.GITHUB_APP_ID, settings.GITHUB_APP_KEY)
 
 # Create your models here.
 
@@ -21,8 +25,18 @@ class Project(models.Model):
     remove_date = models.DateTimeField('project remove date', blank=True, null=True, editable=False)
     committers = models.ManyToManyField(Committer, through='ProjectCommitter')
 
+    _repo = None
+
     def __str__(self):
         return f'https://github.com/{self.owner}/{self.name}'
+
+    @property
+    def repo(self):
+        if self._repo is not None:
+            return self._repo
+        gh = Github(auth=Auth.AppInstallationAuth(application_auth, self.installation_id))
+        self._repo = gh.get_repo(f'{self.owner}/{self.name}')
+        return self._repo
 
     class Meta:
         constraints = [
@@ -47,8 +61,17 @@ class Commit(models.Model):
     diff = models.TextField(blank=True, editable=False)
     is_relevant = models.BooleanField(default=True)
 
+    _commit = None
+
     def __str__(self):
         return f'{self.project}/commit/{self.hash}'
+
+    @property
+    def commit(self):
+        if self._commit is not None:
+            return self._commit
+        self._commit = self.project.repo.get_commit(sha=self.hash)
+        return self._commit
 
 class Response(models.Model):
     commit = models.ForeignKey(Commit, on_delete=models.CASCADE, editable=False)
