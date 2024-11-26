@@ -32,6 +32,7 @@ class Project(models.Model):
 class ProjectCommitter(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, editable=False)
     committer = models.ForeignKey(Committer, on_delete=models.CASCADE, editable=False)
+    initial_commit = models.ForeignKey('Commit', on_delete=models.CASCADE, editable=False, null=True)
     initial_survey_response = models.TextField('response to initial survey', null=True, blank=True, editable=False)
 
     class Meta:
