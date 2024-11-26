@@ -33,22 +33,32 @@ def process_push_data(owner, repo, commits):
 @app.task()
 def process_commit(commit_pk):
     commit = Commit.objects.get(id=commit_pk)
+    project = commit.project
 
     commit_is_relevant = True     # TODO: Check if commit is relevant
     if commit_is_relevant:
-        try:
-            author = Committer.objects.get(username=commit.commit.author.login)
-        except Committer.DoesNotExist:
-            author = Committer(username=commit.commit.author.login)
-            author.save()
+
+        if project.committers.filter(username=commit.commit.author.login).count() == 0:
+            try:
+                author = Committer.objects.get(username=commit.commit.author.login)
+            except Committer.DoesNotExist:
+                author = Committer(username=commit.commit.author.login)
+                author.save()
+
+            project.committers.add(author, through_defaults={'initial_commit': commit})
+            project.save()
             process_new_committer.delay(author.pk, commit_pk)
 
-        try:
-            committer = Committer.objects.get(username=commit.commit.committer.login)
-        except Committer.DoesNotExist:
-            committer = Committer(username=commit.commit.committer.login)
-            process_new_committer.delay(committer.pk, commit_pk)
-            committer.save()
+        if project.committers.filter(username=commit.commit.committer.login).count() == 0:
+            try:
+                committer = Committer.objects.get(commit.commit.committer.login)
+            except Committer.DoesNotExist:
+                committer = Committer(username=commit.commit.committer.login)
+                committer.save()
+
+            projects.committers.add(author, through_defaults={'initial_commit': commit})
+            project.save()
+            process_new_committer.delay(author.pk, commit_pk)
 
     else:
         commit.is_relevant = False
