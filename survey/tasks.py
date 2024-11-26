@@ -13,10 +13,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.template import loader
 
-from github import Github, Auth
 import re
-
-app_auth = Auth.AppAuth(settings.GITHUB_APP_ID, settings.GITHUB_APP_KEY)
 
 consent_command = re.compile(f'@{settings.GITHUB_APP_NAME}\\sconsent', re.IGNORECASE)
 optout_command = re.compile(f'@{settings.GITHUB_APP_NAME}\\soptout', re.IGNORECASE)
@@ -36,26 +33,20 @@ def process_push_data(owner, repo, commits):
 @app.task()
 def process_commit(commit_pk):
     commit = Commit.objects.get(id=commit_pk)
-    hash = commit.hash
-    installation_id = commit.project.installation_id
-    authenticator = Auth.AppInstallationAuth(app_auth, installation_id)
-    github = Github(auth=authenticator)
-    gh_commit = github.get_repo(f'{commit.project.owner}/{commit.project.name}') \
-        .get_commit(sha=hash)
 
     commit_is_relevant = True     # TODO: Check if commit is relevant
     if commit_is_relevant:
         try:
-            author = Committer.objects.get(username=gh_commit.author.login)
+            author = Committer.objects.get(username=commit.commit.author.login)
         except Committer.DoesNotExist:
-            author = Committer(username=gh_commit.author.login)
+            author = Committer(username=commit.commit.author.login)
             author.save()
             process_new_committer.delay(author.pk, commit_pk)
 
         try:
-            committer = Committer.objects.get(username=gh_commit.committer.login)
+            committer = Committer.objects.get(username=commit.commit.committer.login)
         except Committer.DoesNotExist:
-            committer = Committer(username=gh_commit.committer.login)
+            committer = Committer(username=commit.commit.committer.login)
             process_new_committer.delay(committer.pk, commit_pk)
             committer.save()
 
@@ -67,15 +58,10 @@ def process_commit(commit_pk):
 def process_new_committer(committer_pk, commit_pk):
     committer = Committer.objects.get(id=committer_pk)
     commit = Commit.objects.get(id=commit_pk)
-    installation_id = commit.project.installation_id
-    authenticator = Auth.AppInstallationAuth(app_auth, installation_id)
-    github = Github(auth=authenticator)
-    gh_commit = github.get_repo(f'{commit.project.owner}/{commit.project.name}') \
-        .get_commit(sha=commit.hash)
 
     template = loader.get_template('informed-consent-message.md')
     message = template.render({'USER': f'@{committer.username}'})
-    gh_commit.create_comment(message)
+    commit.commit.create_comment(message)
 
 
 @app.task()
@@ -86,9 +72,6 @@ def process_comment(comment_user, comment_body, comment_payload):
     commit_id = comment_payload['commit_id']
     if Commit.objects.filter(hash=commit_id).count() == 1:
         commit = Commit.objects.get(hash=commit_id)
-        installation_id = commit.project.installation_id
-        authenticator = Auth.AppInstallationAuth(app_auth, installation_id)
-        github = Github(auth=authenticator)
         commenter_new = False
         try:
             committer = Committer.objects.get(Q(username=comment_user))
@@ -104,17 +87,13 @@ def process_comment(comment_user, comment_body, comment_payload):
             committer.save()
             commenter_new = False
             if committer.initial_survey_response is None:
-                gh_commit = github.get_repo(f'{commit.project.owner}/{commit.project.name}') \
-                    .get_commit(sha=commit_id)
                 template = loader.get_template('initial-survey.md')
-                gh_commit.create_comment(template.render({'USER': f'@{committer.username}'}))
+                commit.commit.create_comment(template.render({'USER': f'@{committer.username}'}))
 
         elif optout_command.search(comment_body):
             committer.opt_out = timezone.now()
             committer.save()
             commenter_new = False
-            gh_commit = github.get_repo(f'{commit.project.owner}/{commit.project.name}') \
-                         .get_commit(sha=commit_id)
             template = loader.get_template('acknowledgment-optout.md')
-            gh_commit.create_comment(template.render())
+            commit.create_comment(template.render())
 
