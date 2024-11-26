@@ -49,6 +49,9 @@ class ProjectCommitter(models.Model):
     initial_commit = models.ForeignKey('Commit', on_delete=models.CASCADE, editable=False, null=True)
     initial_survey_response = models.TextField('response to initial survey', null=True, blank=True, editable=False)
 
+    def __str__(self):
+        return f'{self.committer.username} contributes to {self.project.owner}/{self.project.name}'
+
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['project', 'committer'], name='unique_project_committer')
