@@ -66,6 +66,8 @@ class Commit(models.Model):
     message = models.TextField(blank=True, editable=False)
     diff = models.TextField(blank=True, editable=False)
     is_relevant = models.BooleanField(default=True)
+    author = models.ForeignKey(ProjectCommitter, on_delete=models.CASCADE, editable=False, null=True, related_name='author')
+    committer = models.ForeignKey(ProjectCommitter, on_delete=models.CASCADE, editable=False, null=True, related_name='pusher')
 
     _commit = None
 
