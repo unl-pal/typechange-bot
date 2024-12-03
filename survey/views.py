@@ -26,9 +26,9 @@ def github_webhook(request):
 
     match github_event:
         case "installation":
-            process_installation(payload)
+            process_installation.delay(payload)
         case "installation_repositories":
-            process_installation_repositories(payload)
+            process_installation_repositories.delay(payload)
         case "push":
             repo_owner = payload['repository']['owner']['name']
             repo_name = payload['repository']['name']
