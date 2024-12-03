@@ -8,7 +8,7 @@ celery_logger = get_task_logger(__name__)
 
 from django.db.models import Q
 from django.db.utils import IntegrityError
-from .models import Committer, Commit, Project, ProjectCommitter
+from .models import Committer, Commit, Project, ProjectCommitter, Response
 
 from django.conf import settings
 from django.utils import timezone
@@ -100,20 +100,29 @@ def process_comment(comment_user, comment_body, comment_payload):
             committer.save()
             commenter_new = True
 
-        if consent_command.search(comment_body):
-            committer.consent_timestamp = timezone.now()
-            if committer.opt_out and committer.opt_out < committer.consent_timestamp:
-                committer.opt_out = None
-            committer.save()
-            commenter_new = False
-            if committer.initial_survey_response is None:
-                template = loader.get_template('initial-survey.md')
-                commit.commit.create_comment(template.render({'USER': f'@{committer.username}'}))
+        if committer.consent_timestamp:
 
-        elif optout_command.search(comment_body):
-            committer.opt_out = timezone.now()
-            committer.save()
-            commenter_new = False
-            template = loader.get_template('acknowledgment-optout.md')
-            commit.create_comment(template.render())
+            if consent_command.search(comment_body):
+                committer.consent_timestamp = timezone.now()
+                if committer.opt_out and committer.opt_out < committer.consent_timestamp:
+                    committer.opt_out = None
+                    committer.save()
+                    commenter_new = False
 
+                if committer.initial_survey_response is None:
+                    template = loader.get_template('initial-survey.md')
+                    commit.commit.create_comment(template.render({'USER': f'@{committer.username}'}))
+
+            elif optout_command.search(comment_body):
+                committer.opt_out = timezone.now()
+                committer.save()
+                commenter_new = False
+                template = loader.get_template('acknowledgment-optout.md')
+                commit.create_comment(template.render())
+
+            elif commit.is_relevant:
+                celery_logger.info(f'Commit {commit.hash} is relevant...')
+                project_committer = ProjectCommitter.objects.get(Q(committer = committer) & Q(project = commit.project))
+                celery_logger.info(f'Project/Commiter Relationship = {project_committer}')
+                response = Response(commit=commit, committer=project_committer, survey_response=comment_body)
+                response.save()
