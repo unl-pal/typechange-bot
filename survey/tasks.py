@@ -23,8 +23,6 @@ optout_command = re.compile(f'@{settings.GITHUB_APP_NAME}\\soptout', re.IGNORECA
 def process_installation(payload):
     repositories = payload['repositories']
 
-    # TODO: Catch primary languages,
-    # TODO: Set tracking information
     # TODO: Check typechecker configuration
     match payload['action']:
         case 'created':
@@ -33,6 +31,9 @@ def process_installation(payload):
                 owner, name = repo['full_name'].split('/')
                 if Project.objects.filter(owner=owner, name=name).count() == 0:
                     project = Project(owner=owner, name=name, installation_id=installation_id)
+                    project.primary_language = project.repo.language
+                    if project.primary_language in ['TypeScript', 'Python']:
+                        project.track_changes = True
                     project.save()
         case 'deleted':
             for repo in repositories:
@@ -41,6 +42,7 @@ def process_installation(payload):
                     for project in Project.objects.filter(owner=owner, name=name):
                         project.installation_id = None
                         project.remove_date = timezone.now()
+                        project.track_changes = False
                         project.save()
 
 @app.task()
@@ -52,6 +54,9 @@ def process_installation_repositories(payload):
                 owner, name = repo['full_name'].split('/')
                 if Project.objects.filter(owner=owner, name=name).count() == 0:
                     project = Project(owner=owner, name=name, installation_id=installation_id)
+                    project.primary_language = project.repo.language
+                    if project.primary_language in ['TypeScript', 'Python']:
+                        project.track_changes = True
                     project.save()
         case 'removed':
             for repo in payload['repositories_removed']:
@@ -60,6 +65,7 @@ def process_installation_repositories(payload):
                     for project in Project.objects.filter(owner=owner, name=name):
                         project.installation_id = None
                         project.remove_date = timezone.now()
+                        project.track_changes = False
                         project.save()
 
 @app.task(ignore_result = True)
