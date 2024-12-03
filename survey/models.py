@@ -71,6 +71,11 @@ class Commit(models.Model):
 
     _commit = None
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['project', 'hash'], name='unique_commit_hash_in_project')
+        ]
+
     def __str__(self):
         return f'{self.project}/commit/{self.hash}'
 
