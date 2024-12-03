@@ -13,7 +13,7 @@ class CommitterAdmin(admin.ModelAdmin):
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
-    fields = ['add_date', 'remove_date', 'committers']
+    fields = ['add_date', 'remove_date', 'primary_language', 'track_changes', 'typechecker_files', 'committers']
     readonly_fields = fields
 
 @admin.register(Commit)
