@@ -1,10 +1,22 @@
 from django.db import models
 from django.conf import settings
 from github import Github, Auth
+from treebeard.ns_tree import NS_Node
 
 application_auth = Auth.AppAuth(settings.GITHUB_APP_ID, settings.GITHUB_APP_KEY)
 
 # Create your models here.
+
+class ChangeReason(NS_Node):
+    name = models.CharField(max_length=20, null=False, blank=False)
+    description = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        if self.get_parent() is None:
+            return self.name
+        return f"{self.get_parent()} → {self.name}"
+
+    pass
 
 class Committer(models.Model):
     username = models.CharField(max_length=200)
@@ -51,6 +63,7 @@ class ProjectCommitter(models.Model):
     committer = models.ForeignKey(Committer, on_delete=models.CASCADE, editable=False)
     initial_commit = models.ForeignKey('Commit', on_delete=models.CASCADE, editable=False, null=True)
     initial_survey_response = models.TextField('response to initial survey', null=True, blank=True, editable=False)
+    response_tags = models.ManyToManyField(ChangeReason)
 
     def __str__(self):
         return f'{self.committer.username} contributes to {self.project.owner}/{self.project.name}'
@@ -90,6 +103,7 @@ class Response(models.Model):
     commit = models.ForeignKey(Commit, on_delete=models.CASCADE, editable=False)
     committer = models.ForeignKey(ProjectCommitter, on_delete=models.CASCADE, editable=False)
     survey_response = models.TextField(editable=False)
+    tags = models.ManyToManyField(ChangeReason)
 
     def __str__(self):
         return f'Response of {self.committer} on {self.commit}'
