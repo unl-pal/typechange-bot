@@ -23,18 +23,12 @@ optout_command = re.compile(f'@{settings.GITHUB_APP_NAME}\\soptout', re.IGNORECA
 def process_installation(payload):
     repositories = payload['repositories']
 
-    # TODO: Check typechecker configuration
     match payload['action']:
         case 'created':
             installation_id = payload['installation']['id']
             for repo in repositories:
                 owner, name = repo['full_name'].split('/')
-                if Project.objects.filter(owner=owner, name=name).count() == 0:
-                    project = Project(owner=owner, name=name, installation_id=installation_id)
-                    project.primary_language = project.repo.language
-                    if project.primary_language in ['TypeScript', 'Python']:
-                        project.track_changes = True
-                    project.save()
+                install_repo.delay(owner, repo, installation_id)
         case 'deleted':
             for repo in repositories:
                 owner, name = repo['full_name'].split('/')
@@ -52,12 +46,7 @@ def process_installation_repositories(payload):
             installation_id = payload['installation']['id']
             for repo in payload['repositories_added']:
                 owner, name = repo['full_name'].split('/')
-                if Project.objects.filter(owner=owner, name=name).count() == 0:
-                    project = Project(owner=owner, name=name, installation_id=installation_id)
-                    project.primary_language = project.repo.language
-                    if project.primary_language in ['TypeScript', 'Python']:
-                        project.track_changes = True
-                    project.save()
+                install_repo.delay(owner, repo, installation_id)
         case 'removed':
             for repo in payload['repositories_removed']:
                 owner, name = repo['full_name'].split('/')
@@ -67,6 +56,24 @@ def process_installation_repositories(payload):
                         project.remove_date = timezone.now()
                         project.track_changes = False
                         project.save()
+
+@app.task()
+def install_repo(owner, repo, installation_id):
+    # TODO: Check typechecker configuration
+    try:
+        project = Project.objects.get(Q(owner=owner) & Q(name=repo))
+        project.installation_id = installation_id
+    except Project.DoesNotExist:
+        project = Project(owner=owner, name=name, installation_id=installation_id)
+
+    project.remove_date = None
+
+    project.primary_language = project.repo.language
+    if project.primary_language in ['TypeScript', 'Python']:
+        project.track_changes = True
+
+    project.save()
+
 
 @app.task(ignore_result = True)
 def process_push_data(owner, repo, commits):
