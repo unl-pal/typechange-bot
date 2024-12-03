@@ -170,8 +170,6 @@ def process_comment(comment_user, comment_body, comment_payload):
                 commit.create_comment(template.render())
 
             elif commit.is_relevant:
-                celery_logger.info(f'Commit {commit.hash} is relevant...')
                 project_committer = ProjectCommitter.objects.get(Q(committer = committer) & Q(project = commit.project))
-                celery_logger.info(f'Project/Commiter Relationship = {project_committer}')
                 response = Response(commit=commit, committer=project_committer, survey_response=comment_body)
                 response.save()
