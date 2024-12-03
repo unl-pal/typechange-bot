@@ -7,6 +7,7 @@ from celery.utils.log import get_task_logger
 celery_logger = get_task_logger(__name__)
 
 from django.db.models import Q
+from django.db.utils import IntegrityError
 from .models import Committer, Commit, Project, ProjectCommitter
 
 from django.conf import settings
@@ -24,11 +25,15 @@ def process_push_data(owner, repo, commits):
 
     if project.track_changes:
         for commit_data in commits:
-            commit = Commit(project=project,
-                            hash=commit_data['id'],
-                            message=commit_data['message'],
-                            diff = '\n'.join(commit_data['modified']))
-            commit.save()
+            try:
+                commit = Commit(project=project,
+                                hash=commit_data['id'],
+                                message=commit_data['message'],
+                                diff = '\n'.join(commit_data['modified']))
+                commit.save()
+            except IntegrityError:
+                commit = Commit.objects.get(Q(project=project) & Q(hash=commit_data['id']))
+                pass
             process_commit.delay(commit.pk)
 
 @app.task()
