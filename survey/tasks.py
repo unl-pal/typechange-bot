@@ -19,6 +19,49 @@ import re
 consent_command = re.compile(f'@{settings.GITHUB_APP_NAME}\\sconsent', re.IGNORECASE)
 optout_command = re.compile(f'@{settings.GITHUB_APP_NAME}\\soptout', re.IGNORECASE)
 
+@app.task()
+def process_installation(payload):
+    repositories = payload['repositories']
+
+    # TODO: Catch primary languages,
+    # TODO: Set tracking information
+    # TODO: Check typechecker configuration
+    match payload['action']:
+        case 'created':
+            installation_id = payload['installation']['id']
+            for repo in repositories:
+                owner, name = repo['full_name'].split('/')
+                if Project.objects.filter(owner=owner, name=name).count() == 0:
+                    project = Project(owner=owner, name=name, installation_id=installation_id)
+                    project.save()
+        case 'deleted':
+            for repo in repositories:
+                owner, name = repo['full_name'].split('/')
+                if Project.objects.filter(owner=owner, name=name).count() > 0:
+                    for project in Project.objects.filter(owner=owner, name=name):
+                        project.installation_id = None
+                        project.remove_date = timezone.now()
+                        project.save()
+
+@app.task()
+def process_installation_repositories(payload):
+    match payload['action']:
+        case 'added':
+            installation_id = payload['installation']['id']
+            for repo in payload['repositories_added']:
+                owner, name = repo['full_name'].split('/')
+                if Project.objects.filter(owner=owner, name=name).count() == 0:
+                    project = Project(owner=owner, name=name, installation_id=installation_id)
+                    project.save()
+        case 'removed':
+            for repo in payload['repositories_removed']:
+                owner, name = repo['full_name'].split('/')
+                if Project.objects.filter(owner=owner, name=name).count() > 0:
+                    for project in Project.objects.filter(owner=owner, name=name):
+                        project.installation_id = None
+                        project.remove_date = timezone.now()
+                        project.save()
+
 @app.task(ignore_result = True)
 def process_push_data(owner, repo, commits):
     project = Project.objects.get(Q(owner=owner) & Q(name=repo))
