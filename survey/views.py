@@ -32,7 +32,7 @@ def github_webhook(request):
         case "push":
             repo_owner = payload['repository']['owner']['name']
             repo_name = payload['repository']['name']
-            process_push_data(repo_owner, repo_name, payload['commits'])
+            process_push_data.delay(repo_owner, repo_name, payload['commits'])
         case "commit_comment":
             process_comment.delay(payload['comment']['user']['login'], payload['comment']['body'], payload['comment'])
         case _:
