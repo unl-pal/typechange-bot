@@ -12,7 +12,8 @@ dependencies = [
 "celery[redis]~=5.4",
 "django-celery-results~=2.5",
 "PyGithub~=2.4.0",
-"python-decouple==3.1"
+"python-decouple==3.1",
+"django-treebeard>=4.7.1"
 ]
 
 [project.optional-dependencies]
