@@ -7,7 +7,7 @@ from celery.utils.log import get_task_logger
 celery_logger = get_task_logger(__name__)
 
 from django.db.models import Q
-from .models import Committer, Commit, Project
+from .models import Committer, Commit, Project, ProjectCommitter
 
 from django.conf import settings
 from django.utils import timezone
@@ -60,6 +60,10 @@ def process_commit(commit_pk):
             projects.committers.add(author, through_defaults={'initial_commit': commit})
             project.save()
             process_new_committer.delay(author.pk, commit_pk)
+
+        commit.author = ProjectCommitter.objects.get(Q(project = commit.project) & Q(committer__username=commit.commit.author.login))
+        commit.committer = ProjectCommitter.objects.get(Q(project = commit.project) & Q(committer__username=commit.commit.committer.login))
+        commit.save()
 
     else:
         commit.is_relevant = False
