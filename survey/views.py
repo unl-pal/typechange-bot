@@ -41,6 +41,9 @@ def github_webhook(request):
     return HttpResponse()
 
 
+def projects_list(request):
+    return render(request, 'registered-projects.html', {'projects': Project.objects.all()})
+
 def consent_document(request):
     return render(request, 'consent.html', {})
 
