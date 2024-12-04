@@ -21,10 +21,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-jeu3hv0w+s8c3+t8p&d!98d*%%qz6h*!mks@zliy9@kg=lz=@4'
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-jeu3hv0w+s8c3+t8p&d!98d*%%qz6h*!mks@zliy9@kg=lz=@4')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
+MAINTENANCE_MODE = config('MAINTENANCE_MODE', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv(), default='localhost,127.0.0.1')
 
@@ -77,6 +78,7 @@ WSGI_APPLICATION = 'typechangesapp.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# TODO: Make configurable with dj_database_url
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
