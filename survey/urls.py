@@ -7,5 +7,6 @@ from . import views
 
 urlpatterns = [
     path("webhook", views.github_webhook, name="webhook"),
-    path("", views.index)
+    path("", views.index, name='home'),
+    path("informed-consent", views.consent_document)
 ]

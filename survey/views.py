@@ -41,6 +41,8 @@ def github_webhook(request):
     return HttpResponse()
 
 
+def consent_document(request):
+    return render(request, 'consent.html', {})
 
 def index(request):
-    return HttpResponse("")
+    return render(request, 'index.html', {})
