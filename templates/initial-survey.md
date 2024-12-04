@@ -4,11 +4,11 @@
 
 -----
 
-### When initially defining a variable, which of the following factors do you consider in deciding whether or not a type annotation should be included? (Select all that apply)
+### When initially defining a variable, which of the following factors do you consider in deciding whether or not a type annotation should be included? (Delete those which do not apply)
 
- - [ ] Code Location (Scope, etc.)
- - [ ] Complexity of the type annotation
- - [ ] Complexity of the initial value
- - [ ] Compliance with code style requirements
- - [ ] As an aid in documentation
- - [ ] Others, explain briefly below:
+ - Code Location (Scope, etc.)
+ - Complexity of the type annotation
+ - Complexity of the initial value
+ - Compliance with code style requirements
+ - As an aid in documentation
+ - Others, explain briefly below:
