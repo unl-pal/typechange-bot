@@ -9,12 +9,12 @@ from .models import Committer, Project, Commit, Response, ProjectCommitter, Chan
 
 @admin.register(ProjectCommitter)
 class ProjectCommitterAdmin(admin.ModelAdmin):
-    readonly_fields = ['project', 'committer', 'initial_commit', 'initial_survey_response']
+    readonly_fields = ['project', 'committer', 'initial_commit', 'maintainer_survey_response']
     fields = readonly_fields + ['response_tags']
 
 @admin.register(Committer)
 class CommitterAdmin(admin.ModelAdmin):
-    fields = ['username', 'initial_contact_date', 'last_contact_date', 'consent_timestamp', 'opt_out', 'projects']
+    fields = ['username', 'initial_contact_date', 'last_contact_date', 'consent_timestamp', 'opt_out', 'projects', 'initial_survey_response']
     readonly_fields = fields
 
 @admin.register(Project)
