@@ -110,6 +110,7 @@ def process_commit(commit_pk):
             project.committers.add(author, through_defaults={'initial_commit': commit})
             project.save()
             process_new_committer.delay(author.pk, commit_pk)
+            # TODO Process new project link...
 
         if project.committers.filter(username=commit.commit.committer.login).count() == 0:
             try:
@@ -121,6 +122,7 @@ def process_commit(commit_pk):
             projects.committers.add(author, through_defaults={'initial_commit': commit})
             project.save()
             process_new_committer.delay(author.pk, commit_pk)
+            # TODO Process new project link...
 
         commit.author = ProjectCommitter.objects.get(Q(project = commit.project) & Q(committer__username=commit.commit.author.login))
         commit.committer = ProjectCommitter.objects.get(Q(project = commit.project) & Q(committer__username=commit.commit.committer.login))
@@ -129,6 +131,10 @@ def process_commit(commit_pk):
     else:
         commit.is_relevant = False
         commit.save()
+
+@app.task()
+def process_new_link(committer_pk, project_pk):
+    pass
 
 @app.task()
 def process_new_committer(committer_pk, commit_pk):
