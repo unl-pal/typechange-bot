@@ -25,6 +25,7 @@ class Committer(models.Model):
     consent_timestamp = models.DateTimeField("date of consent", null=True, editable=False)
     opt_out = models.DateTimeField("date of opt-out", null=True, blank=True, editable=False)
     projects = models.ManyToManyField('Project', through='ProjectCommitter')
+    initial_survey_response = models.TextField('response to initial survey', null=True, blank=True, editable=False)
 
     def __str__(self):
         return f'https://github.com/{self.username}'
@@ -61,8 +62,9 @@ class Project(models.Model):
 class ProjectCommitter(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, editable=False)
     committer = models.ForeignKey(Committer, on_delete=models.CASCADE, editable=False)
+    is_maintainer = models.BooleanField(null=True)
+    maintainer_survey_response = models.TextField('response to maintainer survey', null=True, blank=True, editable=False)
     initial_commit = models.ForeignKey('Commit', on_delete=models.CASCADE, editable=False, null=True)
-    initial_survey_response = models.TextField('response to initial survey', null=True, blank=True, editable=False)
     response_tags = models.ManyToManyField(ChangeReason)
 
     def __str__(self):
