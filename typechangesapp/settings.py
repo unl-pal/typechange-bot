@@ -128,6 +128,9 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Data Directory
+DATA_DIR = config('DATA_DIR', default='./data/', cast=Path)
+
 # GitHub Settings
 GITHUB_APP_NAME = config('GITHUB_APP_NAME', default='TypeChangeBot')
 GITHUB_APP_KEY = config('GITHUB_APP_KEY', default='FOO')
