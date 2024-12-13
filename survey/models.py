@@ -40,6 +40,7 @@ class Project(models.Model):
     add_date = models.DateTimeField('project add date', auto_now_add=True, editable=False)
     remove_date = models.DateTimeField('project remove date', blank=True, null=True, editable=False)
     committers = models.ManyToManyField(Committer, through='ProjectCommitter')
+    repository_host = models.CharField('repository host', max_length=200, editable=False, null=True)
 
     _repo = None
 
@@ -104,6 +105,7 @@ class Commit(models.Model):
 class Response(models.Model):
     commit = models.ForeignKey(Commit, on_delete=models.CASCADE, editable=False)
     committer = models.ForeignKey(ProjectCommitter, on_delete=models.CASCADE, editable=False)
+    committer_commits_at_time = models.IntegerField(null=True, editable=False)
     survey_response = models.TextField(editable=False)
     tags = models.ManyToManyField(ChangeReason)
 
