@@ -14,10 +14,25 @@ from django.conf import settings
 from django.utils import timezone
 from django.template import loader
 
+from git import Repo
+from pathlib import Path
+
 import re
 
 consent_command = re.compile(f'@{settings.GITHUB_APP_NAME}\\sconsent', re.IGNORECASE)
 optout_command = re.compile(f'@{settings.GITHUB_APP_NAME}\\soptout', re.IGNORECASE)
+
+import socket
+current_host = socket.gethostname()
+
+@app.task()
+def clone_repo(project_id):
+    project = Project.objects.get(id=project_id)
+    local_path = settings.DATA_DIR / project.owner / project.name
+    local_path.parent.mkdir(exist_ok=True, parents=True)
+    repo = Repo.clone_from(str(project), local_path)
+    project.repository_host = current_host
+    project.save()
 
 @app.task()
 def process_installation(payload):
