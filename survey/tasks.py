@@ -76,7 +76,6 @@ def process_installation_repositories(payload):
 
 @app.task()
 def install_repo(owner, repo, installation_id):
-    # TODO: Check typechecker configuration
     try:
         project = Project.objects.get(Q(owner=owner) & Q(name=repo))
         project.installation_id = installation_id
