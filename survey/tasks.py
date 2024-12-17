@@ -103,8 +103,8 @@ def fetch_project(project_id):
 def process_push_data(owner, repo, commits):
     project = Project.objects.get(Q(owner=owner) & Q(name=repo))
 
-    fetch_project.apply_async([project.id], queue=project.repository_host)
     if project.track_changes:
+        fetch_project.apply_async([project.id], queue=project.repository_host)
         for commit_data in commits:
             try:
                 commit = Commit(project=project,
