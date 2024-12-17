@@ -45,7 +45,7 @@ def check_commit_is_relevant(repo, commit):
     language = commit.project.primary_language
     git_commit = repo.rev_parse(commit.hash)
     changes = git_commit.stats.files
-    for file, change_data in changes.iter():
+    for file, change_data in changes.items():
         if file_is_relevant(file, language): # Later, check if deletions is positive...
             # TODO: use GumTree to check if it really is relevant
             return True
