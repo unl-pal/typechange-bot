@@ -103,7 +103,7 @@ def fetch_project(project_id):
 def process_push_data(owner, repo, commits):
     project = Project.objects.get(Q(owner=owner) & Q(name=repo))
 
-    fetch_project.delay(project.id)
+    fetch_project.apply_async([project.id], queue=project.repository_host)
     if project.track_changes:
         for commit_data in commits:
             try:
@@ -115,7 +115,7 @@ def process_push_data(owner, repo, commits):
             except IntegrityError:
                 commit = Commit.objects.get(Q(project=project) & Q(hash=commit_data['id']))
                 pass
-            process_commit.delay(commit.pk)
+            process_commit.delay([commit.pk], queue=project.repository_host)
 
 @app.task()
 def process_commit(commit_pk):
