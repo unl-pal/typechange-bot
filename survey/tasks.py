@@ -89,6 +89,9 @@ def install_repo(owner, repo, installation_id):
 
     project.save()
 
+    if project.repository_host is None:
+        clone_repo.delay(project.id)
+
 
 @app.task(ignore_result = True)
 def process_push_data(owner, repo, commits):
