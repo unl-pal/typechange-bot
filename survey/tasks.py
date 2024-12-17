@@ -118,7 +118,7 @@ def process_push_data(owner, repo, commits):
             except IntegrityError:
                 commit = Commit.objects.get(Q(project=project) & Q(hash=commit_data['id']))
                 pass
-            process_commit.delay([commit.pk], queue=project.repository_host)
+            process_commit.apply_async([commit.pk], queue=project.repository_host)
 
 @app.task()
 def process_commit(commit_pk):
