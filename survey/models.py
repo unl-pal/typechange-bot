@@ -36,7 +36,7 @@ class Project(models.Model):
     installation_id = models.IntegerField('installation ID', editable=False, null=True)
     primary_language = models.CharField('primary programming language', max_length=30, editable=False, null=True)
     track_changes = models.BooleanField('are we tracking this project\'s changes?', null=False, editable=False, default=False)
-    typechecker_files = models.CharField('list of typechecker configuration files detected', max_length=300, null=True, editable=False)
+    typechecker_files = models.TextField('list of typechecker configuration files detected', null=True, editable=False)
     add_date = models.DateTimeField('project add date', auto_now_add=True, editable=False)
     remove_date = models.DateTimeField('project remove date', blank=True, null=True, editable=False)
     committers = models.ManyToManyField(Committer, through='ProjectCommitter')
