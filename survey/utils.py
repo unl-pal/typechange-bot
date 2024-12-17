@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-import tomllib
+import tomllib, json
 import re
 
 python_file_check = re.compile(r'\.pyi?$', re.IGNORECASE)
@@ -25,12 +25,37 @@ def get_typechecker_configuration(repo, language, commit_like='HEAD'):
                         for tool in ['mypy', 'pytype', 'pyright']:
                             if tool in data['tool'].keys():
                                 typecheckers.append(f'{object.path}[tool.{tool}]')
-
-        if len(typecheckers) > 0:
-            return '\n'.join(typecheckers)
     elif language == 'TypeScript':
-        pass
+        for object in repo.rev_parse(commit_like).tree.traverse():
+            if object.type == 'blob':
+                if re.search(r'[tj]sconfig.json$', object.name):
+                    data = json.loads(object.data_stream.read().decode)
+                    if 'compilerOptions' in data.keys():
+                        for typecheck_option in ["allowUnreachableCode",
+                                                 "allowUnusedLabels",
+                                                 "alwaysStrict",
+                                                 "exactOptionalPropertyTypes",
+                                                 "noFallthroughCasesInSwitch",
+                                                 "noImplicitAny",
+                                                 "noImplicitOverride",
+                                                 "noImplicitReturns",
+                                                 "noImplicitThis",
+                                                 "noPropertyAccessFromIndexSignature",
+                                                 "noUncheckedIndexedAccess",
+                                                 "noUnusedLocals",
+                                                 "noUnusedParameters",
+                                                 "strict",
+                                                 "strictBindCallApply",
+                                                 "strictBuiltinIteratorReturn",
+                                                 "strictFunctionTypes",
+                                                 "strictNullChecks",
+                                                 "strictPropertyInitialization",
+                                                 "useUnknownInCatchVariables"]:
+                            if typecheck_option in data['compilerOptions'].keys():
+                                typecheckers.append(f'{object.path}[compilerOptions][{typecheck_option}]')
 
+    if len(typecheckers) > 0:
+        return '\n'.join(typecheckers)
     return None
 
 def file_is_relevant(name, language):
