@@ -125,7 +125,7 @@ def process_commit(commit_pk):
     commit = Commit.objects.get(id=commit_pk)
     project = commit.project
 
-    commit_is_relevant = True     # TODO: Check if commit is relevant
+    commit_is_relevant = check_commit_is_relevant(Repo(project.path), commit)
     if commit_is_relevant:
 
         if project.committers.filter(username=commit.commit.author.login).count() == 0:

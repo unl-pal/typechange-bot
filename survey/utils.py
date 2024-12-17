@@ -2,6 +2,10 @@
 # coding: utf-8
 
 import tomllib
+import re
+
+python_file_check = re.compile(r'\.pyi?$', re.IGNORECASE)
+typescript_file_check = re.compile(r'\.ts$', re.IGNORECASE)
 
 def get_typechecker_configuration(repo, language, commit_like='HEAD'):
     typecheckers = []
@@ -28,3 +32,21 @@ def get_typechecker_configuration(repo, language, commit_like='HEAD'):
         pass
 
     return None
+
+def file_is_relevant(name, language):
+    if language == 'Python':
+        return python_file_check.search(name)
+    elif language == 'TypeScript':
+        return typescript_file_check.search(name)
+    return False
+
+
+def check_commit_is_relevant(repo, commit):
+    language = commit.project.primary_language
+    git_commit = repo.rev_parse(commit.hash)
+    changes = git_commit.stats.files
+    for file, change_data in changes.iter():
+        if file_is_relevant(file, language): # Later, check if deletions is positive...
+            # TODO: use GumTree to check if it really is relevant
+            return True
+    return False
