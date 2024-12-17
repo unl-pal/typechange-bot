@@ -5,6 +5,9 @@ from treebeard.ns_tree import NS_Node
 
 application_auth = Auth.AppAuth(settings.GITHUB_APP_ID, settings.GITHUB_APP_KEY)
 
+from socket import gethostname
+CURRENT_HOST = gethostname()
+
 # Create your models here.
 
 class ChangeReason(NS_Node):
@@ -58,6 +61,10 @@ class Project(models.Model):
     @property
     def path(self):
         return settings.DATA_DIR / self.owner / self.name
+
+    @property
+    def is_on_current_node(self):
+        return self.repository_host == CURRENT_HOST
 
     class Meta:
         constraints = [
