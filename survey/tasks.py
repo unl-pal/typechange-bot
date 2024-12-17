@@ -9,6 +9,7 @@ celery_logger = get_task_logger(__name__)
 from django.db.models import Q
 from django.db.utils import IntegrityError
 from .models import Committer, Commit, Project, ProjectCommitter, Response
+from .utils import *
 
 from django.conf import settings
 from django.utils import timezone
@@ -32,6 +33,7 @@ def clone_repo(project_id):
     local_path.parent.mkdir(exist_ok=True, parents=True)
     repo = Repo.clone_from(str(project), local_path)
     project.repository_host = current_host
+    project.typechecker_files = get_typechecker_config(repo, project.primary_language)
     project.save()
 
 @app.task()
