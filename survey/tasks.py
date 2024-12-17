@@ -120,8 +120,8 @@ def process_push_data(owner, repo, commits):
                 pass
             process_commit.apply_async([commit.pk], queue=project.repository_host)
 
-@app.task()
-def process_commit(commit_pk):
+@app.task(bind = True, autoretry_for=(ValueError,), retry_backoff=2, max_retries=5)
+def process_commit(self, commit_pk):
     commit = Commit.objects.get(id=commit_pk)
     project = commit.project
 
