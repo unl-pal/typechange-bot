@@ -89,8 +89,11 @@ def install_repo(owner, repo, installation_id):
 
     project.save()
 
-    if project.repository_host is None:
-        clone_repo.delay(project.id)
+    if project.track_changes:
+        if project.repository_host is None:
+            clone_repo.delay(project.id)
+        else:
+            fetch_project.apply_async([project.id], queue=project.repository_host)
 
 @app.task(ignore_result = True)
 def fetch_project(project_id):
