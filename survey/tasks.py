@@ -92,11 +92,18 @@ def install_repo(owner, repo, installation_id):
     if project.repository_host is None:
         clone_repo.delay(project.id)
 
+@app.task(ignore_result = True)
+def fetch_project(project_id):
+    project = Project.objects.get(id=project_id)
+    local_path = settings.DATA_DIR / project.owner / project.name
+    repo = Repo(local_path)
+    repo.remote().fetch()
 
 @app.task(ignore_result = True)
 def process_push_data(owner, repo, commits):
     project = Project.objects.get(Q(owner=owner) & Q(name=repo))
 
+    fetch_project.delay(project.id)
     if project.track_changes:
         for commit_data in commits:
             try:
