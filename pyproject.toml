@@ -19,7 +19,8 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-"django-extensions~=3.2"
+"django-extensions~=3.2",
+"mypy~=1.11.2"
 ]
 
 [tool.setuptools]
@@ -28,3 +29,8 @@ include-package-data = false
 [tool.setuptools.packages.find]
 include=["*"]
 exclude=["flow", "notes", "pages", "templates"]
+
+[tool.mypy]
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
