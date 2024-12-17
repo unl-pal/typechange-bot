@@ -29,7 +29,7 @@ current_host = socket.gethostname()
 @app.task()
 def clone_repo(project_id):
     project = Project.objects.get(id=project_id)
-    local_path = settings.DATA_DIR / project.owner / project.name
+    local_path = project.path
     local_path.parent.mkdir(exist_ok=True, parents=True)
     repo = Repo.clone_from(str(project), local_path)
     project.repository_host = current_host
@@ -99,8 +99,7 @@ def install_repo(owner, repo, installation_id):
 @app.task(ignore_result = True)
 def fetch_project(project_id):
     project = Project.objects.get(id=project_id)
-    local_path = settings.DATA_DIR / project.owner / project.name
-    repo = Repo(local_path)
+    repo = Repo(project.path)
     repo.remote().fetch()
 
 @app.task(ignore_result = True)

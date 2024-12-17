@@ -55,6 +55,10 @@ class Project(models.Model):
         self._repo = gh.get_repo(f'{self.owner}/{self.name}')
         return self._repo
 
+    @property
+    def path(self):
+        return settings.DATA_DIR / self.owner / self.name
+
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['owner', 'name'], name="unique_project_name")
