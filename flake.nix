@@ -26,7 +26,7 @@
       # Create a development shell containing dependencies from `pyproject.toml`
       devShells.default =
         let
-          arg = project.renderers.withPackages { inherit python; };
+          arg = project.renderers.withPackages { inherit python; extras = [ "dev" ]; };
           pythonEnv = python.withPackages arg;
 
         in

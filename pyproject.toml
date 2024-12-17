@@ -19,7 +19,6 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-"django-werkzeug==1.0.0",
 "django-extensions~=3.2"
 ]
 
