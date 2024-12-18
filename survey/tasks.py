@@ -84,7 +84,7 @@ def install_repo(owner, repo, installation_id):
 
     project.remove_date = None
 
-    project.primary_language = project.repo.language
+    project.primary_language = project.gh.language
     if project.primary_language in ['TypeScript', 'Python']:
         project.track_changes = True
 
@@ -128,11 +128,11 @@ def process_commit(self, commit_pk):
     commit_is_relevant = check_commit_is_relevant(Repo(project.path), commit)
     if commit_is_relevant:
 
-        if project.committers.filter(username=commit.commit.author.login).count() == 0:
+        if project.committers.filter(username=commit.gh.author.login).count() == 0:
             try:
-                author = Committer.objects.get(username=commit.commit.author.login)
+                author = Committer.objects.get(username=commit.gh.author.login)
             except Committer.DoesNotExist:
-                author = Committer(username=commit.commit.author.login)
+                author = Committer(username=commit.gh.author.login)
                 author.save()
 
             project.committers.add(author, through_defaults={'initial_commit': commit})
@@ -140,11 +140,11 @@ def process_commit(self, commit_pk):
             process_new_committer.delay(author.pk, commit_pk)
             # TODO Process new project link...
 
-        if project.committers.filter(username=commit.commit.committer.login).count() == 0:
+        if project.committers.filter(username=commit.gh.committer.login).count() == 0:
             try:
-                committer = Committer.objects.get(commit.commit.committer.login)
+                committer = Committer.objects.get(commit.gh.committer.login)
             except Committer.DoesNotExist:
-                committer = Committer(username=commit.commit.committer.login)
+                committer = Committer(username=commit.gh.committer.login)
                 committer.save()
 
             projects.committers.add(author, through_defaults={'initial_commit': commit})
@@ -152,8 +152,8 @@ def process_commit(self, commit_pk):
             process_new_committer.delay(author.pk, commit_pk)
             # TODO Process new project link...
 
-        commit.author = ProjectCommitter.objects.get(Q(project = commit.project) & Q(committer__username=commit.commit.author.login))
-        commit.committer = ProjectCommitter.objects.get(Q(project = commit.project) & Q(committer__username=commit.commit.committer.login))
+        commit.author = ProjectCommitter.objects.get(Q(project = commit.project) & Q(committer__username=commit.gh.author.login))
+        commit.committer = ProjectCommitter.objects.get(Q(project = commit.project) & Q(committer__username=commit.gh.committer.login))
         commit.save()
 
     else:
@@ -171,7 +171,7 @@ def process_new_committer(committer_pk, commit_pk):
 
     template = loader.get_template('informed-consent-message.md')
     message = template.render({'USER': f'@{committer.username}'})
-    commit.commit.create_comment(message)
+    commit.gh.create_comment(message)
 
 
 @app.task()
@@ -201,7 +201,7 @@ def process_comment(comment_user, comment_body, comment_payload):
 
                 if committer.initial_survey_response is None:
                     template = loader.get_template('initial-survey.md')
-                    commit.commit.create_comment(template.render({'USER': f'@{committer.username}'}))
+                    commit.gh.create_comment(template.render({'USER': f'@{committer.username}'}))
 
             elif optout_command.search(comment_body):
                 committer.opt_out = timezone.now()

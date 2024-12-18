@@ -51,11 +51,11 @@ class Project(models.Model):
         return f'https://github.com/{self.owner}/{self.name}'
 
     @property
-    def repo(self):
+    def gh(self):
         if self._repo is not None:
             return self._repo
-        gh = Github(auth=Auth.AppInstallationAuth(application_auth, self.installation_id))
-        self._repo = gh.get_repo(f'{self.owner}/{self.name}')
+        gh_ = Github(auth=Auth.AppInstallationAuth(application_auth, self.installation_id))
+        self._repo = gh_.get_repo(f'{self.owner}/{self.name}')
         return self._repo
 
     @property
@@ -107,10 +107,10 @@ class Commit(models.Model):
         return f'{self.project}/commit/{self.hash}'
 
     @property
-    def commit(self):
+    def gh(self):
         if self._commit is not None:
             return self._commit
-        self._commit = self.project.repo.get_commit(sha=self.hash)
+        self._commit = self.project.gh.get_commit(sha=self.hash)
         return self._commit
 
 class Response(models.Model):
