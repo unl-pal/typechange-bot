@@ -20,7 +20,8 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
 "django-extensions~=3.2",
-"mypy~=1.11.2"
+"mypy~=1.11.2",
+"parso~=0.8.4"
 ]
 
 [tool.setuptools]
