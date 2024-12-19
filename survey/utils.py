@@ -7,6 +7,7 @@ from typing import List, Optional, Tuple
 import git
 from git import Repo
 from .models import Commit
+from .ast_diff import AstDiff
 
 
 python_file_check = re.compile(r'\.pyi?$', re.IGNORECASE)
@@ -87,8 +88,16 @@ def check_commit_is_relevant(repo: Repo, commit: Commit) -> Optional[List[Tuple[
             possibly_relevant_files.append(file)
 
     if len(possibly_relevant_files) > 0:
-        # TODO: Later, check if the treediff is correct
+        changes = [('', 1, True)]
         diffs = git_commit.diff(git_commit.parents[0], paths=possibly_relevant_files)
-        return [('', 1, True)]
+        for diff in diffs:
+            try:
+                astdiff = AstDiff.from_diff(diffs, suffix = {'Python': '.py', 'TypeScript': '.ts'}[language])
+            except:
+                continue
+            # TODO Process tree diff for addition/removal of annotations
+        if len(changes) == 0:
+            return None
+        return changes
 
     return None
