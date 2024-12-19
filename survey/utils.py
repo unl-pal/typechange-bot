@@ -3,6 +3,11 @@
 
 import tomllib, json
 import re
+from typing import List, Optional, Tuple
+import git
+from git import Repo
+from .models import Commit
+
 
 python_file_check = re.compile(r'\.pyi?$', re.IGNORECASE)
 typescript_file_check = re.compile(r'\.ts$', re.IGNORECASE)
@@ -66,12 +71,24 @@ def file_is_relevant(name, language):
     return False
 
 
-def check_commit_is_relevant(repo, commit):
+def check_commit_is_relevant(repo: Repo, commit: Commit) -> Optional[List[Tuple[str, int, bool]]]:
     language = commit.project.primary_language
     git_commit = repo.rev_parse(commit.hash)
+
+    # Check if it's a merge: merges aren't interesting, but their children may already have been...
+    if len(git_commit.parents) > 1:
+        return None
+
+    # List of changed files is in the stats field of a commit
     changes = git_commit.stats.files
+    possibly_relevant_files = []
     for file, change_data in changes.items():
-        if file_is_relevant(file, language): # Later, check if deletions is positive...
-            # TODO: use GumTree to check if it really is relevant
-            return True
-    return False
+        if file_is_relevant(file, language):
+            possibly_relevant_files.append(file)
+
+    if len(possibly_relevant_files) > 0:
+        # TODO: Later, check if the treediff is correct
+        diffs = git_commit.diff(git_commit.parents[0], paths=possibly_relevant_files)
+        return [('', 1, True)]
+
+    return None
