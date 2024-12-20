@@ -12,6 +12,7 @@ from .ast_diff import AstDiff
 
 python_file_check = re.compile(r'\.pyi?$', re.IGNORECASE)
 typescript_file_check = re.compile(r'\.ts$', re.IGNORECASE)
+tree_re = re.compile(r'^(annassign|tfpdef|operator: ->)', re.IGNORECASE)
 
 def get_typechecker_configuration(repo, language: str, commit_like: str='HEAD'):
     typecheckers = []
@@ -88,11 +89,15 @@ def check_commit_is_relevant(repo: Repo, commit: Commit) -> Optional[List[Tuple[
             possibly_relevant_files.append(file)
 
     if len(possibly_relevant_files) > 0:
-        changes = [('', 1, True)]
+        changes = []
         diffs = git_commit.diff(git_commit.parents[0], paths=possibly_relevant_files)
         for diff in diffs:
             try:
                 astdiff = AstDiff.from_diff(git_commit, diff, suffix = {'Python': '.py', 'TypeScript': '.ts'}[language])
+                for action in astdiff.actions:
+                    added = action['action'] == 'insert-node'
+                    if tree_re.match(action['tree']):
+                        changes.append((diff.b_path, -1, added))
             except:
                 continue
             # TODO Process tree diff for addition/removal of annotations
