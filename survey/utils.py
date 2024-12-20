@@ -65,7 +65,7 @@ def get_typechecker_configuration(repo, language: str, commit_like: str='HEAD'):
         return '\n'.join(typecheckers)
     return None
 
-def file_is_relevant(name, language):
+def file_is_relevant(name: str, language: str):
     if language == 'Python':
         return python_file_check.search(name)
     elif language == 'TypeScript':
