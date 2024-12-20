@@ -25,6 +25,9 @@ class AstDiff:
         self._diff_data_json = diff_proc.stdout.decode()
         self._diff_json = json.loads(self._diff_data_json)
 
+    def __str__(self):
+        return f'AstDiff(\'{self.a_name}\', \'{self.b_name}\')'
+
     @property
     def actions(self):
         if 'actions' in  self._diff_json.keys():
