@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-from git import Diff
+from git import Diff, Commit
 from tempfile import NamedTemporaryFile
 from pathlib import Path
 from typing import Union, Optional
@@ -34,7 +34,7 @@ class AstDiff:
             return self._diff_json['actions']
 
     @classmethod
-    def from_diff(cls, diff: Diff, suffix: Optional[str] = None):
+    def from_diff(cls, commit: Commit, diff: Diff, suffix: Optional[str] = None):
         with NamedTemporaryFile(suffix=suffix) as pre_diff, \
              NamedTemporaryFile(suffix=suffix) as post_diff:
             pre_diff.write(diff.a_blob.data_stream.read())
@@ -42,4 +42,6 @@ class AstDiff:
             post_diff.write(diff.b_blob.data_stream.read())
             post_diff.flush()
             obj = cls(pre_diff.name, post_diff.name)
+            obj.a_name = f'{diff.a_path}[{commit.parents[0].hexsha[0:6]}]'
+            obj.b_name = f'{diff.b_path}[{commit.hexsha[0:6]}]'
         return obj
