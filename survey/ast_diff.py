@@ -13,8 +13,10 @@ GUMTREE_PATH = 'gumtree'
 
 class AstDiff:
 
-    def __init__(self, pre_diff_version: Union[str, Path], post_diff_version: Union[str, Path]):
-        diff_proc = subprocess.run([GUMTREE_PATH, 'textdiff', '-f', 'json', str(pre_diff_version), str(post_diff_version)],
+    def __init__(self, a_file: Union[str, Path], b_file: Union[str, Path]):
+        self.a_name = str(a_file)
+        self.b_name = str(b_file)
+        diff_proc = subprocess.run([GUMTREE_PATH, 'textdiff', '-f', 'json', self.a_name, self.b_name],
                                    capture_output=True,
                                    check=True)
         if len(diff_proc.stdout.decode()) == 0:
