@@ -13,7 +13,7 @@ from .ast_diff import AstDiff
 python_file_check = re.compile(r'\.pyi?$', re.IGNORECASE)
 typescript_file_check = re.compile(r'\.ts$', re.IGNORECASE)
 
-def get_typechecker_configuration(repo, language, commit_like='HEAD'):
+def get_typechecker_configuration(repo, language: str, commit_like: str='HEAD'):
     typecheckers = []
     if language == 'Python':
         for object in repo.rev_parse(commit_like).tree.traverse():
