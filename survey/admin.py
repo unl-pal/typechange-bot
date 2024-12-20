@@ -24,7 +24,7 @@ class ProjectAdmin(admin.ModelAdmin):
 
 @admin.register(Commit)
 class CommitAdmin(admin.ModelAdmin):
-    fields = ['project', 'hash', 'message', 'diff']
+    fields = ['project', 'hash', 'message', 'diff', 'is_relevant']
     readonly_fields = fields
 
 @admin.register(Response)
