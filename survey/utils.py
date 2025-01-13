@@ -72,7 +72,7 @@ def file_is_relevant(name: str, language: str) -> bool:
         return typescript_file_check.search(name) is not None
     return False
 
-def foo(a):
+def foo(a: str):
     return a
 
 def check_commit_is_relevant(repo: Repo, commit: Commit) -> Optional[List[Tuple[str, int, bool]]]:
