@@ -152,6 +152,7 @@ def process_commit(self, commit_pk):
             process_new_committer.delay(author.pk, commit_pk)
             # TODO Process new project link...
 
+        commit.is_relevant = True
         commit.author = ProjectCommitter.objects.get(Q(project = commit.project) & Q(committer__username=commit.gh.author.login))
         commit.committer = ProjectCommitter.objects.get(Q(project = commit.project) & Q(committer__username=commit.gh.committer.login))
         commit.save()
