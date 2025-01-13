@@ -9,15 +9,42 @@ import subprocess
 from subprocess import CalledProcessError
 import json
 
-GUMTREE_PATH = 'gumtree'
+import os
+
+GUMTREE_DIR = os.environ.get('GUMTREE_DIR', '')
+GUMTREE_TREE_SITTER_DIR = os.environ.get('GUMTREE_TREE_SITTER_DIR', '')
+
+ENVIRONMENT_FOR_GUMTREE = {
+    'PATH': os.environ.get('PATH', '')
+}
+if GUMTREE_DIR != '':
+    ENVIRONMENT_FOR_GUMTREE['PATH'] = GUMTREE_DIR + ':' + ENVIRONMENT_FOR_GUMTREE['PATH']
+
+if GUMTREE_TREE_SITTER_DIR != '':
+    ENVIRONMENT_FOR_GUMTREE['PATH'] = GUMTREE_TREE_SITTER_DIR + ':' + ENVIRONMENT_FOR_GUMTREE['PATH']
+
+LANGUAGE_BACKENDS = {
+    'python': 'python-treesitter-ng',
+    'ts': 'ts-treesitter-ng',
+}
+
+LANGUAGE_SUFFIXES = {
+    'python': '.py',
+    'typescript': '.ts'
+}
 
 class AstDiff:
 
-    def __init__(self, a_file: Union[str, Path], b_file: Union[str, Path]):
+    def __init__(self, a_file: Union[str, Path], b_file: Union[str, Path], language: str):
         self.a_name = str(a_file)
         self.b_name = str(b_file)
-        diff_proc = subprocess.run([GUMTREE_PATH, 'textdiff', '-f', 'json', self.a_name, self.b_name],
+
+        diff_proc = subprocess.run(['gumtree', 'textdiff',
+                                    '-f', 'json',
+                                    '-g', LANGUAGE_BACKENDS[language],
+                                    self.a_name, self.b_name],
                                    capture_output=True,
+                                   env=ENVIRONMENT_FOR_GUMTREE,
                                    check=True)
         if len(diff_proc.stdout.decode()) == 0:
             raise ValueError("AST Diff Generation Failed, no output.",
@@ -34,14 +61,16 @@ class AstDiff:
             return self._diff_json['actions']
 
     @classmethod
-    def from_diff(cls, commit: Commit, diff: Diff, suffix: Optional[str] = None):
+    def from_diff(cls, commit: Commit, diff: Diff, language: str, suffix: Optional[str] = None):
+        if suffix is None:
+            suffix = LANGUAGE_SUFFIXES[language]
         with NamedTemporaryFile(suffix=suffix) as pre_diff, \
              NamedTemporaryFile(suffix=suffix) as post_diff:
-            pre_diff.write(diff.a_blob.data_stream.read())
+            pre_diff.write(diff.b_blob.data_stream.read())
             pre_diff.flush()
-            post_diff.write(diff.b_blob.data_stream.read())
+            post_diff.write(diff.a_blob.data_stream.read())
             post_diff.flush()
-            obj = cls(pre_diff.name, post_diff.name)
+            obj = cls(pre_diff.name, post_diff.name, language)
             obj.a_name = f'{diff.a_path}[{commit.parents[0].hexsha[0:6]}]'
             obj.b_name = f'{diff.b_path}[{commit.hexsha[0:6]}]'
         return obj

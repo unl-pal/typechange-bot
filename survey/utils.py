@@ -93,7 +93,7 @@ def check_commit_is_relevant(repo: Repo, commit: Commit) -> Optional[List[Tuple[
         diffs = git_commit.diff(git_commit.parents[0], paths=possibly_relevant_files)
         for diff in diffs:
             try:
-                astdiff = AstDiff.from_diff(git_commit, diff, suffix = {'Python': '.py', 'TypeScript': '.ts'}[language])
+                astdiff = AstDiff.from_diff(git_commit, diff, language.downcase())
                 for action in astdiff.actions:
                     added = action['action'] == 'insert-node'
                     if tree_re.match(action['tree']):
