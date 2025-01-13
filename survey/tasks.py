@@ -126,7 +126,7 @@ def process_commit(self, commit_pk):
     project = commit.project
 
     commit_is_relevant = check_commit_is_relevant(Repo(project.path), commit)
-    if commit_is_relevant:
+    if commit_is_relevant is not None:
 
         if project.committers.filter(username=commit.gh.author.login).count() == 0:
             try:
