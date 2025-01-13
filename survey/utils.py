@@ -12,7 +12,7 @@ from .ast_diff import AstDiff
 
 python_file_check = re.compile(r'\.pyi?$', re.IGNORECASE)
 typescript_file_check = re.compile(r'\.ts$', re.IGNORECASE)
-tree_re = re.compile(r'^(annassign|tfpdef|operator: ->)', re.IGNORECASE)
+tree_re = re.compile(r'^(typed_parameter|type)', re.IGNORECASE)
 
 def get_typechecker_configuration(repo, language: str, commit_like: str='HEAD'):
     typecheckers = []
