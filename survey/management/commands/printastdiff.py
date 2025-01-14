@@ -4,6 +4,8 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 
+import json
+
 from typing import Optional, Tuple, List
 
 from survey.ast_diff import AstDiff
@@ -72,12 +74,14 @@ class Command(BaseCommand):
 
             print(f"## Removing Annotation at location:")
             diff_remove = AstDiff(with_annot, without_annot, lang)
-            for action in diff_remove.actions:
-                print(' -', action)
+            print('```json')
+            print(json.dumps(diff_remove.actions, indent=4))
+            print('```')
             print()
 
             print(f"## Adding Annotation at location:")
             diff_add = AstDiff(without_annot, with_annot, lang)
-            for action in diff_add.actions:
-                print(' -', action)
+            print('```json')
+            print(json.dumps(diff_add.actions, indent=4))
+            print('```')
             print()
