@@ -26,11 +26,17 @@ if GUMTREE_TREE_SITTER_DIR != '':
 LANGUAGE_BACKENDS = {
     'python': 'python-treesitter-ng',
     'ts': 'ts-treesitter-ng',
+    'r': 'r-treesitter-ng',
+    'ruby': 'ruby-treesitter-ng',
+    'php': 'php-treesitter-ng'
 }
 
 LANGUAGE_SUFFIXES = {
     'python': '.py',
-    'typescript': '.ts'
+    'typescript': '.ts',
+    'r': '.R',
+    'ruby': '.rb',
+    'php': '.php'
 }
 
 class AstDiff:
