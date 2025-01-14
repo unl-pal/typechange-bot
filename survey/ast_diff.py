@@ -24,17 +24,23 @@ if GUMTREE_TREE_SITTER_DIR != '':
     ENVIRONMENT_FOR_GUMTREE['PATH'] = GUMTREE_TREE_SITTER_DIR + ':' + ENVIRONMENT_FOR_GUMTREE['PATH']
 
 LANGUAGE_BACKENDS = {
+    'py': 'python-treesitter-ng',
     'python': 'python-treesitter-ng',
     'ts': 'ts-treesitter-ng',
+    'typescript': 'ts-treesitter-ng',
     'r': 'r-treesitter-ng',
+    'rb': 'ruby-treesitter-ng',
     'ruby': 'ruby-treesitter-ng',
     'php': 'php-treesitter-ng'
 }
 
 LANGUAGE_SUFFIXES = {
+    'py': '.py',
     'python': '.py',
+    'ts': '.ts',
     'typescript': '.ts',
     'r': '.R',
+    'rb': '.rb',
     'ruby': '.rb',
     'php': '.php'
 }
