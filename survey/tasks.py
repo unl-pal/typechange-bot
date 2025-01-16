@@ -179,7 +179,7 @@ def process_commit(self, commit_pk: int):
         commit.save()
 
 @app.task()
-def process_new_link(committer_pk: int, project_pk: int):
+def process_new_link(committer_pk, project_pk):
     pass
 
 @app.task()
