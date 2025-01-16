@@ -97,7 +97,7 @@ def install_repo(owner: str, repo: str, installation_id: str):
             fetch_project.apply_async([project.id], queue=project.repository_host)
 
 @app.task(ignore_result = True)
-def fetch_project(project_id):
+def fetch_project(project_id: int):
     project = Project.objects.get(id=project_id)
     repo = Repo(project.path)
     repo.remote().fetch()
