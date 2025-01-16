@@ -88,7 +88,7 @@ def check_commit_is_relevant(repo: Repo, commit: Commit) -> Optional[List[Tuple[
     changes = git_commit.stats.files
     possibly_relevant_files = []
     for file, change_data in changes.items():
-        if file_is_relevant(file, language):
+        if file_is_relevant(str(file), language):
             possibly_relevant_files.append(file)
 
     if len(possibly_relevant_files) > 0:
