@@ -121,9 +121,11 @@ def process_push_data(owner, repo, commits):
             process_commit.apply_async([commit.pk], queue=project.repository_host)
 
 @app.task(bind = True, autoretry_for=(ValueError,), retry_backoff=2, max_retries=5)
-def process_commit(self, commit_pk):
+def process_commit(self, commit_pk: int):
     commit = Commit.objects.get(id=commit_pk)
     project = commit.project
+
+    # TODO: Handle 24 hour thing
 
     commit_is_relevant = check_commit_is_relevant(Repo(project.path), commit)
     if commit_is_relevant is not None:
