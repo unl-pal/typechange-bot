@@ -51,6 +51,12 @@ class AstDiff:
         self.a_name = str(a_file)
         self.b_name = str(b_file)
 
+        with open(self.a_name, 'r') as fh:
+            self.a_data = fh.read()
+
+        with open(self.b_name, 'r') as fh:
+            self.b_data = fh.read()
+
         diff_proc = subprocess.run(['gumtree', 'textdiff',
                                     '-f', 'json',
                                     '-g', LANGUAGE_BACKENDS[language],
