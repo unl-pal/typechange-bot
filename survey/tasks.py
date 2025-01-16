@@ -21,7 +21,7 @@ from pathlib import Path
 import re
 
 consent_command: re.Pattern = re.compile(f'@{settings.GITHUB_APP_NAME}\\sconsent', re.IGNORECASE)
-optout_command: re.Pattern = re.compile(f'@{settings.GITHUB_APP_NAME}\\soptout', re.IGNORECASE)
+optout_command = re.compile(f'@{settings.GITHUB_APP_NAME}\\soptout', re.IGNORECASE)
 
 import socket
 current_host = socket.gethostname()
