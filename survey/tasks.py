@@ -128,6 +128,9 @@ def process_commit(self, commit_pk):
     commit_is_relevant = check_commit_is_relevant(Repo(project.path), commit)
     if commit_is_relevant is not None:
 
+        new_author = False
+        new_committer = False
+
         if project.committers.filter(username=commit.gh.author.login).count() == 0:
             try:
                 author = Committer.objects.get(username=commit.gh.author.login)
@@ -135,6 +138,7 @@ def process_commit(self, commit_pk):
                 author = Committer(username=commit.gh.author.login)
                 author.save()
 
+            new_author = True
             project.committers.add(author, through_defaults={'initial_commit': commit})
             project.save()
             process_new_committer.delay(author.pk, commit_pk)
@@ -147,17 +151,26 @@ def process_commit(self, commit_pk):
                 committer = Committer(username=commit.gh.committer.login)
                 committer.save()
 
+            new_committer = True
             projects.committers.add(author, through_defaults={'initial_commit': commit})
             project.save()
             process_new_committer.delay(author.pk, commit_pk)
             # TODO Process new project link...
 
-        # TODO Process relevant changes
 
         commit.is_relevant = True
         commit.author = ProjectCommitter.objects.get(Q(project = commit.project) & Q(committer__username=commit.gh.author.login))
         commit.committer = ProjectCommitter.objects.get(Q(project = commit.project) & Q(committer__username=commit.gh.committer.login))
         commit.save()
+
+        # TODO Process relevant changes
+        if not new_author and not new_committer:
+            file, line, is_added = commit_is_relevant[0]
+            survey_template = loader.get_template('survey.md')
+            if is_added:
+                commit.gh.create_comment(survey_template.render({'USER': f'@{commit.gh.author.login}', 'ADDED': 'added'}), line = line, path = file)
+            else:
+                commit.gh.create_comment(survey_template.render({'USER': f'@{commit.gh.author.login}', 'ADDED': 'removed'}), line = line, path = file)
 
     else:
         commit.is_relevant = False
