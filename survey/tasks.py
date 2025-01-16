@@ -170,9 +170,9 @@ def process_commit(self, commit_pk: int):
             file, line, is_added = commit_is_relevant[0]
             survey_template = loader.get_template('survey.md')
             if is_added:
-                commit.gh.create_comment(survey_template.render({'USER': f'@{commit.gh.author.login}', 'ADDED': 'added'}), line = line, path = file)
+                commit.gh.create_comment(survey_template.render({'USER': f'@{commit.gh.author.login}', 'ADDED': 'added'}), position = line, path = file)
             else:
-                commit.gh.create_comment(survey_template.render({'USER': f'@{commit.gh.author.login}', 'ADDED': 'removed'}), line = line, path = file)
+                commit.gh.create_comment(survey_template.render({'USER': f'@{commit.gh.author.login}', 'ADDED': 'removed'}), position = line, path = file)
 
     else:
         commit.is_relevant = False
