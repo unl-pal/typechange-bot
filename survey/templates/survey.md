@@ -1,4 +1,4 @@
-{{ USER }}, you added/removed a type annotation on the above line in this commit.  Please respond by copying the text at the bottom, below the horizontal line, into a reply.
+{{ USER }}, you {{ ADDED }} a type annotation on the above line in this commit.  Please respond by copying the text at the bottom, below the horizontal line, into a reply.
 
 {% include "footer.md" %}
 
