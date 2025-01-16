@@ -8,7 +8,7 @@ import git
 from git import Repo
 from .models import Commit
 from .ast_diff import AstDiff
-
+import whatthepatch
 
 python_file_check = re.compile(r'\.pyi?$', re.IGNORECASE)
 typescript_file_check = re.compile(r'\.ts$', re.IGNORECASE)
@@ -95,11 +95,29 @@ def check_commit_is_relevant(repo: Repo, commit: Commit) -> Optional[List[Tuple[
         changes = []
         diffs = git_commit.diff(git_commit.parents[0], paths=possibly_relevant_files)
         for diff in diffs:
+            gh_diff = None
+            patch = None
+            for gh_diff_obj in commit.gh.files:
+                if gh_diff_obj.filename == diff.b_path:
+                    gh_diff = gh_diff_obj
+                    patch = list(whatthepatch.parse_patch(gh_diff.patch))[0]
+                    break
             try:
                 astdiff = AstDiff.from_diff(git_commit, diff, language.lower())
                 relevant_changes = is_diff_relevant(astdiff)
                 if relevant_changes:
-                    changes.extend(relevant_changes)
+                    for file, line, is_added in relevant_changes:
+                        diff_index = 0
+                        if is_added:
+                            for i, change in enumerate(patch.changes):
+                                if change.old == line:
+                                    diff_index = i + 1
+                        else:
+                            for i, change in enumerate(patch.changes):
+                                if change.new == line:
+                                    diff_index = i + 1
+                        changes.append((file, diff_index, is_added))
+                    # changes.extend(relevant_changes)
             except:
                 continue
         if len(changes) == 0:

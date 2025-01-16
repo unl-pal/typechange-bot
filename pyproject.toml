@@ -14,7 +14,8 @@ dependencies = [
 "PyGithub~=2.4.0",
 "python-decouple==3.1",
 "django-treebeard>=4.7.1",
-"gitpython~=3.1.43"
+"gitpython~=3.1.43",
+"whatthepatch~=1.0.7"
 ]
 
 [project.optional-dependencies]
