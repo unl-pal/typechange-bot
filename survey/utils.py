@@ -102,7 +102,6 @@ def check_commit_is_relevant(repo: Repo, commit: Commit) -> Optional[List[Tuple[
                     changes.extend(relevant_changes)
             except:
                 continue
-            # TODO Process tree diff for addition/removal of annotations
         if len(changes) == 0:
             return None
         return changes
