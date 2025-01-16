@@ -183,7 +183,7 @@ def process_new_link(committer_pk: int, project_pk: int):
     pass
 
 @app.task()
-def process_new_committer(committer_pk, commit_pk):
+def process_new_committer(committer_pk: int, commit_pk: int):
     committer = Committer.objects.get(id=committer_pk)
     commit = Commit.objects.get(id=commit_pk)
 
