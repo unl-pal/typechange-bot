@@ -96,11 +96,13 @@ def check_commit_is_relevant(repo: Repo, commit: Commit) -> Optional[List[Tuple[
         diffs = git_commit.diff(git_commit.parents[0], paths=possibly_relevant_files)
         for diff in diffs:
             gh_diff = None
+            patch_str = ""
             patch = None
             for gh_diff_obj in commit.gh.files:
                 if gh_diff_obj.filename == diff.b_path:
                     gh_diff = gh_diff_obj
-                    patch = list(whatthepatch.parse_patch(gh_diff.patch))[0]
+                    patch_str = gh_diff.patch
+                    patch = list(whatthepatch.parse_patch(patch_str))[0]
                     break
             try:
                 astdiff = AstDiff.from_diff(git_commit, diff, language.lower())
@@ -108,14 +110,17 @@ def check_commit_is_relevant(repo: Repo, commit: Commit) -> Optional[List[Tuple[
                 if relevant_changes:
                     for file, line, is_added in relevant_changes:
                         diff_index = 0
-                        if is_added:
-                            for i, change in enumerate(patch.changes):
-                                if change.old == line:
-                                    diff_index = i + 1
-                        else:
-                            for i, change in enumerate(patch.changes):
+                        for i, change in enumerate(patch.changes):
+                            if is_added:
                                 if change.new == line:
-                                    diff_index = i + 1
+                                    diff_index = patch_str.count('\n', 0, patch_str.find(change.line)) + 1
+                                    break
+                            else:
+                                if change.old == line:
+                                    change_rem_line = astdiff.a_data.split('\n')[line - 1]
+                                    print(change_rem_line)
+                                    diff_index = patch_str.count('\n', 0, patch_str.find(change_rem_line))
+                                    break
                         changes.append((file, diff_index, is_added))
                     # changes.extend(relevant_changes)
             except:
