@@ -75,7 +75,7 @@ def process_installation_repositories(payload):
                         project.save()
 
 @app.task()
-def install_repo(owner, repo, installation_id):
+def install_repo(owner: str, repo: str, installation_id: str):
     try:
         project = Project.objects.get(Q(owner=owner) & Q(name=repo))
         project.installation_id = installation_id
