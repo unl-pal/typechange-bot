@@ -113,7 +113,14 @@ def is_diff_relevant(diff: AstDiff) -> Optional[List[Tuple[str, int, bool]]]:
     for action in diff.actions:
         added = True if insert_re.search(action['action']) else False
         if tree_re.match(action['tree']):
-            relevant_changes.append((diff.b_name, -1, added))
+            linenum = -1
+            if added:
+                position = int(action['parent'][action['parent'].find('[') + 1:action['parent'].find(',')])
+                linenum = diff.a_data.count('\n', 0, position) + 1
+            else:
+                position = int(action['tree'][action['tree'].find('[') + 1:action['tree'].find(',')])
+                linenum = diff.b_data.count('\n', 0, position) + 1
+            relevant_changes.append((diff.b_name, linenum, added))
     if len(relevant_changes) > 0:
         return relevant_changes
     else:
