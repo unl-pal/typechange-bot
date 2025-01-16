@@ -9,6 +9,7 @@ import json
 from typing import Optional, Tuple, List
 
 from survey.ast_diff import AstDiff
+from survey.utils import is_diff_relevant
 from pathlib import Path
 
 class Command(BaseCommand):
@@ -18,7 +19,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--data-dir',
-                            help='Path to language test data directory.',
+                            help='Path to language test data directory',
                             default=self.data_dir,
                             type=Path)
         parser.add_argument('--language',
@@ -77,6 +78,7 @@ class Command(BaseCommand):
             print('```json')
             print(json.dumps(diff_remove.actions, indent=4))
             print('```')
+            print(is_diff_relevant(diff_remove) or 'NONE')
             print()
 
             print(f"## Adding Annotation at location:")
@@ -84,4 +86,5 @@ class Command(BaseCommand):
             print('```json')
             print(json.dumps(diff_add.actions, indent=4))
             print('```')
+            print(is_diff_relevant(diff_add) or 'NONE')
             print()
