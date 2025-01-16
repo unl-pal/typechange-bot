@@ -24,7 +24,7 @@ consent_command = re.compile(f'@{settings.GITHUB_APP_NAME}\\sconsent', re.IGNORE
 optout_command = re.compile(f'@{settings.GITHUB_APP_NAME}\\soptout', re.IGNORECASE)
 
 import socket
-current_host = socket.gethostname()
+current_host: str = socket.gethostname()
 
 @app.task()
 def clone_repo(project_id):
