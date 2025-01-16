@@ -12,7 +12,11 @@ from .ast_diff import AstDiff
 
 python_file_check = re.compile(r'\.pyi?$', re.IGNORECASE)
 typescript_file_check = re.compile(r'\.ts$', re.IGNORECASE)
-tree_re = re.compile(r'^(typed_parameter|type)', re.IGNORECASE)
+php_file_check = re.compile(r'\.php$', re.IGNORECASE)
+
+insert_re = re.compile(r'^insert-(tree|node)', re.IGNORECASE)
+
+tree_re = re.compile(r'^(typed_parameter|type_annotation|type|union_type|help)', re.IGNORECASE)
 
 def get_typechecker_configuration(repo, language: str, commit_like: str='HEAD'):
     typecheckers = []
@@ -93,10 +97,9 @@ def check_commit_is_relevant(repo: Repo, commit: Commit) -> Optional[List[Tuple[
         for diff in diffs:
             try:
                 astdiff = AstDiff.from_diff(git_commit, diff, language.lower())
-                for action in astdiff.actions:
-                    added = action['action'] == 'insert-node'
-                    if tree_re.match(action['tree']):
-                        changes.append((diff.b_path, -1, added))
+                relevant_changes = is_diff_relevant(astdiff)
+                if relevant_changes:
+                    changes.extend(relevant_changes)
             except:
                 continue
             # TODO Process tree diff for addition/removal of annotations
@@ -105,3 +108,14 @@ def check_commit_is_relevant(repo: Repo, commit: Commit) -> Optional[List[Tuple[
         return changes
 
     return None
+
+def is_diff_relevant(diff: AstDiff) -> Optional[List[Tuple[str, int, bool]]]:
+    relevant_changes = []
+    for action in diff.actions:
+        added = True if insert_re.search(action['action']) else False
+        if tree_re.match(action['tree']):
+            relevant_changes.append((diff.b_name, -1, added))
+    if len(relevant_changes) > 0:
+        return relevant_changes
+    else:
+        return None
