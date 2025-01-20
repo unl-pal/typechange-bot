@@ -64,6 +64,12 @@ def get_typechecker_configuration(repo, language: str, commit_like: str='HEAD'):
                                                  "useUnknownInCatchVariables"]:
                             if typecheck_option in data['compilerOptions'].keys():
                                 typecheckers.append(f'{object.path}[compilerOptions][{typecheck_option}]')
+    elif language == "Ruby":
+        pass
+    elif language == "R":
+        pass
+    elif language == "PHP":
+        pass
 
     if len(typecheckers) > 0:
         return '\n'.join(typecheckers)
