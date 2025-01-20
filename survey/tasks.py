@@ -208,27 +208,33 @@ def process_comment(comment_user, comment_body, comment_payload):
             committer.save()
             commenter_new = True
 
-        if committer.consent_timestamp:
+        if consent_command.search(comment_body):
+            print(comment_body)
+            committer.consent_timestamp = timezone.now()
+            if committer.opt_out and committer.opt_out < committer.consent_timestamp:
+                committer.opt_out = None
 
-            if consent_command.search(comment_body):
-                committer.consent_timestamp = timezone.now()
-                if committer.opt_out and committer.opt_out < committer.consent_timestamp:
-                    committer.opt_out = None
-                    committer.save()
-                    commenter_new = False
+            committer.save()
+            commenter_new = False
 
-                if committer.initial_survey_response is None:
-                    template = loader.get_template('initial-survey.md')
-                    commit.gh.create_comment(template.render({'USER': f'@{committer.username}'}))
+            if committer.initial_survey_response is None:
+                template = loader.get_template('initial-survey.md')
+                commit.gh.create_comment(template.render({'USER': f'@{committer.username}'}))
 
-            elif optout_command.search(comment_body):
-                committer.opt_out = timezone.now()
+        elif optout_command.search(comment_body):
+            committer.opt_out = timezone.now()
+            committer.save()
+            commenter_new = False
+            template = loader.get_template('acknowledgment-optout.md')
+            commit.create_comment(template.render())
+
+        elif committer.consent_timestamp  is not None:
+            project_committer = ProjectCommitter.objects.get(Q(committer = committer) & Q(project = commit.project))
+            if project_committer.initial_commit == commit and committer.initial_survey_response is None:
+                committer.initial_survey_response = comment_body
                 committer.save()
-                commenter_new = False
-                template = loader.get_template('acknowledgment-optout.md')
-                commit.create_comment(template.render())
-
-            elif commit.is_relevant:
-                project_committer = ProjectCommitter.objects.get(Q(committer = committer) & Q(project = commit.project))
+            else:
                 response = Response(commit=commit, committer=project_committer, survey_response=comment_body)
                 response.save()
+                committer.save()
+
