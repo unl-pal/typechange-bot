@@ -218,9 +218,9 @@ def process_comment(comment_user, comment_body, comment_payload):
         committer.save()
         commenter_new = False
 
-    if committer.initial_survey_response is None:
-        template = loader.get_template('initial-survey.md')
-        commit.gh.create_comment(template.render({'USER': f'@{committer.username}'}))
+        if committer.initial_survey_response is None:
+            template = loader.get_template('initial-survey.md')
+            commit.gh.create_comment(template.render({'USER': f'@{committer.username}'}))
 
     elif optout_command.search(comment_body):
         committer.opt_out = timezone.now()
