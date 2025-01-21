@@ -154,7 +154,7 @@ def process_commit(self, commit_pk: int):
                 committer.save()
 
             new_committer = True
-            projects.committers.add(author, through_defaults={'initial_commit': commit})
+            project.committers.add(author, through_defaults={'initial_commit': commit})
             project.save()
             process_new_committer.delay(author.pk, commit_pk)
             # TODO Process new project link...
