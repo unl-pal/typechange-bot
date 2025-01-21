@@ -193,7 +193,7 @@ def process_new_committer(committer_pk: int, commit_pk: int):
 
 
 @app.task()
-def process_comment(comment_user, comment_body, comment_payload):
+def process_comment(comment_user: str, comment_body: str, comment_payload: dict):
     if comment_user.lower() == f'{settings.GITHUB_APP_NAME}[bot]'.lower():
         return
 
