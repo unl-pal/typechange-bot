@@ -33,7 +33,7 @@ def clone_repo(project_id):
     local_path.parent.mkdir(exist_ok=True, parents=True)
     repo = Repo.clone_from(str(project), local_path)
     project.repository_host = current_host
-    project.typechecker_files = get_typechecker_config(repo, project.primary_language)
+    project.typechecker_files = get_typechecker_configuration(repo, project.primary_language)
     project.save()
 
 @app.task()
