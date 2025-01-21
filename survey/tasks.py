@@ -117,7 +117,7 @@ def process_push_data(owner, repo, commits):
                 commit.save()
             except IntegrityError:
                 commit = Commit.objects.get(Q(project=project) & Q(hash=commit_data['id']))
-                pass
+
             process_commit.apply_async([commit.pk], queue=project.repository_host)
 
 @app.task(bind = True, autoretry_for=(ValueError,), retry_backoff=2, max_retries=5)
@@ -178,6 +178,7 @@ def process_commit(self, commit_pk: int):
 
 @app.task()
 def process_new_link(committer_pk: int, project_pk: int):
+    # TODO Write code to process new committer/project links
     pass
 
 @app.task()
