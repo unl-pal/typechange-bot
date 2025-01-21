@@ -80,7 +80,7 @@ def install_repo(owner: str, repo: str, installation_id: str):
         project = Project.objects.get(Q(owner=owner) & Q(name=repo))
         project.installation_id = installation_id
     except Project.DoesNotExist:
-        project = Project(owner=owner, name=name, installation_id=installation_id)
+        project = Project(owner=owner, name=repo, installation_id=installation_id)
 
     project.remove_date = None
 
