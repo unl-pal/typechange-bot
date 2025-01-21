@@ -202,7 +202,7 @@ def process_comment(comment_user, comment_body, comment_payload):
     committer = None
     try:
         commit = Commit.objects.get(hash=commit_id)
-        committer = Committer.objects.get(Q(username=comment_user))
+        committer = Committer.objects.get(username=comment_user)
     except:
         return
 
