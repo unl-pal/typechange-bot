@@ -128,55 +128,53 @@ def process_commit(self, commit_pk: int):
     # TODO: Handle 24 hour thing
 
     commit_is_relevant = check_commit_is_relevant(Repo(project.path), commit)
-    if commit_is_relevant is not None:
-
-        new_author = False
-        new_committer = False
-
-        if project.committers.filter(username=commit.gh.author.login).count() == 0:
-            try:
-                author = Committer.objects.get(username=commit.gh.author.login)
-            except Committer.DoesNotExist:
-                author = Committer(username=commit.gh.author.login)
-                author.save()
-
-            new_author = True
-            project.committers.add(author, through_defaults={'initial_commit': commit})
-            project.save()
-            process_new_committer.delay(author.pk, commit_pk)
-            # TODO Process new project link...
-
-        if project.committers.filter(username=commit.gh.committer.login).count() == 0:
-            try:
-                committer = Committer.objects.get(commit.gh.committer.login)
-            except Committer.DoesNotExist:
-                committer = Committer(username=commit.gh.committer.login)
-                committer.save()
-
-            new_committer = True
-            project.committers.add(author, through_defaults={'initial_commit': commit})
-            project.save()
-            process_new_committer.delay(author.pk, commit_pk)
-            # TODO Process new project link...
-
-
-        commit.is_relevant = True
-        commit.author = ProjectCommitter.objects.get(Q(project = commit.project) & Q(committer__username=commit.gh.author.login))
-        commit.committer = ProjectCommitter.objects.get(Q(project = commit.project) & Q(committer__username=commit.gh.committer.login))
-        commit.save()
-
-        # TODO Process relevant changes
-        if not new_author and not new_committer:
-            file, line, is_added = commit_is_relevant[0]
-            survey_template = loader.get_template('survey.md')
-            if is_added:
-                commit.gh.create_comment(survey_template.render({'USER': f'@{commit.gh.author.login}', 'ADDED': 'added'}), position = line, path = file)
-            else:
-                commit.gh.create_comment(survey_template.render({'USER': f'@{commit.gh.author.login}', 'ADDED': 'removed'}), position = line, path = file)
-
-    else:
+    if commit_is_relevant is None:
         commit.is_relevant = False
         commit.save()
+        return
+
+    new_author = False
+    new_committer = False
+
+    if project.committers.filter(username=commit.gh.author.login).count() == 0:
+        try:
+            author = Committer.objects.get(username=commit.gh.author.login)
+        except Committer.DoesNotExist:
+            author = Committer(username=commit.gh.author.login)
+            author.save()
+
+        new_author = True
+        project.committers.add(author, through_defaults={'initial_commit': commit})
+        project.save()
+        process_new_committer.delay(author.pk, commit_pk)
+        # TODO Process new project link...
+
+    if project.committers.filter(username=commit.gh.committer.login).count() == 0:
+        try:
+            committer = Committer.objects.get(commit.gh.committer.login)
+        except Committer.DoesNotExist:
+            committer = Committer(username=commit.gh.committer.login)
+            committer.save()
+
+        new_committer = True
+        project.committers.add(author, through_defaults={'initial_commit': commit})
+        project.save()
+        process_new_committer.delay(author.pk, commit_pk)
+        # TODO Process new project link...
+
+    commit.is_relevant = True
+    commit.author = ProjectCommitter.objects.get(Q(project = commit.project) & Q(committer__username=commit.gh.author.login))
+    commit.committer = ProjectCommitter.objects.get(Q(project = commit.project) & Q(committer__username=commit.gh.committer.login))
+    commit.save()
+
+    # TODO Process relevant changes
+    if not new_author and not new_committer:
+        file, line, is_added = commit_is_relevant[0]
+        survey_template = loader.get_template('survey.md')
+        if is_added:
+            commit.gh.create_comment(survey_template.render({'USER': f'@{commit.gh.author.login}', 'ADDED': 'added'}), position = line, path = file)
+        else:
+            commit.gh.create_comment(survey_template.render({'USER': f'@{commit.gh.author.login}', 'ADDED': 'removed'}), position = line, path = file)
 
 @app.task()
 def process_new_link(committer_pk: int, project_pk: int):
