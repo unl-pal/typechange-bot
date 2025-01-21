@@ -196,17 +196,17 @@ def process_new_committer(committer_pk: int, commit_pk: int):
 def process_comment(comment_user, comment_body, comment_payload):
     if comment_user.lower() == f'{settings.GITHUB_APP_NAME}[bot]'.lower():
         return
-    # TODO: Check if we're on a commit we're interested in...
+
     commit_id = comment_payload['commit_id']
-    if Commit.objects.filter(hash=commit_id).count() == 1:
+    commit = None
+    committer = None
+    try:
         commit = Commit.objects.get(hash=commit_id)
-        commenter_new = False
-        try:
-            committer = Committer.objects.get(Q(username=comment_user))
-        except Committer.DoesNotExist:
-            committer = Committer(username = comment_user)
-            committer.save()
-            commenter_new = True
+        committer = Committer.objects.get(Q(username=comment_user))
+    except:
+        return
+
+    if commit.is_relevant:
 
         if consent_command.search(comment_body):
             print(comment_body)
