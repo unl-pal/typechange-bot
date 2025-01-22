@@ -6,6 +6,11 @@
 !.gitkeep
 !.dir-locals.el
 
+# Database Files
+*.sqlite
+*.sqlite3
+dump.rdb
+
 # Emacs Stuff
 *~
 \#*\#
