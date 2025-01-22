@@ -4,7 +4,8 @@
 
 -----
 
+```markdown
 ### Briefly (1-2 sentences), why did you add/remove the type annotation(s) in this code change?
 
 (YOUR ANSWER HERE)
-
+```

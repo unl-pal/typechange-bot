@@ -21,4 +21,12 @@
 ### Are there situations where you never include a type annotation? If so, please list them below, if not, leave blank.
 
 (YOUR ANSWER HERE)
+
+### In this project, how does the use or non-use of type annotations factor into your pull request reviews?  (Respond with 1--2 sentences)
+
+(YOUR ANSWER HERE)
+
+### In this project, do you have any coding standards related to the use of type annotations?  If so, briefly describe them.  (Respond with 1--2 sentences)
+
+(YOUR ANSWER HERE)
 ```
