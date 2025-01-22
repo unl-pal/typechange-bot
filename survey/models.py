@@ -33,7 +33,9 @@ class Committer(models.Model):
 
     @property
     def should_contact(self) -> bool:
-        # TODO: Implement this...
+        if self.opt_out is not None or self.removal is not None:
+            return False
+        # TODO: Check if within 24 hours of a contact
         return True
 
     def __str__(self):
