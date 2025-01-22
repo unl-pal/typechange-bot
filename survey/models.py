@@ -31,6 +31,11 @@ class Committer(models.Model):
     projects = models.ManyToManyField('Project', through='ProjectCommitter')
     initial_survey_response = models.TextField('response to initial survey', null=True, blank=True, editable=False)
 
+    @property
+    def should_contact(self) -> bool:
+        # TODO: Implement this...
+        return True
+
     def __str__(self):
         return f'https://github.com/{self.username}'
 
