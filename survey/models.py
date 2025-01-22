@@ -27,6 +27,7 @@ class Committer(models.Model):
     last_contact_date = models.DateTimeField("date of last contact", auto_now=True, editable=False)
     consent_timestamp = models.DateTimeField("date of consent", null=True, editable=False)
     opt_out = models.DateTimeField("date of opt-out", null=True, blank=True, editable=False)
+    removal = models.DateTimeField("date of removal request & processing", null=True, blank=True, editable=False)
     projects = models.ManyToManyField('Project', through='ProjectCommitter')
     initial_survey_response = models.TextField('response to initial survey', null=True, blank=True, editable=False)
 
