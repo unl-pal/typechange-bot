@@ -22,6 +22,7 @@ import re
 
 consent_command: re.Pattern = re.compile(f'@{settings.GITHUB_APP_NAME}(\[bot\])?\\sconsent', re.IGNORECASE)
 optout_command = re.compile(f'@{settings.GITHUB_APP_NAME}(\[bot\])?\\soptout', re.IGNORECASE)
+remove_command = re.compile(f'@{settings.GITHUB_APP_NAME}(\[bot\])?\\sremove', re.IGNORECASE)
 
 import socket
 current_host = socket.gethostname()
@@ -207,6 +208,10 @@ def process_comment(comment_user: str, comment_body: str, comment_payload: dict)
 
     if not commit.is_relevant:
         return
+
+    if remove_command.search(comment_body):
+        # TODO: Handle user removal request.
+        pass
 
     if consent_command.search(comment_body):
         print(comment_body)
