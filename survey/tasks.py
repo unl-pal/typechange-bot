@@ -172,9 +172,9 @@ def process_commit(self, commit_pk: int):
         file, line, is_added = commit_is_relevant[0]
         survey_template = loader.get_template('survey.md')
         if is_added:
-            commit.gh.create_comment(survey_template.render({'USER': f'@{commit.gh.author.login}', 'ADDED': 'added'}), position = line, path = file)
+            commit.gh.create_comment(survey_template.render({'USER': f'@{commit.gh.author.login}', 'ADDED': 'added', 'BOT_NAME': settings.GITHUB_APP_NAME}), position = line, path = file)
         else:
-            commit.gh.create_comment(survey_template.render({'USER': f'@{commit.gh.author.login}', 'ADDED': 'removed'}), position = line, path = file)
+            commit.gh.create_comment(survey_template.render({'USER': f'@{commit.gh.author.login}', 'ADDED': 'removed', 'BOT_NAME': settings.GITHUB_APP_NAME}), position = line, path = file)
 
 @app.task()
 def process_new_link(committer_pk: int, project_pk: int):
@@ -187,7 +187,7 @@ def process_new_committer(committer_pk: int, commit_pk: int):
     commit = Commit.objects.get(id=commit_pk)
 
     template = loader.get_template('informed-consent-message.md')
-    message = template.render({'USER': f'@{committer.username}'})
+    message = template.render({'USER': f'@{committer.username}', 'BOT_NAME': settings.GITHUB_APP_NAME })
     commit.gh.create_comment(message)
 
 
@@ -219,14 +219,14 @@ def process_comment(comment_user: str, comment_body: str, comment_payload: dict)
 
         if committer.initial_survey_response is None:
             template = loader.get_template('initial-survey.md')
-            commit.gh.create_comment(template.render({'USER': f'@{committer.username}'}))
+            commit.gh.create_comment(template.render({'USER': f'@{committer.username}', 'BOT_NAME': settings.GITHUB_APP_NAME}))
 
     elif optout_command.search(comment_body):
         committer.opt_out = timezone.now()
         committer.save()
         commenter_new = False
         template = loader.get_template('acknowledgment-optout.md')
-        commit.create_comment(template.render())
+        commit.create_comment(template.render({'BOT_NAME': settings.GITHUB_APP_NAME}))
 
     elif committer.consent_timestamp  is not None:
         project_committer = ProjectCommitter.objects.get(Q(committer = committer) & Q(project = commit.project))
