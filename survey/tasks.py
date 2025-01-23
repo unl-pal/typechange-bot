@@ -150,7 +150,7 @@ def process_commit(self, commit_pk: int):
         project.committers.add(author, through_defaults={'initial_commit': commit})
         project.save()
         process_new_committer.delay(author.pk, commit_pk)
-        # TODO Process new project link...
+        process_new_link.delay(author.pk, project.pk)
 
     if project.committers.filter(username=commit.gh.committer.login).count() == 0:
         try:
@@ -160,10 +160,10 @@ def process_commit(self, commit_pk: int):
             committer.save()
 
         new_committer = True
-        project.committers.add(author, through_defaults={'initial_commit': commit})
+        project.committers.add(committer, through_defaults={'initial_commit': commit})
         project.save()
-        process_new_committer.delay(author.pk, commit_pk)
-        # TODO Process new project link...
+        process_new_committer.delay(committer.pk, commit_pk)
+        process_new_link.delay(committer.pk, project.pk)
 
     commit.is_relevant = True
     commit.author = ProjectCommitter.objects.get(Q(project = commit.project) & Q(committer__username=commit.gh.author.login))
