@@ -195,7 +195,7 @@ def process_new_committer(committer_pk: int, commit_pk: int):
 
 
 @app.task()
-def process_comment(comment_user: str, comment_body: str, comment_payload: dict):
+def process_comment(comment_user: str, comment_body: str, repo_owner: str, repo_name: str, comment_payload: dict):
     if comment_user.lower() == f'{settings.GITHUB_APP_NAME}[bot]'.lower():
         return
 
@@ -220,9 +220,9 @@ def process_comment(comment_user: str, comment_body: str, comment_payload: dict)
         committer.opt_out = timezone.now()
         committer.save()
         commenter_new = False
+        commit_gh = get_comment_gh(comment_payload['commit_id'], repo_owner, repo_name)
         template = loader.get_template('acknowledgment-optout.md')
-        # TODO: Fix getting a commit proxy object
-        # commit.create_comment(template.render({'BOT_NAME': settings.GITHUB_APP_NAME}))
+        commit_gh.create_comment(template.render({'USER': f'@{comment_user}', 'BOT_NAME': settings.GITHUB_APP_NAME}))
         return
 
     commit_id = comment_payload['commit_id']

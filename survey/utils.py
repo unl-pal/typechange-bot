@@ -155,3 +155,13 @@ def is_diff_relevant(diff: AstDiff) -> Optional[List[Tuple[str, int, bool]]]:
         return relevant_changes
     else:
         return None
+
+def get_comment_gh(commit_id, owner, name):
+    try:
+        commit = Commit.objects.get(hash=commit_id)
+        return commit.gh
+    except Commit.DoesNotExist:
+        repo = Repository.objects.get(Q(owner=owner) & Q(name=name))
+        return repo.gh.get_commit(sha=commit_id)
+    except Repository.DoesNotExist:
+        return None
