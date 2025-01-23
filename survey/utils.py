@@ -119,7 +119,7 @@ def check_commit_is_relevant(repo: Repo, commit: Commit) -> Optional[List[Tuple[
                         for i, change in enumerate(patch.changes):
                             if is_added:
                                 if change.new == line:
-                                    diff_index = patch_str.count('\n', 0, patch_str.find(change.line)) + 1
+                                    diff_index = patch_str.count('\n', 0, patch_str.find(change.line))
                                     break
                             else:
                                 if change.old == line:
