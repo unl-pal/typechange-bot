@@ -6,6 +6,8 @@ from typechangesapp.celery import app
 from celery.utils.log import get_task_logger
 celery_logger = get_task_logger(__name__)
 
+from django.db import transaction
+
 from django.db.models import Q
 from django.db.utils import IntegrityError
 from .models import Committer, Commit, Project, ProjectCommitter, Response
@@ -197,21 +199,41 @@ def process_comment(comment_user: str, comment_body: str, comment_payload: dict)
     if comment_user.lower() == f'{settings.GITHUB_APP_NAME}[bot]'.lower():
         return
 
+    try:
+        committer = Committer.objects.get(username = comment_user)
+    except:
+        return
+
+    if remove_command.search(comment_body):
+        with transaction.atomic():
+            committer.opt_out = timezone.now()
+            committer.removal = timezone.now()
+            committer.initial_survey_response = None
+            for project_committer in ProjectCommitter.objects.filter(Q(committer=committer)):
+                Response.objects.filter(Q(committer=project_committer)).delete()
+                project_committer.delete()
+            committer.save()
+        # TODO: Send an acknowledgment?
+        return
+
+    if optout_command.search(comment_body):
+        committer.opt_out = timezone.now()
+        committer.save()
+        commenter_new = False
+        template = loader.get_template('acknowledgment-optout.md')
+        # TODO: Fix getting a commit proxy object
+        # commit.create_comment(template.render({'BOT_NAME': settings.GITHUB_APP_NAME}))
+        return
+
     commit_id = comment_payload['commit_id']
     commit = None
-    committer = None
     try:
         commit = Commit.objects.get(hash=commit_id)
-        committer = Committer.objects.get(username=comment_user)
     except:
         return
 
     if not commit.is_relevant:
         return
-
-    if remove_command.search(comment_body):
-        # TODO: Handle user removal request.
-        pass
 
     if consent_command.search(comment_body):
         print(comment_body)
@@ -225,13 +247,6 @@ def process_comment(comment_user: str, comment_body: str, comment_payload: dict)
         if committer.initial_survey_response is None:
             template = loader.get_template('initial-survey.md')
             commit.gh.create_comment(template.render({'USER': f'@{committer.username}', 'BOT_NAME': settings.GITHUB_APP_NAME}))
-
-    elif optout_command.search(comment_body):
-        committer.opt_out = timezone.now()
-        committer.save()
-        commenter_new = False
-        template = loader.get_template('acknowledgment-optout.md')
-        commit.create_comment(template.render({'BOT_NAME': settings.GITHUB_APP_NAME}))
 
     elif committer.consent_timestamp  is not None:
         project_committer = ProjectCommitter.objects.get(Q(committer = committer) & Q(project = commit.project))
