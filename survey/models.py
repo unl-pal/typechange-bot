@@ -3,6 +3,9 @@ from django.conf import settings
 from github import Github, Auth
 from treebeard.ns_tree import NS_Node
 
+from django.utils import timezone
+from datetime import timedelta
+
 application_auth = Auth.AppAuth(settings.GITHUB_APP_ID, settings.GITHUB_APP_KEY)
 
 from socket import gethostname
@@ -35,8 +38,7 @@ class Committer(models.Model):
     def should_contact(self) -> bool:
         if self.opt_out is not None or self.removal is not None:
             return False
-        # TODO: Check if within 24 hours of a contact
-        return True
+        return self.last_contact_date < (timezone.now() - timedelta(hours=24))
 
     def __str__(self):
         return f'https://github.com/{self.username}'
