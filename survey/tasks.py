@@ -170,7 +170,6 @@ def process_commit(self, commit_pk: int):
     commit.committer = ProjectCommitter.objects.get(Q(project = commit.project) & Q(committer__username=commit.gh.committer.login))
     commit.save()
 
-    # TODO Process relevant changes
     if not new_author and not new_committer:
         file, line, is_added = commit_is_relevant[0]
         survey_template = loader.get_template('survey.md')
