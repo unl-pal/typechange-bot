@@ -248,14 +248,25 @@ def process_comment(comment_user: str, comment_body: str, repo_owner: str, repo_
             template = loader.get_template('initial-survey.md')
             commit.gh.create_comment(template.render({'USER': f'@{committer.username}', 'BOT_NAME': settings.GITHUB_APP_NAME}))
 
-    elif committer.consent_timestamp  is not None:
+    elif committer.consent_timestamp is not None:
         project_committer = ProjectCommitter.objects.get(Q(committer = committer) & Q(project = commit.project))
-        if project_committer.initial_commit == commit and committer.initial_survey_response is None:
+        if project_committer.initial_commit == commit and committer.initial_survey_response is None and not project_committer.is_maintainer:
             committer.initial_survey_response = comment_body
             committer.save()
-        else:
+            process_commit.delay(commit.id)
+        elif project_committer.initial_commit == commit and committer.initial_survey_response is None and project_committer.is_maintainer:
+            committer.initial_survey_response = comment_body
+            committer.save()
+            project_committer.maintainer_survey_response = comment_body
+            project_committer.save()
+            process_commit.delay(commit.id)
+        elif project_committer.is_maintainer and project_committer.initial_commit == commit:
+            project_committer.maintainer_survey_response = comment_body
+            project_committer.save()
+            process_commit.delay(commit.id)
+        elif Response.objects.filter(Q(commit=commit) & Q(committer=project_committer)).count() == 0:
             response = Response(commit=commit, committer=project_committer, survey_response=comment_body)
             response.save()
             committer.save()
-
-    # TODO Other cases
+        template = loader.get_template('acknowledgment.md')
+        commit.gh.create_comment(template.render({'BOT_NAME': settings.GITHUB_APP_NAME}))
