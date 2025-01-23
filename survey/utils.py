@@ -123,9 +123,7 @@ def check_commit_is_relevant(repo: Repo, commit: Commit) -> Optional[List[Tuple[
                                     break
                             else:
                                 if change.old == line:
-                                    # TODO: Fix this
                                     change_rem_line = astdiff.a_data.split('\n')[line - 1]
-                                    print(change_rem_line)
                                     diff_index = patch_str.count('\n', 0, patch_str.find(change_rem_line))
                                     break
                         changes.append((file, diff_index, is_added))
