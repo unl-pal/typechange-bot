@@ -26,7 +26,7 @@
       # Create a development shell containing dependencies from `pyproject.toml`
       devShells.default =
         let
-          arg = project.renderers.withPackages { inherit python; extras = [ "dev" ]; };
+          arg = project.renderers.withPackages { inherit python; extras = [ "dev" "gumtree_support" ]; };
           pythonEnv = python.withPackages arg;
 
         in
