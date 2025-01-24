@@ -265,17 +265,17 @@ def process_comment(comment_user: str, comment_body: str, repo_owner: str, repo_
         if project_committer.initial_commit == commit and committer.initial_survey_response is None and not project_committer.is_maintainer:
             committer.initial_survey_response = comment_body
             committer.save()
-            process_commit.delay(commit.id)
+            process_commit.apply_async([commit.id], queue=project_committer.project.repository_host)
         elif project_committer.initial_commit == commit and committer.initial_survey_response is None and project_committer.is_maintainer:
             committer.initial_survey_response = comment_body
             committer.save()
             project_committer.maintainer_survey_response = comment_body
             project_committer.save()
-            process_commit.delay(commit.id)
+            process_commit.apply_async([commit.id], queue=project_committer.project.repository_host)
         elif project_committer.is_maintainer and project_committer.initial_commit == commit:
             project_committer.maintainer_survey_response = comment_body
             project_committer.save()
-            process_commit.delay(commit.id)
+            process_commit.apply_async([commit.id], queue=project_committer.project.repository_host)
         elif Response.objects.filter(Q(commit=commit) & Q(committer=project_committer)).count() == 0:
             response = Response(commit=commit, committer=project_committer, survey_response=comment_body)
             response.save()
