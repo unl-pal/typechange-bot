@@ -136,7 +136,7 @@ GITHUB_APP_KEY = config('GITHUB_APP_KEY', default='FOO')
 GITHUB_APP_ID = config('GITHUB_APP_ID', default='FOO')
 
 # Celery Configuration
-CELERY_TIMEZONE = config("CELERY_TIMEZONE", default="America/Chicago")
+CELERY_TIMEZONE = config("CELERY_TIMEZONE", default=TIME_ZONE)
 CELERY_TASK_TRACK_STARTED = config("CELERY_TASK_TRACK_STARTED", default=True, cast=bool)
 CELERY_TASK_TIME_LIMIT = config("CELERY_TASK_TIME_LIMIT", default=30 * 60, cast=int)
 CELERY_BROKER_URL = config("CELERY_BROKER_URL", default="redis://localhost:6379/0")
