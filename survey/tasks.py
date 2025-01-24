@@ -128,8 +128,6 @@ def process_commit(self, commit_pk: int):
     commit = Commit.objects.get(id=commit_pk)
     project = commit.project
 
-    # TODO: Handle 24 hour thing
-
     commit_is_relevant = check_commit_is_relevant(Repo(project.path), commit)
     if commit_is_relevant is None:
         commit.is_relevant = False
@@ -170,13 +168,28 @@ def process_commit(self, commit_pk: int):
     commit.committer = ProjectCommitter.objects.get(Q(project = commit.project) & Q(committer__username=commit.gh.committer.login))
     commit.save()
 
-    if not new_author and not new_committer:
-        file, line, is_added = commit_is_relevant[0]
-        survey_template = loader.get_template('survey.md')
-        if is_added:
-            commit.gh.create_comment(survey_template.render({'USER': f'@{commit.gh.author.login}', 'ADDED': 'added', 'BOT_NAME': settings.GITHUB_APP_NAME}), position = line, path = file)
-        else:
-            commit.gh.create_comment(survey_template.render({'USER': f'@{commit.gh.author.login}', 'ADDED': 'removed', 'BOT_NAME': settings.GITHUB_APP_NAME}), position = line, path = file)
+    with transaction.atomic():
+        notify_who = []
+
+        if not new_author and Committer.objects.get(username=commit.gh.author.login).should_contact():
+            notify_who.append(commit.gh.author.login)
+
+        if not new_committer and commit.gh.committer.login != commit.gh.author.login and Committer.objects.get(username=commit.gh.committer.login).should_contact():
+            notify_who.append(commit.gh.committer.login)
+
+        if len(notify_who) > 0:
+            file, line, is_added = commit_is_relevant[0]
+            survey_template = loader.get_template('survey.md')
+            template_data = {
+                'USER': ', '.join(list(f'@{login}' for login in notify_who[::-1])),
+                'ADDED': ('added' if is_added else 'removed')
+            }
+            commit.gh.create_comment(survey_template.render(template_data), position = line, path = file)
+            for username in notify_who:
+                user = Committer.objects.get(username=username)
+                user.last_contact_date = timezone.now()
+                user.save()
+
 
 @app.task()
 def process_new_link(committer_pk: int, project_pk: int):
