@@ -1,0 +1,12 @@
+[Unit]
+Description=
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/path/to/installation
+ExecStart=/path/to/installation/venv-wrap.sh celery worker --loglevel=INFO -Q celery,%H
+User=worker-user
+
+[Install]
+WantedBy=default.target
