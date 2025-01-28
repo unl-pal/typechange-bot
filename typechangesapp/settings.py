@@ -132,7 +132,7 @@ DATA_DIR = config('DATA_DIR', default='./data/', cast=Path)
 
 # GitHub Settings
 GITHUB_APP_NAME = config('GITHUB_APP_NAME', default='TypeChangeBot')
-GITHUB_APP_KEY = config('GITHUB_APP_KEY', default='FOO')
+GITHUB_APP_KEY = config('GITHUB_APP_KEY', default='FOO').replace('\\n', '\n')
 GITHUB_APP_ID = config('GITHUB_APP_ID', default='FOO')
 
 # Celery Configuration
