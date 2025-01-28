@@ -1,0 +1,6 @@
+[submodule "gumtree"]
+	path = gumtree
+	url = https://github.com/GumTreeDiff/gumtree
+[submodule "gumtree-parser"]
+	path = gumtree-parser
+	url = https://github.com/GumTreeDiff/tree-sitter-parser

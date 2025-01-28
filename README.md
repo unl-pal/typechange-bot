@@ -17,6 +17,8 @@ dependency group `gumtree_support` will ensure that Tree
 Sitter-related Python dependencies are available in the worker's
 environment.
 
+These can be cloned locally by running `git submodule update --init`.
+
 ### Redis
 
 A running Redis-compatible server accessible from head node and all
