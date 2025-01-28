@@ -132,3 +132,11 @@ class Response(models.Model):
 
     def __str__(self):
         return f'Response of {self.committer} on {self.commit}'
+
+class FAQ(models.Model):
+    question = models.TextField()
+    answer = models.TextField()
+    weight = models.IntegerField()
+
+    def __str__(self):
+        return f'FAQ: {self.question}'

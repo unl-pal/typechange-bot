@@ -184,7 +184,22 @@
 
         <p>If you have questions about your rights or complaints about the research, contact the UNL Institutional Review Board (IRB) at <a href="tel:+14024726965">+1 (402) 472-6965</a> or <a href="mailto:irb@unl.edu">irb@unl.edu</a>.</p>
 
+        {% if questions %}
         <h2>Frequently Asked Questions</h2>
+
+        <ul>
+            {% for question in questions %}
+            <li>
+                <p><b>{{ question.question }}</b></p>
+                <p>
+                    {% autoescape off %}
+                    {{ question.answer }}
+                    {% endautoescape %}
+                </p>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
 
     </body>
 </html>

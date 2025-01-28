@@ -3,9 +3,11 @@ from django.contrib import admin
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
 
-from .models import Committer, Project, Commit, Response, ProjectCommitter, ChangeReason
+from .models import Committer, Project, Commit, Response, ProjectCommitter, ChangeReason, FAQ
 
 # Register your models here.
+
+admin.site.register(FAQ)
 
 @admin.register(ProjectCommitter)
 class ProjectCommitterAdmin(admin.ModelAdmin):
