@@ -88,7 +88,7 @@ def install_repo(owner: str, repo: str, installation_id: str):
     project.remove_date = None
 
     project.primary_language = project.gh.language
-    if project.primary_language in ['TypeScript', 'Python']:
+    if project.primary_language in ['TypeScript', 'Python', 'PHP', 'R']:
         project.track_changes = True
 
     project.save()
