@@ -20,6 +20,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+mysql = [ "mysqlclient~=2.2.7" ]
 dev = [
 "django-extensions~=3.2",
 "mypy~=1.11.2"
