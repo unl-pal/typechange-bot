@@ -5,7 +5,7 @@ After=network.target
 [Service]
 Type=simple
 WorkingDirectory=/path/to/installation
-ExecStart=./venv/bin/celery -A typechangesapp worker --loglevel=INFO -Q celery,%H
+ExecStart=/path/to/installation/venv/bin/celery -A typechangesapp worker --loglevel=INFO -Q celery,%H
 User=worker-user
 
 [Install]
