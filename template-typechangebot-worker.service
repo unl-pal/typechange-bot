@@ -1,0 +1,12 @@
+[Unit]
+Description=Type Change Bot worker: clone repositories and process commits
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/path/to/installation
+ExecStart=./venv/bin/celery -A typechangesapp worker --loglevel=INFO -Q celery,%H
+User=worker-user
+
+[Install]
+WantedBy=default.target
