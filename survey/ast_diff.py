@@ -7,15 +7,14 @@ from pathlib import Path
 from typing import Union, Optional
 import subprocess
 from subprocess import CalledProcessError
+from decouple import config
 import json
 
-import os
-
-GUMTREE_DIR = os.environ.get('GUMTREE_DIR', '')
-GUMTREE_TREE_SITTER_DIR = os.environ.get('GUMTREE_TREE_SITTER_DIR', '')
+GUMTREE_DIR = config('GUMTREE_DIR', default='')
+GUMTREE_TREE_SITTER_DIR = config('GUMTREE_TREE_SITTER_DIR', default='')
 
 ENVIRONMENT_FOR_GUMTREE = {
-    'PATH': os.environ.get('PATH', '')
+    'PATH': config('PATH', default='')
 }
 if GUMTREE_DIR != '':
     ENVIRONMENT_FOR_GUMTREE['PATH'] = GUMTREE_DIR + ':' + ENVIRONMENT_FOR_GUMTREE['PATH']
