@@ -142,6 +142,8 @@ GITHUB_APP_NAME = config('GITHUB_APP_NAME', default='TypeChangeBot')
 GITHUB_APP_KEY = config('GITHUB_APP_KEY', default='FOO').replace('\\n', '\n')
 GITHUB_APP_ID = config('GITHUB_APP_ID', default='FOO')
 
+GITHUB_API_KEY = config('GITHUB_API_KEY', default='FOO')
+
 # Celery Configuration
 CELERY_TIMEZONE = config("CELERY_TIMEZONE", default=TIME_ZONE)
 CELERY_TASK_TRACK_STARTED = config("CELERY_TASK_TRACK_STARTED", default=True, cast=bool)

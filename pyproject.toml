@@ -16,7 +16,8 @@ dependencies = [
 "django-treebeard>=4.7.1",
 "gitpython~=3.1.43",
 "whatthepatch~=1.0.7",
-"dj-database-url~=2.3.0"
+"dj-database-url~=2.3.0",
+"pandas~=2.2.3"
 ]
 
 [project.optional-dependencies]
