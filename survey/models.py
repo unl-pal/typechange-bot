@@ -38,7 +38,8 @@ class Committer(models.Model):
     def should_contact(self) -> bool:
         if self.opt_out is not None or self.removal is not None:
             return False
-        return self.consent_timestamp is not None and self.last_contact_date < (timezone.now() - timedelta(hours=24))
+        # TODO: Change back to 24 hours
+        return self.consent_timestamp is not None and self.last_contact_date < (timezone.now() - timedelta(minutes=5))
 
     def __str__(self):
         return f'https://github.com/{self.username}'
