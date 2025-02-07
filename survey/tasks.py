@@ -250,8 +250,8 @@ def process_comment(comment_user: str, comment_body: str, repo_owner: str, repo_
     if consent_command.search(comment_body):
         print(comment_body)
         committer.consent_timestamp = timezone.now()
-        if committer.opt_out and committer.opt_out < committer.consent_timestamp:
-            committer.opt_out = None
+        committer.opt_out = None
+        committer.removal = None
 
         committer.save()
         commenter_new = False
