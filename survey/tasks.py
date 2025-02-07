@@ -225,7 +225,9 @@ def process_comment(comment_user: str, comment_body: str, repo_owner: str, repo_
                 Response.objects.filter(Q(committer=project_committer)).delete()
                 project_committer.delete()
             committer.save()
-        # TODO: Send an acknowledgment?
+        commit_gh = get_comment_gh(comment_payload['commit_id'], repo_owner, repo_name)
+        template = loader.get_template('acknowledgment-removal.md')
+        commit_gh.create_comment(template.render({'USER': f'@{comment_user}', 'BOT_NAME': settings.GITHUB_APP_NAME}))
         return
 
     if optout_command.search(comment_body):
