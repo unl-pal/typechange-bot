@@ -35,6 +35,8 @@ def github_webhook(request):
             process_push_data.delay(repo_owner, repo_name, payload['commits'])
         case "commit_comment":
             process_comment.delay(payload['comment']['user']['login'], payload['comment']['body'], payload['repository']['owner']['login'], payload['repository']['name'], payload['comment'])
+        case "repository":
+            process_repository.delay(payload)
         case _:
             pass
 

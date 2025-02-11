@@ -58,6 +58,12 @@ def process_installation(payload):
                         project.remove_date = timezone.now()
                         project.track_changes = False
                         project.save()
+        case 'suspend':
+            # TODO: Handle Suspensions
+            pass
+        case 'unsuspend':
+            # TODO: Handle Unsuspensions
+            pass
 
 @app.task()
 def process_installation_repositories(payload):
@@ -76,6 +82,21 @@ def process_installation_repositories(payload):
                         project.remove_date = timezone.now()
                         project.track_changes = False
                         project.save()
+
+@app.task()
+def process_repository(payload):
+    match payload['action']:
+        case "archived" | "deleted":
+            owner, name = payload['repository']['full_name'].split('/')
+            try:
+                repo = Project.objects.get(Q(owner=owner) & Q(name=name))
+            except:
+                return
+            repo.track_changes = False
+            repo.save()
+        case "renamed":
+            # TODO: Process Repository Rename
+            pass
 
 @app.task()
 def install_repo(owner: str, repo: str, installation_id: str):
