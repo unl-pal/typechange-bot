@@ -33,6 +33,16 @@ class Node(models.Model):
         ordering = ('hostname', )
         verbose_name = "Worker Node"
 
+class DeletedRepository(models.Model):
+    node = models.ForeignKey(Node, on_delete=models.CASCADE)
+    project = models.ForeignKey('Project', on_delete=models.CASCADE)
+    deleted_on = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['node', 'project'], name='unique_deleted_repos')
+        ]
+
 class ChangeReason(NS_Node):
     name = models.CharField(max_length=20, null=False, blank=False)
     description = models.TextField(null=True, blank=True)
