@@ -21,7 +21,16 @@ class ProjectCommitterAdmin(admin.ModelAdmin):
     readonly_fields = ['project', 'committer', 'initial_commit', 'maintainer_survey_response']
     fields = readonly_fields + ['response_tags']
 
-    list_display = ['project', 'committer']
+    list_display = ['committer', 'project_owner', 'project_name']
+
+    @admin.display(description='Owner')
+    def project_owner(self, obj):
+        return obj.project.owner
+
+    @admin.display(description='Project')
+    def project_name(self, obj):
+        return obj.project.name
+
 
 @admin.register(Committer)
 class CommitterAdmin(admin.ModelAdmin):
