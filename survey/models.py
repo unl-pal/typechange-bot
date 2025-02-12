@@ -20,6 +20,10 @@ class Node(models.Model):
     def __str__(self):
         return self.hostname
 
+    @property
+    def count_projects_on(self):
+        return self.project_set.count()
+
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['hostname'], name='unique_node_names')

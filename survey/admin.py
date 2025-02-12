@@ -7,7 +7,22 @@ from .models import Committer, Project, Commit, Response, ProjectCommitter, Chan
 
 # Register your models here.
 
-admin.site.register(Node)
+class ProjectInline(admin.StackedInline):
+    model = Project
+    extra = 0
+    can_delete = False
+    show_change_link = True
+
+    def has_add_permision(self, obj):
+        return False
+
+@admin.register(Node)
+class NodeAdmin(admin.ModelAdmin):
+    readonly_fields = ['hostname', 'count_projects_on']
+
+    inlines = [ProjectInline]
+
+    list_display = ['hostname', 'count_projects_on']
 
 @admin.register(FAQ)
 class FAQAdmin(admin.ModelAdmin):
