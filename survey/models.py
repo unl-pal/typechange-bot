@@ -156,5 +156,8 @@ class FAQ(models.Model):
     answer = MarkdownxField()
     weight = models.IntegerField()
 
+    class Meta:
+        ordering = ('-weight', )
+
     def __str__(self):
         return f'FAQ: {self.question}'
