@@ -17,6 +17,8 @@ from django.conf import settings
 from django.utils import timezone
 from django.template import loader
 
+from datetime import timedelta
+
 from git import Repo
 from pathlib import Path
 
@@ -34,6 +36,12 @@ try:
 except Node.DoesNotExist:
     current_node = Node(hostname = current_host)
     current_node.save()
+
+# TODO: Make a beat task
+@app.task()
+def vacuum_irrelevant_commits():
+    time_created = timezone.now() - timedelta(hours=36)
+    Commit.objects.filter(created_at__lt = time_created, is_relevant=False).delete()
 
 @app.task()
 def clone_repo(project_id):
