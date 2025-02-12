@@ -14,6 +14,7 @@ class FAQAdmin(admin.ModelAdmin):
     fields = ['weight', 'question', 'answer']
 
     list_display = ['question', 'weight']
+    search_fields = ['question', 'answer']
 
 @admin.register(ProjectCommitter)
 class ProjectCommitterAdmin(admin.ModelAdmin):
