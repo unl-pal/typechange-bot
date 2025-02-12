@@ -141,7 +141,11 @@ def install_repo(owner: str, repo: str, installation_id: str):
 @app.task(ignore_result = True)
 def fetch_project(project_id: int):
     project = Project.objects.get(id=project_id)
-    repo = Repo(project.path)
+    try:
+        repo = Repo(project.path)
+    except:
+        project.path.parent.mkdir(exist_ok=True, parent=True)
+        repo = Repo.clone_from(project.clone_url, project.path)
     repo.remote().fetch()
 
 @app.task(ignore_result = True)
