@@ -40,6 +40,9 @@ class ProjectCommitterAdmin(admin.ModelAdmin):
 
     list_display = ['project_owner', 'project_name', 'committer']
     list_display_links = ['committer']
+    list_filter = ['project__owner', 'project__name', 'committer__username']
+
+    search = ['survey_response']
 
     @admin.display(description='Owner')
     def project_owner(self, obj):
@@ -56,6 +59,7 @@ class CommitterAdmin(admin.ModelAdmin):
     fields = readonly_fields + ['tags']
 
     list_display = ['username', 'last_contact_date', 'should_contact']
+    list_filter = ['last_contact_date']
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
@@ -64,6 +68,7 @@ class ProjectAdmin(admin.ModelAdmin):
 
     list_display = ['owner', 'name', 'primary_language', 'host_node', 'track_changes']
     list_display_links = ['owner', 'name']
+    list_filter = ['owner', 'name', 'primary_language', 'host_node']
 
 
 @admin.register(Commit)
@@ -73,6 +78,8 @@ class CommitAdmin(admin.ModelAdmin):
 
     list_display = ["project_owner", "project_name", 'hash', 'is_relevant']
     list_display_links = list_display[:3]
+
+    list_filter = ['project__owner', 'project__name']
 
     @admin.display(description='Owner')
     def project_owner(self, obj):
@@ -89,6 +96,9 @@ class ResponseAdmin(admin.ModelAdmin):
 
     list_display = ['project_owner', 'project_name', 'commit', 'committer']
     list_display_links = list_display[:3]
+    list_filter = ['commit__project__owner', 'commit__project__name', 'committer']
+
+    search = ['survey_response']
 
     @admin.display(description='Owner')
     def project_owner(self, obj):
@@ -102,11 +112,16 @@ class ResponseAdmin(admin.ModelAdmin):
 class ChangeReasonAdmin(TreeAdmin):
     form = movenodeform_factory(ChangeReason)
 
+    search_fields = ['description']
+
 @admin.register(InitialReason)
 class InitialReasonAdmin(TreeAdmin):
     form = movenodeform_factory(InitialReason)
 
+    search_fields = ['description']
 
 @admin.register(MaintainerReason)
 class MaintainerReasonAdmin(TreeAdmin):
     form = movenodeform_factory(MaintainerReason)
+
+    search_fields = ['description']
