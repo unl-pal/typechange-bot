@@ -95,8 +95,20 @@ def process_repository(payload):
             repo.track_changes = False
             repo.save()
         case "renamed":
-            # TODO: Process Repository Rename
-            pass
+            old_owner, old_name = payload['changes']['repository']['name']['frome'].split('/')
+            new_owner, new_name = payload['repository']['full_name'].split('/')
+            project = Project.objects.get(Q(owner=old_owner), Q(name=old_name))
+            rename_repo.apply_async([old_owner, old_name, new_owner, new_name], queue=project.repository_host)
+
+@app.task()
+def rename_repo(old_owner, old_name, new_owner, new_name):
+    project = Project.objects.get(Q(owner=old_owner), Q(name=old_name))
+    # TODO: Delete old repo?  Move old repo?
+    project.owner = new_owner
+    project.name = new_name
+    project.save()
+    project.path.parent.mkdir(exist_ok=True, parents=True)
+    Repo.clone_from(str(project), project.path)
 
 @app.task()
 def install_repo(owner: str, repo: str, installation_id: str):
