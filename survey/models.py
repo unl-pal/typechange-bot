@@ -29,6 +29,7 @@ class Node(models.Model):
             models.UniqueConstraint(fields=['hostname'], name='unique_node_names')
         ]
         ordering = ('hostname', )
+        verbose_name = "Worker Node"
 
 class ChangeReason(NS_Node):
     name = models.CharField(max_length=20, null=False, blank=False)
@@ -39,6 +40,9 @@ class ChangeReason(NS_Node):
             return self.name
         return f"{self.get_parent()} → {self.name}"
 
+    class Meta:
+        verbose_name = "Reason for Change"
+
 class InitialReason(NS_Node):
     name = models.CharField(max_length=20, null=False, blank=False)
     description = models.TextField(null=True, blank=True)
@@ -48,6 +52,9 @@ class InitialReason(NS_Node):
             return self.name
         return f"{self.get_parent()} → {self.name}"
 
+    class Meta:
+        verbose_name = "Initial Response Code"
+
 class MaintainerReason(NS_Node):
     name = models.CharField(max_length=20, null=False, blank=False)
     description = models.TextField(null=True, blank=True)
@@ -56,6 +63,9 @@ class MaintainerReason(NS_Node):
         if self.get_parent() is None:
             return self.name
         return f"{self.get_parent()} → {self.name}"
+
+    class Meta:
+        verbose_name = "Maintainer Response Codes"
 
 
 class Committer(models.Model):
@@ -136,6 +146,7 @@ class ProjectCommitter(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['project', 'committer'], name='unique_project_committer')
         ]
+        verbose_name = "Project Committer"
 
 class Commit(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, editable=False)
@@ -184,6 +195,7 @@ class FAQ(models.Model):
 
     class Meta:
         ordering = ('-weight', )
+        verbose_name = "FAQ"
 
     def __str__(self):
         return f'FAQ: {self.question}'
