@@ -18,11 +18,12 @@ class ProjectInline(admin.StackedInline):
 
 @admin.register(Node)
 class NodeAdmin(admin.ModelAdmin):
-    readonly_fields = ['hostname', 'count_projects_on']
+    readonly_fields = ['hostname', 'count_projects_on', 'last_active', 'enabled']
 
     inlines = [ProjectInline]
 
-    list_display = ['hostname', 'count_projects_on']
+    list_display = ['hostname', 'last_active', 'enabled', 'count_projects_on']
+    list_filter = ['hostname', 'last_active', 'enabled']
 
 @admin.register(FAQ)
 class FAQAdmin(admin.ModelAdmin):
