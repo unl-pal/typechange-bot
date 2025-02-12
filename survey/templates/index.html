@@ -1,4 +1,4 @@
-
+{% load survey %}
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
     <head>
@@ -193,7 +193,7 @@
                 <p><b>{{ question.question }}</b></p>
                 <p>
                     {% autoescape off %}
-                    {{ question.answer }}
+                    {{ question.answer | markdown }}
                     {% endautoescape %}
                 </p>
             </li>

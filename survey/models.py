@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from github import Github, Auth
 from treebeard.ns_tree import NS_Node
+from markdownx.models import MarkdownxField
 
 from django.utils import timezone
 from datetime import timedelta
@@ -150,8 +151,8 @@ class Response(models.Model):
         return f'Response of {self.committer} on {self.commit}'
 
 class FAQ(models.Model):
-    question = models.TextField()
-    answer = models.TextField()
+    question = MarkdownxField('Frequently Asked Question')
+    answer = MarkdownxField()
     weight = models.IntegerField()
 
     def __str__(self):

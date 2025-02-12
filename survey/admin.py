@@ -7,8 +7,13 @@ from .models import Committer, Project, Commit, Response, ProjectCommitter, Chan
 
 # Register your models here.
 
-admin.site.register(FAQ)
 admin.site.register(Node)
+
+@admin.register(FAQ)
+class FAQAdmin(admin.ModelAdmin):
+    fields = ['weight', 'question', 'answer']
+
+    list_display = ['question', 'weight']
 
 @admin.register(ProjectCommitter)
 class ProjectCommitterAdmin(admin.ModelAdmin):
