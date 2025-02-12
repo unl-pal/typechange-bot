@@ -3,7 +3,7 @@ from django.contrib import admin
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
 
-from .models import Committer, Project, Commit, Response, ProjectCommitter, ChangeReason, FAQ, Node, InitialReason
+from .models import Committer, Project, Commit, Response, ProjectCommitter, ChangeReason, FAQ, Node, InitialReason, MaintainerReason
 
 # Register your models here.
 
@@ -36,7 +36,7 @@ class FAQAdmin(admin.ModelAdmin):
 @admin.register(ProjectCommitter)
 class ProjectCommitterAdmin(admin.ModelAdmin):
     readonly_fields = ['project', 'committer', 'initial_commit', 'maintainer_survey_response']
-    fields = readonly_fields + ['response_tags']
+    fields = readonly_fields + ['tags']
 
     list_display = ['project_owner', 'project_name', 'committer']
     list_display_links = ['committer']
@@ -105,3 +105,8 @@ class ChangeReasonAdmin(TreeAdmin):
 @admin.register(InitialReason)
 class InitialReasonAdmin(TreeAdmin):
     form = movenodeform_factory(InitialReason)
+
+
+@admin.register(MaintainerReason)
+class MaintainerReasonAdmin(TreeAdmin):
+    form = movenodeform_factory(MaintainerReason)

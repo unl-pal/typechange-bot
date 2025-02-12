@@ -48,6 +48,16 @@ class InitialReason(NS_Node):
             return self.name
         return f"{self.get_parent()} → {self.name}"
 
+class MaintainerReason(NS_Node):
+    name = models.CharField(max_length=20, null=False, blank=False)
+    description = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        if self.get_parent() is None:
+            return self.name
+        return f"{self.get_parent()} → {self.name}"
+
+
 class Committer(models.Model):
     username = models.CharField(max_length=200)
     initial_contact_date = models.DateTimeField("initial contact date", auto_now_add=True, editable=False)
@@ -117,7 +127,7 @@ class ProjectCommitter(models.Model):
     is_maintainer = models.BooleanField(null=True)
     maintainer_survey_response = models.TextField('response to maintainer survey', null=True, blank=True, editable=False)
     initial_commit = models.ForeignKey('Commit', on_delete=models.CASCADE, editable=False, null=True)
-    response_tags = models.ManyToManyField(ChangeReason)
+    tags = models.ManyToManyField (MaintainerReason)
 
     def __str__(self):
         return f'{self.committer}'
