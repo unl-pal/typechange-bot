@@ -24,6 +24,7 @@ class Node(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['hostname'], name='unique_node_names')
         ]
+        ordering = ('hostname', )
 
 class ChangeReason(NS_Node):
     name = models.CharField(max_length=20, null=False, blank=False)
