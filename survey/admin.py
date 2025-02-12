@@ -98,7 +98,6 @@ class ResponseAdmin(admin.ModelAdmin):
     def project_name(self, obj):
         return obj.commit.project.name
 
-
 @admin.register(ChangeReason)
-class CodeAdmin(TreeAdmin):
+class ChangeReasonAdmin(TreeAdmin):
     form = movenodeform_factory(ChangeReason)
