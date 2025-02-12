@@ -15,25 +15,35 @@ class ProjectCommitterAdmin(admin.ModelAdmin):
     readonly_fields = ['project', 'committer', 'initial_commit', 'maintainer_survey_response']
     fields = readonly_fields + ['response_tags']
 
+    list_display = ['project', 'committer']
+
 @admin.register(Committer)
 class CommitterAdmin(admin.ModelAdmin):
     fields = ['username', 'initial_contact_date', 'last_contact_date', 'consent_timestamp', 'opt_out', 'projects', 'initial_survey_response', 'should_contact']
     readonly_fields = fields
+
+    list_display = ['username', 'last_contact_date', 'should_contact']
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
     fields = ['add_date', 'remove_date', 'host_node', 'primary_language', 'track_changes', 'typechecker_files', 'committers']
     readonly_fields = fields
 
+    list_display = ['owner', 'name', 'primary_language', 'host_node', 'track_changes']
+
 @admin.register(Commit)
 class CommitAdmin(admin.ModelAdmin):
     fields = ['project', 'hash', 'message', 'diff', 'is_relevant']
     readonly_fields = fields
 
+    list_display = ['project', 'hash', 'is_relevant']
+
 @admin.register(Response)
 class ResponseAdmin(admin.ModelAdmin):
     readonly_fields = ['commit', 'committer', 'survey_response']
     fields = readonly_fields + ['tags']
+
+    list_display = ['commit', 'committer']
 
 @admin.register(ChangeReason)
 class CodeAdmin(TreeAdmin):

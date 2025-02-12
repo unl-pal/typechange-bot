@@ -53,7 +53,7 @@ class Committer(models.Model):
         return self.consent_timestamp is not None and self.last_contact_date < (timezone.now() - timedelta(minutes=5))
 
     def __str__(self):
-        return f'https://github.com/{self.username}'
+        return f'{self.username}'
 
 class Project(models.Model):
     owner = models.CharField('project owner', max_length=200, editable=False)
@@ -106,7 +106,7 @@ class ProjectCommitter(models.Model):
     response_tags = models.ManyToManyField(ChangeReason)
 
     def __str__(self):
-        return f'{self.committer.username} contributes to {self.project.owner}/{self.project.name}'
+        return f'{self.committer}'
 
     class Meta:
         constraints = [
