@@ -18,8 +18,8 @@ except Node.DoesNotExist:
     current_node = Node(hostname = current_host)
     current_node.save()
 
-# TODO: Make a beat task
 @app.task()
 def vacuum_irrelevant_commits():
     time_created = timezone.now() - timedelta(hours=36)
     Commit.objects.filter(created_at__lt = time_created, is_relevant=False).delete()
+
