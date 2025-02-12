@@ -10,7 +10,7 @@ from django.db import transaction
 
 from django.db.models import Q
 from django.db.utils import IntegrityError
-from .models import Committer, Commit, Project, ProjectCommitter, Response
+from .models import Committer, Commit, Project, ProjectCommitter, Response, Node
 from .utils import *
 
 from django.conf import settings
@@ -29,13 +29,19 @@ remove_command = re.compile(f'@{settings.GITHUB_APP_NAME}(\\[bot\\])?\\sremove',
 import socket
 current_host = socket.gethostname()
 
+try:
+    current_node = Node.objects.get(hostname=current_host)
+except Node.DoesNotExist:
+    current_node = Node(hostname = current_host)
+    current_node.save()
+
 @app.task()
 def clone_repo(project_id):
     project = Project.objects.get(id=project_id)
     local_path = project.path
     local_path.parent.mkdir(exist_ok=True, parents=True)
     repo = Repo.clone_from(str(project), local_path)
-    project.repository_host = current_host
+    project.host_node = current_node
     project.typechecker_files = get_typechecker_configuration(repo, project.primary_language)
     project.save()
 
@@ -98,7 +104,7 @@ def process_repository(payload):
             old_owner, old_name = payload['changes']['repository']['name']['frome'].split('/')
             new_owner, new_name = payload['repository']['full_name'].split('/')
             project = Project.objects.get(Q(owner=old_owner), Q(name=old_name))
-            rename_repo.apply_async([old_owner, old_name, new_owner, new_name], queue=project.repository_host)
+            rename_repo.apply_async([old_owner, old_name, new_owner, new_name], queue=project.host_node.host_name)
 
 @app.task()
 def rename_repo(old_owner, old_name, new_owner, new_name):
@@ -127,10 +133,10 @@ def install_repo(owner: str, repo: str, installation_id: str):
     project.save()
 
     if project.track_changes:
-        if project.repository_host is None:
+        if project.host_node is None:
             clone_repo.delay(project.id)
         else:
-            fetch_project.apply_async([project.id], queue=project.repository_host)
+            fetch_project.apply_async([project.id], queue=project.host_node.hostname)
 
 @app.task(ignore_result = True)
 def fetch_project(project_id: int):
@@ -143,7 +149,7 @@ def process_push_data(owner, repo, commits):
     project = Project.objects.get(Q(owner=owner) & Q(name=repo))
 
     if project.track_changes:
-        fetch_project.apply_async([project.id], queue=project.repository_host)
+        fetch_project.apply_async([project.id], queue=project.host_node.hostname)
         for commit_data in commits:
             try:
                 commit = Commit(project=project,
@@ -154,7 +160,7 @@ def process_push_data(owner, repo, commits):
             except IntegrityError:
                 commit = Commit.objects.get(Q(project=project) & Q(hash=commit_data['id']))
 
-            process_commit.apply_async([commit.pk], queue=project.repository_host)
+            process_commit.apply_async([commit.pk], queue=project.host_node.hostname)
 
 @app.task(bind = True, autoretry_for=(ValueError,), retry_backoff=2, max_retries=5)
 def process_commit(self, commit_pk: int):
@@ -300,17 +306,17 @@ def process_comment(comment_user: str, comment_body: str, repo_owner: str, repo_
         if project_committer.initial_commit == commit and committer.initial_survey_response is None and not project_committer.is_maintainer:
             committer.initial_survey_response = comment_body
             committer.save()
-            process_commit.apply_async([commit.id], queue=project_committer.project.repository_host)
+            process_commit.apply_async([commit.id], queue=project_committer.project.host_node.hostname)
         elif project_committer.initial_commit == commit and committer.initial_survey_response is None and project_committer.is_maintainer:
             committer.initial_survey_response = comment_body
             committer.save()
             project_committer.maintainer_survey_response = comment_body
             project_committer.save()
-            process_commit.apply_async([commit.id], queue=project_committer.project.repository_host)
+            process_commit.apply_async([commit.id], queue=project_committer.project.host_node.hostname)
         elif project_committer.is_maintainer and project_committer.initial_commit == commit:
             project_committer.maintainer_survey_response = comment_body
             project_committer.save()
-            process_commit.apply_async([commit.id], queue=project_committer.project.repository_host)
+            process_commit.apply_async([commit.id], queue=project_committer.project.host_node.hostname)
         elif Response.objects.filter(Q(commit=commit) & Q(committer=project_committer)).count() == 0:
             response = Response(commit=commit, committer=project_committer, survey_response=comment_body)
             response.save()

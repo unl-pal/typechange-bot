@@ -13,6 +13,17 @@ CURRENT_HOST = gethostname()
 
 # Create your models here.
 
+class Node(models.Model):
+    hostname = models.CharField('Host Name', max_length=200, editable=False, null=False)
+
+    def __str__(self):
+        return self.hostname
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['hostname'], name='unique_node_names')
+        ]
+
 class ChangeReason(NS_Node):
     name = models.CharField(max_length=20, null=False, blank=False)
     description = models.TextField(null=True, blank=True)
@@ -54,7 +65,7 @@ class Project(models.Model):
     add_date = models.DateTimeField('project add date', auto_now_add=True, editable=False)
     remove_date = models.DateTimeField('project remove date', blank=True, null=True, editable=False)
     committers = models.ManyToManyField(Committer, through='ProjectCommitter')
-    repository_host = models.CharField('repository host', max_length=200, editable=False, null=True)
+    host_node = models.ForeignKey(Node, on_delete=models.CASCADE, editable=False, null=True)
 
     _repo = None
 
@@ -75,7 +86,7 @@ class Project(models.Model):
 
     @property
     def is_on_current_node(self):
-        return self.repository_host == CURRENT_HOST
+        return self.host_node.hostname == CURRENT_HOST
 
     class Meta:
         constraints = [
