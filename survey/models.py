@@ -132,7 +132,11 @@ class Commit(models.Model):
         ]
 
     def __str__(self):
-        return f'{self.project}/commit/{self.hash}'
+        return f'{self.hash}'
+
+    @property
+    def public_url(self):
+        return f'{self.project.clone_url}/commit/{self.hash}'
 
     @property
     def gh(self):
