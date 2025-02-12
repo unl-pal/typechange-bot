@@ -41,14 +41,31 @@ class CommitAdmin(admin.ModelAdmin):
     fields = ['project', 'hash', 'message', 'diff', 'is_relevant']
     readonly_fields = fields
 
-    list_display = ['project', 'hash', 'is_relevant']
+    list_display = ['hash', 'is_relevant', "project_owner", "project_name"]
+
+    @admin.display(description='Owner')
+    def project_owner(self, obj):
+        return obj.project.owner
+
+    @admin.display(description='Project')
+    def project_name(self, obj):
+        return obj.project.name
 
 @admin.register(Response)
 class ResponseAdmin(admin.ModelAdmin):
     readonly_fields = ['commit', 'committer', 'survey_response']
     fields = readonly_fields + ['tags']
 
-    list_display = ['commit', 'committer']
+    list_display = ['commit', 'committer', 'project_owner', 'project_name']
+
+    @admin.display(description='Owner')
+    def project_owner(self, obj):
+        return obj.commit.project.owner
+
+    @admin.display(description='Project')
+    def project_name(self, obj):
+        return obj.commit.project.name
+
 
 @admin.register(ChangeReason)
 class CodeAdmin(TreeAdmin):
