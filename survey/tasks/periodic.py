@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-from typechangesapp.celery import app
+from .common import app, current_node
 
-from celery.utils.log import get_task_logger
-celery_logger = get_task_logger(__name__)
 from celery.result import ResultSet
 
 from django.db.models import Q
@@ -13,14 +11,11 @@ from datetime import timedelta
 
 from survey.models import Node, Commit
 
-import socket
-current_host = socket.gethostname()
-
-try:
-    current_node = Node.objects.get(hostname=current_host)
-except Node.DoesNotExist:
-    current_node = Node(hostname = current_host)
-    current_node.save()
+__all__ = [
+    'vacuum_irrelevant_commits',
+    'node_health_check',
+    'node_health_response'
+]
 
 @app.task()
 def vacuum_irrelevant_commits():

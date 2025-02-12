@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-from typechangesapp.celery import app
-
-from celery.utils.log import get_task_logger
-celery_logger = get_task_logger(__name__)
+from .common import app, current_node
 
 from django.db import transaction
 
@@ -27,128 +24,6 @@ import re
 consent_command: re.Pattern = re.compile(f'@{settings.GITHUB_APP_NAME}(\\[bot\\])?\\sconsent', re.IGNORECASE)
 optout_command = re.compile(f'@{settings.GITHUB_APP_NAME}(\\[bot\\])?\\soptout', re.IGNORECASE)
 remove_command = re.compile(f'@{settings.GITHUB_APP_NAME}(\\[bot\\])?\\sremove', re.IGNORECASE)
-
-import socket
-current_host = socket.gethostname()
-
-try:
-    current_node = Node.objects.get(hostname=current_host)
-except Node.DoesNotExist:
-    current_node = Node(hostname = current_host)
-    current_node.save()
-
-@app.task()
-def clone_repo(project_id):
-    project = Project.objects.get(id=project_id)
-    local_path = project.path
-    local_path.parent.mkdir(exist_ok=True, parents=True)
-    repo = Repo.clone_from(project.clone_url, local_path)
-    project.host_node = current_node
-    project.typechecker_files = get_typechecker_configuration(repo, project.primary_language)
-    project.save()
-
-@app.task()
-def process_installation(payload):
-    repositories = payload['repositories']
-
-    match payload['action']:
-        case 'created':
-            installation_id = payload['installation']['id']
-            for repo in repositories:
-                owner, name = repo['full_name'].split('/')
-                install_repo.delay(owner, repo, installation_id)
-        case 'deleted':
-            for repo in repositories:
-                owner, name = repo['full_name'].split('/')
-                if Project.objects.filter(owner=owner, name=name).count() > 0:
-                    for project in Project.objects.filter(owner=owner, name=name):
-                        project.installation_id = None
-                        project.remove_date = timezone.now()
-                        project.track_changes = False
-                        project.save()
-        case 'suspend':
-            # TODO: Handle Suspensions
-            pass
-        case 'unsuspend':
-            # TODO: Handle Unsuspensions
-            pass
-
-@app.task()
-def process_installation_repositories(payload):
-    match payload['action']:
-        case 'added':
-            installation_id = payload['installation']['id']
-            for repo in payload['repositories_added']:
-                owner, name = repo['full_name'].split('/')
-                install_repo.delay(owner, repo, installation_id)
-        case 'removed':
-            for repo in payload['repositories_removed']:
-                owner, name = repo['full_name'].split('/')
-                if Project.objects.filter(owner=owner, name=name).count() > 0:
-                    for project in Project.objects.filter(owner=owner, name=name):
-                        project.installation_id = None
-                        project.remove_date = timezone.now()
-                        project.track_changes = False
-                        project.save()
-
-@app.task()
-def process_repository(payload):
-    match payload['action']:
-        case "archived" | "deleted":
-            owner, name = payload['repository']['full_name'].split('/')
-            try:
-                repo = Project.objects.get(Q(owner=owner) & Q(name=name))
-            except:
-                return
-            repo.track_changes = False
-            repo.save()
-        case "renamed":
-            old_owner, old_name = payload['changes']['repository']['name']['frome'].split('/')
-            new_owner, new_name = payload['repository']['full_name'].split('/')
-            project = Project.objects.get(Q(owner=old_owner), Q(name=old_name))
-            rename_repo.apply_async([old_owner, old_name, new_owner, new_name], queue=project.host_node.host_name)
-
-@app.task()
-def rename_repo(old_owner, old_name, new_owner, new_name):
-    project = Project.objects.get(Q(owner=old_owner), Q(name=old_name))
-    # TODO: Delete old repo?  Move old repo?
-    project.owner = new_owner
-    project.name = new_name
-    project.save()
-    project.path.parent.mkdir(exist_ok=True, parents=True)
-    Repo.clone_from(project.clone_url, project.path)
-
-@app.task()
-def install_repo(owner: str, repo: str, installation_id: str):
-    try:
-        project = Project.objects.get(Q(owner=owner) & Q(name=repo))
-        project.installation_id = installation_id
-    except Project.DoesNotExist:
-        project = Project(owner=owner, name=repo, installation_id=installation_id)
-
-    project.remove_date = None
-
-    project.primary_language = project.gh.language
-    if project.primary_language in ['TypeScript', 'Python', 'PHP', 'R']:
-        project.track_changes = True
-
-    project.save()
-
-    if project.track_changes:
-        if project.host_node is None:
-            clone_repo.delay(project.id)
-        else:
-            fetch_project.apply_async([project.id], queue=project.host_node.hostname)
-
-@app.task(ignore_result = True)
-def fetch_project(project_id: int):
-    project = Project.objects.get(id=project_id)
-    try:
-        repo = Repo(project.path)
-    except:
-        project.path.parent.mkdir(exist_ok=True, parent=True)
-        repo = Repo.clone_from(project.clone_url, project.path)
-    repo.remote().fetch()
 
 @app.task(ignore_result = True)
 def process_push_data(owner, repo, commits):
