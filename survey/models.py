@@ -39,7 +39,14 @@ class ChangeReason(NS_Node):
             return self.name
         return f"{self.get_parent()} → {self.name}"
 
-    pass
+class InitialResponseCode(NS_Node):
+    name = models.CharField(max_length=20, null=False, blank=False)
+    description = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        if self.get_parent() is None:
+            return self.name
+        return f"{self.get_parent()} → {self.name}"
 
 class Committer(models.Model):
     username = models.CharField(max_length=200)
@@ -50,6 +57,7 @@ class Committer(models.Model):
     removal = models.DateTimeField("date of removal request & processing", null=True, blank=True, editable=False)
     projects = models.ManyToManyField('Project', through='ProjectCommitter')
     initial_survey_response = models.TextField('response to initial survey', null=True, blank=True, editable=False)
+    tags = models.ManyToManyField(InitialResponseCode)
 
     @property
     def should_contact(self) -> bool:

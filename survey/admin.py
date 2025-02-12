@@ -3,7 +3,7 @@ from django.contrib import admin
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
 
-from .models import Committer, Project, Commit, Response, ProjectCommitter, ChangeReason, FAQ, Node
+from .models import Committer, Project, Commit, Response, ProjectCommitter, ChangeReason, FAQ, Node, InitialResponseCode
 
 # Register your models here.
 
@@ -52,8 +52,8 @@ class ProjectCommitterAdmin(admin.ModelAdmin):
 
 @admin.register(Committer)
 class CommitterAdmin(admin.ModelAdmin):
-    fields = ['username', 'initial_contact_date', 'last_contact_date', 'consent_timestamp', 'opt_out', 'projects', 'initial_survey_response', 'should_contact']
-    readonly_fields = fields
+    readonly_fields = ['username', 'initial_contact_date', 'last_contact_date', 'consent_timestamp', 'opt_out', 'projects', 'initial_survey_response', 'should_contact']
+    fields = readonly_fields + ['tags']
 
     list_display = ['username', 'last_contact_date', 'should_contact']
 
@@ -101,3 +101,7 @@ class ResponseAdmin(admin.ModelAdmin):
 @admin.register(ChangeReason)
 class ChangeReasonAdmin(TreeAdmin):
     form = movenodeform_factory(ChangeReason)
+
+@admin.register(InitialResponseCode)
+class InitialResponseCodeAdmin(TreeAdmin):
+    form = movenodeform_factory(InitialResponseCode)
