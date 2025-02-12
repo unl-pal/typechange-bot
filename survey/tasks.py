@@ -40,7 +40,7 @@ def clone_repo(project_id):
     project = Project.objects.get(id=project_id)
     local_path = project.path
     local_path.parent.mkdir(exist_ok=True, parents=True)
-    repo = Repo.clone_from(str(project), local_path)
+    repo = Repo.clone_from(project.clone_url, local_path)
     project.host_node = current_node
     project.typechecker_files = get_typechecker_configuration(repo, project.primary_language)
     project.save()
@@ -114,7 +114,7 @@ def rename_repo(old_owner, old_name, new_owner, new_name):
     project.name = new_name
     project.save()
     project.path.parent.mkdir(exist_ok=True, parents=True)
-    Repo.clone_from(str(project), project.path)
+    Repo.clone_from(project.clone_url, project.path)
 
 @app.task()
 def install_repo(owner: str, repo: str, installation_id: str):

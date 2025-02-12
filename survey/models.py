@@ -70,6 +70,10 @@ class Project(models.Model):
     _repo = None
 
     def __str__(self):
+        return f'{self.owner}/{self.name}'
+
+    @property
+    def clone_url(self):
         return f'https://github.com/{self.owner}/{self.name}'
 
     @property
