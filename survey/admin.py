@@ -3,7 +3,7 @@ from django.contrib import admin
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
 
-from .models import Committer, Project, Commit, Response, ProjectCommitter, ChangeReason, FAQ, Node, InitialResponseCode
+from .models import Committer, Project, Commit, Response, ProjectCommitter, ChangeReason, FAQ, Node, InitialReason
 
 # Register your models here.
 
@@ -102,6 +102,6 @@ class ResponseAdmin(admin.ModelAdmin):
 class ChangeReasonAdmin(TreeAdmin):
     form = movenodeform_factory(ChangeReason)
 
-@admin.register(InitialResponseCode)
-class InitialResponseCodeAdmin(TreeAdmin):
-    form = movenodeform_factory(InitialResponseCode)
+@admin.register(InitialReason)
+class InitialReasonAdmin(TreeAdmin):
+    form = movenodeform_factory(InitialReason)
