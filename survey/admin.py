@@ -28,7 +28,9 @@ class NodeAdmin(admin.ModelAdmin):
 class FAQAdmin(admin.ModelAdmin):
     fields = ['weight', 'question', 'answer']
 
-    list_display = ['question', 'weight']
+    list_display = ['weight', 'question', 'answer']
+    list_display_links = ['question']
+
     search_fields = ['question', 'answer']
 
 @admin.register(ProjectCommitter)
@@ -36,7 +38,8 @@ class ProjectCommitterAdmin(admin.ModelAdmin):
     readonly_fields = ['project', 'committer', 'initial_commit', 'maintainer_survey_response']
     fields = readonly_fields + ['response_tags']
 
-    list_display = ['committer', 'project_owner', 'project_name']
+    list_display = ['project_owner', 'project_name', 'committer']
+    list_display_links = ['committer']
 
     @admin.display(description='Owner')
     def project_owner(self, obj):
@@ -60,13 +63,16 @@ class ProjectAdmin(admin.ModelAdmin):
     readonly_fields = fields
 
     list_display = ['owner', 'name', 'primary_language', 'host_node', 'track_changes']
+    list_display_links = ['owner', 'name']
+
 
 @admin.register(Commit)
 class CommitAdmin(admin.ModelAdmin):
     fields = ['project', 'hash', 'message', 'diff', 'is_relevant']
     readonly_fields = fields
 
-    list_display = ['hash', 'is_relevant', "project_owner", "project_name"]
+    list_display = ["project_owner", "project_name", 'hash', 'is_relevant']
+    list_display_links = list_display[:3]
 
     @admin.display(description='Owner')
     def project_owner(self, obj):
@@ -81,7 +87,8 @@ class ResponseAdmin(admin.ModelAdmin):
     readonly_fields = ['commit', 'committer', 'survey_response']
     fields = readonly_fields + ['tags']
 
-    list_display = ['commit', 'committer', 'project_owner', 'project_name']
+    list_display = ['project_owner', 'project_name', 'commit', 'committer']
+    list_display_links = list_display[:3]
 
     @admin.display(description='Owner')
     def project_owner(self, obj):
