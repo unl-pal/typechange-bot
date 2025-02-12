@@ -51,7 +51,7 @@ def fetch_project(project_id: int):
     try:
         repo = Repo(project.path)
     except:
-        project.path.parent.mkdir(exist_ok=True, parent=True)
+        project.path.parent.mkdir(exist_ok=True, parents=True)
         repo = Repo.clone_from(project.clone_url, project.path)
     repo.remote().fetch()
 
