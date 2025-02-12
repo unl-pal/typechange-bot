@@ -16,6 +16,7 @@ CURRENT_HOST = gethostname()
 
 class Node(models.Model):
     hostname = models.CharField('Host Name', max_length=200, editable=False, null=False)
+    last_active = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.hostname
