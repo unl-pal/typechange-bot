@@ -11,7 +11,7 @@ from django.db.models import Q
 from django.utils import timezone
 from datetime import timedelta
 
-from .models import Node, Commit
+from survey.models import Node, Commit
 
 import socket
 current_host = socket.gethostname()

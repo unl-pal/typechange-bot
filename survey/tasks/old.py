@@ -10,8 +10,8 @@ from django.db import transaction
 
 from django.db.models import Q
 from django.db.utils import IntegrityError
-from .models import Committer, Commit, Project, ProjectCommitter, Response, Node
-from .utils import *
+from survey.models import Committer, Commit, Project, ProjectCommitter, Response, Node
+from survey.utils import *
 
 from django.conf import settings
 from django.utils import timezone
