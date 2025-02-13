@@ -3,9 +3,9 @@ from django.contrib import admin
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
 
-from .models import Committer, Project, Commit, Response, ProjectCommitter, ChangeReason, FAQ, Node, InitialReason, MaintainerReason, DeletedRepository
+from .models import Committer, Project, Commit, Response, ProjectCommitter, ChangeReason, FAQ, Node, InitialReason, MaintainerReason, DeletedRepository, DeletionReason
 
-from .tasks import delete_repo
+from .tasks import delete_repo, fetch_project
 
 # Register your models here.
 
@@ -95,6 +95,30 @@ class ProjectAdmin(admin.ModelAdmin):
     list_display = ['owner', 'name', 'primary_language', 'host_node', 'track_changes']
     list_display_links = ['owner', 'name']
     list_filter = ['owner', 'name', 'primary_language', 'host_node']
+
+    actions = ['delete_repos', 'force_fetch']
+
+    def has_delete_permissions(self, request, obj=None):
+        return False
+
+    def get_actions(self, request):
+        actions = super(ProjectAdmin, self).get_actions(request)
+        del actions['delete_selected']
+        return actions
+
+    @admin.action(description="Delete Selected Projects' Repositories")
+    def delete_repos(self, request, queryset):
+        for proj in queryset.all():
+            del_rec = DeletedRepository(node=proj.host_node,
+                                        owner=proj.owner,
+                                        name=proj.name,
+                                        reason=DeletionReason.MANUAL)
+            del_rec.save()
+
+    @admin.action(description="Fetch Selected Projects")
+    def force_fetch(self, request, queryset):
+        for proj in queryset.all():
+            fetch_project.apply_async([proj.pk], queue=proj.host_node.hostname)
 
 
 @admin.register(Commit)
