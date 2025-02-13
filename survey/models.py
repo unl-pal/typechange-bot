@@ -33,14 +33,14 @@ class Node(models.Model):
         ordering = ('hostname', )
         verbose_name = "Worker Node"
 
-class DeletionReason(models.TextChoices):
-    REBALANCE = ('RB', "Rebalance")
-    RENAME = ('RN', "Rename")
-    UNUSED = ('UN', "Unused")
-    IRRELEVANT = ('IR', "Irrelevant")
-    MANUAL = ('MN', "Manual")
-
 class DeletedRepository(models.Model):
+    class DeletionReason(models.TextChoices):
+        REBALANCE = ('RB', "Rebalance")
+        RENAME = ('RN', "Rename")
+        UNUSED = ('UN', "Unused")
+        IRRELEVANT = ('IR', "Irrelevant")
+        MANUAL = ('MN', "Manual")
+
     node = models.ForeignKey(Node, on_delete=models.CASCADE, editable=False)
     owner = models.CharField(max_length=200, editable=False)
     name = models.CharField(max_length=200, editable=False)

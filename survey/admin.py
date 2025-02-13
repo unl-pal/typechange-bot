@@ -3,7 +3,7 @@ from django.contrib import admin
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
 
-from .models import Committer, Project, Commit, Response, ProjectCommitter, ChangeReason, FAQ, Node, InitialReason, MaintainerReason, DeletedRepository, DeletionReason
+from .models import Committer, Project, Commit, Response, ProjectCommitter, ChangeReason, FAQ, Node, InitialReason, MaintainerReason, DeletedRepository
 
 from .tasks import delete_repo, fetch_project
 
@@ -112,7 +112,7 @@ class ProjectAdmin(admin.ModelAdmin):
             del_rec = DeletedRepository(node=proj.host_node,
                                         owner=proj.owner,
                                         name=proj.name,
-                                        reason=DeletionReason.MANUAL)
+                                        reason=DeletedRepository.DeletionReason.MANUAL)
             del_rec.save()
 
     @admin.action(description="Fetch Selected Projects")
