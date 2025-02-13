@@ -3,14 +3,15 @@
 
 from .common import app, current_node
 
-from survey.models import Project
+from survey.models import Project, DeletedRepository
 from git import Repo
 
 __all__ = [
     'install_repo',
     'clone_repo',
     'fetch_project',
-    'rename_repo'
+    'rename_repo',
+    'delete_repo'
 ]
 
 @app.task()
@@ -64,3 +65,14 @@ def rename_repo(old_owner, old_name, new_owner, new_name):
     project.save()
     project.path.parent.mkdir(exist_ok=True, parents=True)
     Repo.clone_from(project.clone_url, project.path)
+
+@app.task()
+def delete_repo(deleted_pk):
+    repo = DeletedRepository.objects.get(id=deleted_pk)
+    path = repo.project.path
+    for root, dirs, files in path.walk(top_down=False):
+        for name in files:
+            (root / name).unlink()
+        for name in dirs:
+            (root / name).rmdir()
+    repo.delete()

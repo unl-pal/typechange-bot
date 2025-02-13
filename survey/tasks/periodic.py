@@ -9,12 +9,15 @@ from django.db.models import Q
 from django.utils import timezone
 from datetime import timedelta
 
-from survey.models import Node, Commit
+from .repos  import delete_repo
+
+from survey.models import Node, Commit, DeletedRepository
 
 __all__ = [
     'vacuum_irrelevant_commits',
     'node_health_check',
-    'node_health_response'
+    'node_health_response',
+    'clean_repos'
 ]
 
 @app.task()
@@ -41,3 +44,9 @@ def node_health_response():
     current_node.last_active = timezone.now()
     current_node.save()
     return True
+
+@app.task()
+def clean_repos():
+    week_ago = timezone.now() - timedelta(days=7)
+    for repo in DeletedRepository.objects.filter(deleted_on__lt=week_ago):
+        delete_repo.apply_async([repo.id], queue=repo.node.hostname)
