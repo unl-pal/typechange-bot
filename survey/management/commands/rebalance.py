@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from survey.models import Project, Node, DeletedRepository
+from survey.models import Project, Node, DeletedRepository, DeletionReason
 
 from survey.tasks import fetch_project
 
@@ -95,7 +95,7 @@ class Command(BaseCommand):
             remaining = min(needed, len(movable_repositories))
             projects_to_move = movable_repositories[:remaining]
             for prj in projects_to_move:
-                deletion_record = DeletedRepository(node=prj.host_node, project=prj)
+                deletion_record = DeletedRepository(node=prj.host_node, owner=prj.owner, name=prj.name, reason=DeletionReason.REBALANCE)
                 print(f'Created deletion record for {prj} on {prj.host_node}.')
                 if not options['dry_run']:
                     deletion_record.save()

@@ -33,15 +33,26 @@ class Node(models.Model):
         ordering = ('hostname', )
         verbose_name = "Worker Node"
 
+class DeletionReason(models.TextChoices):
+    REBALANCE = ('RB', "Rebalance")
+    RENAME = ('RN', "Rename")
+    UNUSED = ('UN', "Unused")
+    IRRELEVANT = ('IR', "Irrelevant")
+    MANUAL = ('MN', "Manual")
+
 class DeletedRepository(models.Model):
-    node = models.ForeignKey(Node, on_delete=models.CASCADE)
-    project = models.ForeignKey('Project', on_delete=models.CASCADE)
-    deleted_on = models.DateTimeField(auto_now_add=True)
+    node = models.ForeignKey(Node, on_delete=models.CASCADE, editable=False)
+    owner = models.CharField(max_length=200, editable=False)
+    name = models.CharField(max_length=200, editable=False)
+
+    reason = models.CharField(max_length=2,
+                              choices=DeletionReason.choices,
+                              default=DeletionReason.REBALANCE)
+
+    deleted_on = models.DateTimeField(auto_now_add=True, editable=False)
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['node', 'project'], name='unique_deleted_repos')
-        ]
+        verbose_name_plural = 'Deleted Repositories'
 
 class ChangeReason(NS_Node):
     name = models.CharField(max_length=20, null=False, blank=False)
