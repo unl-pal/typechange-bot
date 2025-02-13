@@ -3,9 +3,34 @@ from django.contrib import admin
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
 
-from .models import Committer, Project, Commit, Response, ProjectCommitter, ChangeReason, FAQ, Node, InitialReason, MaintainerReason
+from .models import Committer, Project, Commit, Response, ProjectCommitter, ChangeReason, FAQ, Node, InitialReason, MaintainerReason, DeletedRepository
+
+from .tasks import delete_repo
 
 # Register your models here.
+
+@admin.register(DeletedRepository)
+class DeletedRepoAdmin(admin.ModelAdmin):
+    readonly_fields = ['node', 'owner', 'name', 'reason', 'deleted_on']
+
+    list_display = readonly_fields
+    list_display_links = ['owner', 'name', 'reason']
+    list_filter = readonly_fields
+
+    actions = ['delete_on_workers']
+
+    def has_delete_permissions(self, request, obj=None):
+        return False
+
+    def get_actions(self, request):
+        actions = super(DeletedRepoAdmin, self).get_actions(request)
+        del actions['delete_selected']
+        return actions
+
+    @admin.action(description="Delete Repositories on Workers")
+    def delete_on_workers(self, request, queryset):
+        for repo in queryset.all():
+            delete_repo.apply_async([repo.pk], queue=repo.node.hostname)
 
 class ProjectInline(admin.StackedInline):
     model = Project
