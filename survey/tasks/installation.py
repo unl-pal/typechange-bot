@@ -3,7 +3,7 @@
 
 from .common import current_node, app
 
-from survey.models import Project
+from survey.models import Project, ProjectCommitter
 from django.db.models import Q
 
 from .repos import install_repo, rename_repo
@@ -75,3 +75,14 @@ def process_repository(payload):
             new_owner, new_name = payload['repository']['full_name'].split('/')
             project = Project.objects.get(Q(owner=old_owner), Q(name=old_name))
             rename_repo.apply_async([old_owner, old_name, new_owner, new_name], queue=project.host_node.host_name)
+
+def get_email(username):
+    return ""
+
+@app.task()
+def mail_maintainer(project_committer_id: int):
+    committer = ProjectCommitter.objects.get(id=project_committer_id)
+    project = committer.project
+    email = get_email(committer.committer)
+    # TODO: Format and send an email
+    pass
