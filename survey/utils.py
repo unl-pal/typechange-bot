@@ -7,6 +7,7 @@ from typing import List, Optional, Tuple
 import git
 from git import Repo
 from .models import Commit, Project
+from django.db.models import Q
 from .ast_diff import AstDiff
 import whatthepatch
 
