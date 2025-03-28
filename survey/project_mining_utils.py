@@ -63,7 +63,7 @@ def collect_repo_maintainers(repo: github.Repository.Repository, gh: Optional[gi
         .dropna(axis=0) \
         .assign(email = lambda df: df.email_and_name.apply(lambda x: x[0]),
                 name = lambda df: df.email_and_name.apply(lambda x: x[1]),
-                project = lambda df: f'{owner}/{project_name}') \
+                project = lambda df: repo.full_name) \
         .reset_index() \
         [['login', 'name', 'email', 'contributions', 'project']]
 
