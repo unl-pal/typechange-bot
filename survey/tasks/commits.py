@@ -181,6 +181,8 @@ def process_comment(comment_user: str, comment_body: str, repo_owner: str, repo_
     except:
         return
 
+    gh_comment = commit.gh.get_comment(comment_payload['id'])
+
     if not commit.is_relevant:
         return
 
@@ -217,5 +219,7 @@ def process_comment(comment_user: str, comment_body: str, repo_owner: str, repo_
             response = Response(commit=commit, committer=project_committer, survey_response=comment_body)
             response.save()
             committer.save()
-        template = loader.get_template('acknowledgment.md')
-        commit.gh.create_comment(template.render({'BOT_NAME': settings.GITHUB_APP_NAME}))
+
+        gh_comment.create_reaction('+1')
+        # template = loader.get_template('acknowledgment.md')
+        # commit.gh.create_comment(template.render({'BOT_NAME': settings.GITHUB_APP_NAME}))
