@@ -2,6 +2,7 @@
 # coding: utf-8
 
 from .common import app, current_node
+from .repos import fetch_project
 
 from django.db import transaction
 
