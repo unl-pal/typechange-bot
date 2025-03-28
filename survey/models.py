@@ -158,6 +158,7 @@ class ProjectCommitter(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, editable=False)
     committer = models.ForeignKey(Committer, on_delete=models.CASCADE, editable=False)
     is_maintainer = models.BooleanField(null=True)
+    has_been_emailed = models.BooleanField(null=True)
     maintainer_survey_response = models.TextField('response to maintainer survey', null=True, blank=True, editable=False)
     initial_commit = models.ForeignKey('Commit', on_delete=models.CASCADE, editable=False, null=True)
     tags = models.ManyToManyField (MaintainerReason)
