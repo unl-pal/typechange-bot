@@ -18,12 +18,19 @@ def get_git_hub(token: str = settings.GITHUB_API_KEY):
 g: Optional[github.Github] = None
 get_git_hub()
 
-def collect_repo_maintainers(owner: str, project_name: str, gh: Optional[github.Github] = None):
+def get_repo(owner: str, project_name: str, gh: Optional[github.Github] = None) -> github.Repository.Repository:
     if gh is None:
         global g
         gh = g
 
-    repo = gh.get_repo(f'{owner}/{project_name}')
+    return gh.get_repo(f'{owner}/{project_name}')
+
+
+def collect_repo_maintainers(repo: github.Repository.Repository, gh: Optional[github.Github] = None):
+    if gh is None:
+        global g
+        gh = g
+
     stats = repo.get_stats_contributors()
 
     login = []

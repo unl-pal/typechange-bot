@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from github import Github, Auth
+import github
 from treebeard.ns_tree import NS_Node
 from markdownx.models import MarkdownxField
 
@@ -125,6 +126,7 @@ class Project(models.Model):
     host_node = models.ForeignKey(Node, on_delete=models.CASCADE, editable=False, null=True)
 
     _repo = None
+    _gh_app = None
 
     def __str__(self):
         return f'{self.owner}/{self.name}'
@@ -134,19 +136,25 @@ class Project(models.Model):
         return f'https://github.com/{self.owner}/{self.name}'
 
     @property
-    def gh(self):
+    def gh_app(self) -> github.Github:
+        if self._gh_app is not None:
+            return self._gh_app
+        self._gh_app = Github(auth=Auth.AppInstallationAuth(application_auth, self.installation_id))
+        return self._gh_app
+
+    @property
+    def gh(self) -> github.Repository.Repository:
         if self._repo is not None:
             return self._repo
-        gh_ = Github(auth=Auth.AppInstallationAuth(application_auth, self.installation_id))
-        self._repo = gh_.get_repo(f'{self.owner}/{self.name}')
+        self._repo = self.gh_app.get_repo(f'{self.owner}/{self.name}')
         return self._repo
 
     @property
-    def path(self):
+    def path(self) -> Path:
         return settings.DATA_DIR / self.owner / self.name
 
     @property
-    def is_on_current_node(self):
+    def is_on_current_node(self) -> bool:
         return self.host_node.hostname == CURRENT_HOST
 
     class Meta:

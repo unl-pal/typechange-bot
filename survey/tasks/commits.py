@@ -9,6 +9,7 @@ from django.db.models import Q
 from django.db.utils import IntegrityError
 from survey.models import Committer, Commit, Project, ProjectCommitter, Response, Node
 from survey.utils import *
+from survey.project_mining_utils import collect_repo_maintainers
 
 from django.conf import settings
 from django.utils import timezone
@@ -57,6 +58,8 @@ def process_commit(self, commit_pk: int):
     new_author = False
     new_committer = False
 
+    maintainers_list = None
+
     if project.committers.filter(username=commit.gh.author.login).count() == 0:
         try:
             author = Committer.objects.get(username=commit.gh.author.login)
@@ -64,8 +67,13 @@ def process_commit(self, commit_pk: int):
             author = Committer(username=commit.gh.author.login)
             author.save()
 
+        if maintainers_list == None:
+            maintainers_list = collect_repo_maintainers(project.gh, project.gh_app)['login'].to_list()
+
+        is_maintainer = commit.gh.author.login in maintainers_list
+
         new_author = True
-        project.committers.add(author, through_defaults={'initial_commit': commit})
+        project.committers.add(author, through_defaults={'initial_commit': commit, 'is_maintainer': is_maintainer})
         project.save()
         process_new_committer.delay(author.pk, commit_pk)
         process_new_link.delay(author.pk, project.pk)
@@ -76,6 +84,11 @@ def process_commit(self, commit_pk: int):
         except Committer.DoesNotExist:
             committer = Committer(username=commit.gh.committer.login)
             committer.save()
+
+        if maintainers_list == None:
+            maintainers_list = collect_repo_maintainers(project.gh, project.gh_app)['login'].to_list()
+
+        is_maintainer = commit.gh.committer.login in maintainers_list
 
         new_committer = True
         project.committers.add(committer, through_defaults={'initial_commit': commit})
