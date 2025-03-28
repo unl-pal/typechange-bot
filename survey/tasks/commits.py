@@ -105,10 +105,10 @@ def process_commit(self, commit_pk: int):
     with transaction.atomic():
         notify_who = []
 
-        if not new_author and Committer.objects.get(username=commit.gh.author.login).should_contact():
+        if not new_author and Committer.objects.get(username=commit.gh.author.login).should_contact:
             notify_who.append(commit.gh.author.login)
 
-        if not new_committer and commit.gh.committer.login != commit.gh.author.login and Committer.objects.get(username=commit.gh.committer.login).should_contact():
+        if not new_committer and commit.gh.committer.login != commit.gh.author.login and Committer.objects.get(username=commit.gh.committer.login).should_contact:
             notify_who.append(commit.gh.committer.login)
 
         if len(notify_who) > 0:
