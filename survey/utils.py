@@ -6,7 +6,7 @@ import re
 from typing import List, Optional, Tuple
 import git
 from git import Repo
-from .models import Commit
+from .models import Commit, Repository
 from .ast_diff import AstDiff
 import whatthepatch
 
