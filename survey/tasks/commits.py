@@ -115,6 +115,7 @@ def process_commit(self, commit_pk: int):
             file, line, is_added = commit_is_relevant[0]
             survey_template = loader.get_template('survey.md')
             template_data = {
+                'BOT_NAME': settings.GITHUB_APP_NAME,
                 'USER': ', '.join(list(f'@{login}' for login in notify_who[::-1])),
                 'ADDED': ('added' if is_added else 'removed')
             }
