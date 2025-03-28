@@ -8,6 +8,8 @@ from markdownx.models import MarkdownxField
 from django.utils import timezone
 from datetime import timedelta
 
+from pathlib import Path
+
 application_auth = Auth.AppAuth(settings.GITHUB_APP_ID, settings.GITHUB_APP_KEY)
 
 from socket import gethostname
