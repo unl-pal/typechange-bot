@@ -6,7 +6,7 @@ import re
 from typing import List, Optional, Tuple
 import git
 from git import Repo
-from .models import Commit, Repository
+from .models import Commit, Project
 from .ast_diff import AstDiff
 import whatthepatch
 
@@ -159,7 +159,7 @@ def get_comment_gh(commit_id, owner, name):
         commit = Commit.objects.get(hash=commit_id)
         return commit.gh
     except Commit.DoesNotExist:
-        repo = Repository.objects.get(Q(owner=owner) & Q(name=name))
+        repo = Project.objects.get(Q(owner=owner) & Q(name=name))
         return repo.gh.get_commit(sha=commit_id)
-    except Repository.DoesNotExist:
+    except Project.DoesNotExist:
         return None
