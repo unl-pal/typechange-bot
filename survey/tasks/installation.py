@@ -23,7 +23,7 @@ def process_installation(payload):
             installation_id = payload['installation']['id']
             for repo in repositories:
                 owner, name = repo['full_name'].split('/')
-                install_repo.delay(owner, repo, installation_id)
+                install_repo.delay(owner, name, installation_id)
         case 'deleted':
             for repo in repositories:
                 owner, name = repo['full_name'].split('/')
