@@ -4,6 +4,7 @@
 from .common import current_node, app
 
 from survey.models import Project, ProjectCommitter
+from django.utils import timezone
 from django.db.models import Q
 
 from .repos import install_repo, rename_repo

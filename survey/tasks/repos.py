@@ -6,6 +6,7 @@ from django.conf import settings
 from django.db.models import Q
 
 from survey.models import Project, DeletedRepository
+from survey.utils import get_typechecker_configuration
 from git import Repo
 
 __all__ = [
