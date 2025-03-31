@@ -186,8 +186,8 @@ def process_comment(comment_user: str, comment_body: str, repo_owner: str, repo_
         return
 
     if consent_command.search(comment_body):
-        print(comment_body)
         committer.consent_timestamp = timezone.now()
+        committer.consent_project_commit = f"{commit.project.owner}/{commit.project.repo}/{commit_id}"
         committer.opt_out = None
         committer.removal = None
 
