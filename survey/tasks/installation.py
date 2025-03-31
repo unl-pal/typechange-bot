@@ -72,7 +72,7 @@ def process_repository(payload):
             repo.track_changes = False
             repo.save()
         case "renamed":
-            old_owner, old_name = payload['changes']['repository']['name']['frome'].split('/')
+            old_owner, old_name = payload['changes']['repository']['name']['from'].split('/')
             new_owner, new_name = payload['repository']['full_name'].split('/')
             project = Project.objects.get(Q(owner=old_owner), Q(name=old_name))
             rename_repo.apply_async([old_owner, old_name, new_owner, new_name], queue=project.host_node.host_name)
