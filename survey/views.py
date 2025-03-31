@@ -2,7 +2,7 @@ from django.shortcuts import render
 
 from django.db.models import Q
 from .models import Project, Commit, Response, Committer, FAQ
-from .tasks import process_push_data, process_new_committer, process_comment, process_installation, process_installation_repositories
+from .tasks import process_push_data, process_new_committer, process_comment, process_installation, process_installation_repositories, process_repository
 
 import json
 
