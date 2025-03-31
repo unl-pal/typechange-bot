@@ -75,12 +75,11 @@ def fetch_project(project_id: int):
 @app.task()
 def rename_repo(old_owner, old_name, new_owner, new_name):
     project = Project.objects.get(Q(owner=old_owner), Q(name=old_name))
-    # TODO: Delete old repo?  Move old repo?
+    old_path = project.path
     project.owner = new_owner
     project.name = new_name
     project.save()
-    project.path.parent.mkdir(exist_ok=True, parents=True)
-    Repo.clone_from(project.clone_url, project.path)
+    old_path.rename(project.path)
 
 @app.task()
 def delete_repo(deleted_pk):
