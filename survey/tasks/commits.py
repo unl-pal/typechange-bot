@@ -158,7 +158,10 @@ def process_comment(comment_user: str, comment_body: str, repo_owner: str, repo_
             committer.initial_survey_response = None
             for project_committer in ProjectCommitter.objects.filter(Q(committer=committer)):
                 Response.objects.filter(Q(committer=project_committer)).delete()
-                project_committer.delete()
+                project_committer.initial_commit = None
+                project_committer.maintainer_survey_response = None
+                project_committer.save()
+                # project_committer.delete()
             committer.save()
         commit_gh = get_comment_gh(comment_payload['commit_id'], repo_owner, repo_name)
         template = loader.get_template('acknowledgment-removal.md')
