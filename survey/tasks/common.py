@@ -18,6 +18,7 @@ except Node.DoesNotExist:
     current_node.save()
 
 current_node.enabled = True
+current_node.save()
 
 
 __all__ = [
