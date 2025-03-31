@@ -34,7 +34,7 @@ def node_health_check():
         node.save()
 
     for node in Node.objects.filter(enabled=True):
-        results.append(node_health_response.apply_async([], queue=node.hostname))
+        node_health_response.apply_async([], queue=node.hostname)
 
 @app.task()
 def node_health_response():
