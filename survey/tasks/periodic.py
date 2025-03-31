@@ -34,7 +34,7 @@ def node_health_check():
     while not all(result.ready() for result in results):
         pass
 
-    check_time = timezone.now() - timedelta(hours=2)
+    check_time = timezone.now() - timedelta(minutes = 30)
     for node in Node.objects.filter(enabled=True, last_active__lte=check_time):
         node.enabled = False
         node.save()
