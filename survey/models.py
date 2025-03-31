@@ -189,8 +189,8 @@ class Commit(models.Model):
     diff = models.TextField(blank=True, editable=False)
     is_relevant = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
-    author = models.ForeignKey(ProjectCommitter, on_delete=models.CASCADE, editable=False, null=True, related_name='author')
-    committer = models.ForeignKey(ProjectCommitter, on_delete=models.CASCADE, editable=False, null=True, related_name='pusher')
+    author = models.ForeignKey(ProjectCommitter, on_delete=models.SET_NULL, editable=False, null=True, related_name='author')
+    committer = models.ForeignKey(ProjectCommitter, on_delete=models.SET_NULL, editable=False, null=True, related_name='pusher')
 
     _commit = None
 
