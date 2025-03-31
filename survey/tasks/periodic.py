@@ -27,21 +27,19 @@ def vacuum_irrelevant_commits():
 
 @app.task()
 def node_health_check():
-    results = []
-    for node in Node.objects.filter(enabled=True):
-        results.append(node_health_response.apply_async([], queue=node.hostname))
-
-    while not all(result.ready() for result in results):
-        pass
 
     check_time = timezone.now() - timedelta(minutes = 30)
     for node in Node.objects.filter(enabled=True, last_active__lte=check_time):
         node.enabled = False
         node.save()
 
+    for node in Node.objects.filter(enabled=True):
+        results.append(node_health_response.apply_async([], queue=node.hostname))
+
 @app.task()
 def node_health_response():
     current_node.last_active = timezone.now()
+    current_node.enabled = True;
     current_node.save()
     return True
 

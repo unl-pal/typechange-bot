@@ -17,6 +17,8 @@ except Node.DoesNotExist:
     current_node = Node(hostname = current_host)
     current_node.save()
 
+current_node.enabled = True
+
 
 __all__ = [
     'app',
