@@ -26,7 +26,20 @@ def install_repo(owner: str, repo: str, installation_id: str):
 
     project.remove_date = None
 
-    project.primary_language = project.gh.language
+    project.save()
+
+    # TODO: Uncomment when live
+    # if project.gh.fork:
+    #     project.track_changes = False
+    #     project.save()
+    #     return
+
+    try:
+        project.primary_language = project.gh.language
+    except:
+        languages = project.gh.get_languages()
+        project.primary_language = max(languages, key=languages.get)
+
     if project.primary_language in ['TypeScript', 'Python', 'PHP', 'R']:
         project.track_changes = True
 
