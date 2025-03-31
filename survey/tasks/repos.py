@@ -3,6 +3,7 @@
 
 from .common import app, current_node
 from django.conf import settings
+from django.db.models import Q
 
 from survey.models import Project, DeletedRepository
 from git import Repo
