@@ -120,11 +120,24 @@ class ProjectAdmin(admin.ModelAdmin):
         for proj in queryset.all():
             fetch_project.apply_async([proj.pk], queue=proj.host_node.hostname)
 
+class ResponseInline(admin.StackedInline):
+    model = Response
+    extra = 0
+    can_delete = False
+    show_change_link = True
+
+    readonly_fields = ['committer', 'survey_response']
+    fields = readonly_fields + ['tags']
+
+    def has_add_permission(self, request, obj):
+        return False
 
 @admin.register(Commit)
 class CommitAdmin(admin.ModelAdmin):
     fields = ['project', 'hash', 'message', 'diff', 'is_relevant', 'relevance_type']
     readonly_fields = fields
+
+    inlines = [ResponseInline]
 
     list_display = ["project_owner", "project_name", 'hash', 'is_relevant', 'relevance_type']
     list_display_links = list_display[:3]
