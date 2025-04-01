@@ -81,7 +81,7 @@ class ProjectCommitterAdmin(admin.ModelAdmin):
 
 @admin.register(Committer)
 class CommitterAdmin(admin.ModelAdmin):
-    readonly_fields = ['username', 'initial_contact_date', 'last_contact_date', 'consent_timestamp', 'opt_out', 'projects', 'initial_survey_response', 'should_contact']
+    readonly_fields = ['username', 'initial_contact_date', 'last_contact_date', 'consent_timestamp', 'consent_project_commit', 'opt_out', 'projects', 'initial_survey_response', 'should_contact']
     fields = readonly_fields + ['tags']
 
     list_display = ['username', 'last_contact_date', 'should_contact']
@@ -123,7 +123,7 @@ class ProjectAdmin(admin.ModelAdmin):
 
 @admin.register(Commit)
 class CommitAdmin(admin.ModelAdmin):
-    fields = ['project', 'hash', 'message', 'diff', 'is_relevant']
+    fields = ['project', 'hash', 'message', 'diff', 'is_relevant', 'relevance_type']
     readonly_fields = fields
 
     list_display = ["project_owner", "project_name", 'hash', 'is_relevant']
