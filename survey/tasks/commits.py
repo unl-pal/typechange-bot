@@ -45,6 +45,17 @@ def process_push_data(owner, repo, commits):
 
             process_commit.apply_async([commit.pk], queue=project.host_node.hostname)
 
+def change_type_to_relevance_type(change_type: ChangeType):
+    match change_type:
+        case ChangeType.ADDED:
+            return Commit.RelevanceType.ADDED[0]
+        case ChangeType.REMOVED:
+            return Commit.RelevanceType.REMOVED[0]
+        case ChangeType.CHANGED:
+            return Commit.RelevanceType.CHANGED[0]
+        case _:
+            return Commit.RelevanceType.IRRELEVANT[0]
+
 @app.task(bind = True, autoretry_for=(ValueError,), retry_backoff=2, max_retries=5)
 def process_commit(self, commit_pk: int):
     commit = Commit.objects.get(id=commit_pk)
@@ -98,6 +109,7 @@ def process_commit(self, commit_pk: int):
         process_new_link.delay(committer.pk, project.pk)
 
     commit.is_relevant = True
+    commit.relevance_type = change_type_to_relevance_type(commit_is_relevant[0][2])
     commit.author = ProjectCommitter.objects.get(Q(project = commit.project) & Q(committer__username=commit.gh.author.login))
     commit.committer = ProjectCommitter.objects.get(Q(project = commit.project) & Q(committer__username=commit.gh.committer.login))
     commit.save()
