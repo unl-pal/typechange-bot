@@ -184,11 +184,21 @@ class ProjectCommitter(models.Model):
         verbose_name = "Project Committer"
 
 class Commit(models.Model):
+    class RelevanceType(models.TextChoices):
+        IRRELEVANT = ('IR', "Irrelevant")
+        ADDED = ('AD', 'Added')
+        REMOVED = ('RM', 'Removed')
+        CHANGED = ('CH', 'Changed')
+
     project = models.ForeignKey(Project, on_delete=models.CASCADE, editable=False)
     hash = models.CharField(max_length=40, editable=False)
     message = models.TextField(blank=True, editable=False)
     diff = models.TextField(blank=True, editable=False)
     is_relevant = models.BooleanField(default=True)
+    relevance_type = models.CharField(max_length=2,
+                                      choices=RelevanceType.choices,
+                                      default=RelevanceType.IRRELEVANT)
+
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     author = models.ForeignKey(ProjectCommitter, on_delete=models.SET_NULL, editable=False, null=True, related_name='author')
     committer = models.ForeignKey(ProjectCommitter, on_delete=models.SET_NULL, editable=False, null=True, related_name='pusher')
