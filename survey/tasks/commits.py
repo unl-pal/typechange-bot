@@ -48,13 +48,13 @@ def process_push_data(owner, repo, commits):
 def change_type_to_relevance_type(change_type: ChangeType):
     match change_type:
         case ChangeType.ADDED:
-            return Commit.RelevanceType.ADDED[0]
+            return Commit.RelevanceType.ADDED
         case ChangeType.REMOVED:
-            return Commit.RelevanceType.REMOVED[0]
+            return Commit.RelevanceType.REMOVED
         case ChangeType.CHANGED:
-            return Commit.RelevanceType.CHANGED[0]
+            return Commit.RelevanceType.CHANGED
         case _:
-            return Commit.RelevanceType.IRRELEVANT[0]
+            return Commit.RelevanceType.IRRELEVANT
 
 @app.task(bind = True, autoretry_for=(ValueError,), retry_backoff=2, max_retries=5)
 def process_commit(self, commit_pk: int):
