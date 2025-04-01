@@ -126,10 +126,10 @@ class CommitAdmin(admin.ModelAdmin):
     fields = ['project', 'hash', 'message', 'diff', 'is_relevant', 'relevance_type']
     readonly_fields = fields
 
-    list_display = ["project_owner", "project_name", 'hash', 'is_relevant']
+    list_display = ["project_owner", "project_name", 'hash', 'is_relevant', 'relevance_type']
     list_display_links = list_display[:3]
 
-    list_filter = ['project__owner', 'project__name']
+    list_filter = ['project__owner', 'project__name', 'relevance_type']
 
     @admin.display(description='Owner')
     def project_owner(self, obj):
