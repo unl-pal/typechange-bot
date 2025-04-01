@@ -11,11 +11,16 @@ from django.db.models import Q
 from .ast_diff import AstDiff
 import whatthepatch
 
+from enum import StrEnum, auto
+
 python_file_check = re.compile(r'\.pyi?$', re.IGNORECASE)
 typescript_file_check = re.compile(r'\.ts$', re.IGNORECASE)
 php_file_check = re.compile(r'\.php$', re.IGNORECASE)
 
 insert_re = re.compile(r'^insert-(tree|node)', re.IGNORECASE)
+update_re = re.compile(r'^update-(tree|node)', re.IGNORECASE)
+
+position_re = re.compile(r'\[(\d+),(\d+)\]', re.IGNORECASE)
 
 tree_re = re.compile(r'^(typed_parameter|type_annotation|type|union_type|help)', re.IGNORECASE)
 
@@ -83,7 +88,13 @@ def file_is_relevant(name: str, language: str) -> bool:
         return typescript_file_check.search(name) is not None
     return False
 
-def check_commit_is_relevant(repo: Repo, commit: Commit) -> Optional[List[Tuple[str, int, bool]]]:
+
+class ChangeType(StrEnum):
+    ADDED = auto()
+    REMOVED = auto()
+    CHANGED = auto()
+
+def check_commit_is_relevant(repo: Repo, commit: Commit) -> Optional[List[Tuple[str, int, ChangeType]]]:
     language = commit.project.primary_language
     git_commit = repo.rev_parse(commit.hash)
 
@@ -137,19 +148,45 @@ def check_commit_is_relevant(repo: Repo, commit: Commit) -> Optional[List[Tuple[
 
     return None
 
-def is_diff_relevant(diff: AstDiff) -> Optional[List[Tuple[str, int, bool]]]:
+def locate_type_tree(diff: AstDiff, start: int, end: int) -> bool:
+
+    for match in diff.matches:
+        # print(match['src'])
+        if re.match(r'^type', match['src']):
+            print('matched', match)
+            position_start, position_end = list(map(int, position_re.search(match['src']).groups()))
+            if position_start <= start and end <= position_end:
+                return True
+
+    return False
+
+def is_diff_relevant(diff: AstDiff) -> Optional[List[Tuple[str, int, ChangeType]]]:
     relevant_changes = []
     for action in diff.actions:
         added = True if insert_re.search(action['action']) else False
+        updated = True if update_re.search(action['action']) else False
+        change_type = (ChangeType.ADDED if added else (ChangeType.CHANGED if updated else ChangeType.REMOVED))
+
+        position_string = action['parent' if added else 'tree']
+        position_start, position_end = list(map(int, position_re.search(position_string).groups()))
+
+        linenum = -1
+        if added or updated:
+            linenum = diff.a_data.count('\n', 0, position_start) + 1
+        else:
+            linenum = diff.b_data.count('\n', 0, position_start) + 1
+
+        is_relevant = False
+
         if tree_re.match(action['tree']):
-            linenum = -1
-            if added:
-                position = int(action['parent'][action['parent'].find('[') + 1:action['parent'].find(',')])
-                linenum = diff.a_data.count('\n', 0, position) + 1
-            else:
-                position = int(action['tree'][action['tree'].find('[') + 1:action['tree'].find(',')])
-                linenum = diff.b_data.count('\n', 0, position) + 1
-            relevant_changes.append((diff.b_name, linenum, added))
+            is_relevant = True
+
+        if locate_type_tree(diff, position_start, position_end):
+            is_relevant = True
+
+        if is_relevant:
+            relevant_changes.append((diff.b_name, linenum, change_type))
+
     if len(relevant_changes) > 0:
         return relevant_changes
     else:

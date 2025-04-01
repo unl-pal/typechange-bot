@@ -77,6 +77,11 @@ class AstDiff:
         if 'actions' in  self._diff_json.keys():
             return self._diff_json['actions']
 
+    @property
+    def matches(self):
+        if 'matches' in self._diff_json.keys():
+            return self._diff_json['matches']
+
     @classmethod
     def from_diff(cls, commit: Commit, diff: Diff, language: str, suffix: Optional[str] = None):
         if suffix is None:

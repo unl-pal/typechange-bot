@@ -112,12 +112,12 @@ def process_commit(self, commit_pk: int):
             notify_who.append(commit.gh.committer.login)
 
         if len(notify_who) > 0:
-            file, line, is_added = commit_is_relevant[0]
+            file, line, change_type = commit_is_relevant[0]
             survey_template = loader.get_template('survey.md')
             template_data = {
                 'BOT_NAME': settings.GITHUB_APP_NAME,
                 'USER': ', '.join(list(f'@{login}' for login in notify_who[::-1])),
-                'ADDED': ('added' if is_added else 'removed')
+                'ADDED': change_type.value
             }
             commit.gh.create_comment(survey_template.render(template_data), position = line, path = file)
             for username in notify_who:
