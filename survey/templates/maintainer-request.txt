@@ -1,6 +1,6 @@
 Hello {{NAME}},
 
-I'm Samuel Flint, and I'm working with Dr. Robert Dyer from the University of Nebraska-Lincoln on a study about type annotations in dynamic languages.  Your project, {{PROJECT}}, is highly relevant to our research, and we'd like your permission to monitor it.
+I'm Samuel Flint, and I'm working with Dr. Robert Dyer from the University of Nebraska-Lincoln on a study about type annotations in dynamic languages.  Your project, {{PROJECT}} (https://github.com/{{PROJECT}}), is highly relevant to our research, and we'd like your permission to monitor it.
 
 If you agree, we will provide a bot that tracks changes related to type annotations.  The bot will notify committers after relevant changes, asking them to participate in the study (no more than once every 24 hours, and they can opt-out or request data removal at any time).
 
