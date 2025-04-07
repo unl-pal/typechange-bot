@@ -15,7 +15,7 @@ class Command(BaseCommand):
         if options['node'] is not None:
             nodes = [Node.objects.get(host_name=options['node'])]
         else:
-            nodes = list(Nodes.objects.all())
+            nodes = list(Node.objects.all())
 
         for node in Nodes:
             print(f" - {node.hostname} ({node.last_active}, {node.count_projects_on()})")
