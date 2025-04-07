@@ -3,7 +3,7 @@
 
 from .common import current_node, app
 
-from survey.models import Project, ProjectCommitter
+from survey.models import Project, ProjectCommitter, DeletedRepository
 from django.utils import timezone
 from django.db.models import Q
 
@@ -34,6 +34,12 @@ def process_installation(payload):
                         project.remove_date = timezone.now()
                         project.track_changes = False
                         project.save()
+                        deleted_repo = DeletedRepository(node = project.host_node,
+                                                         owner = project.owner,
+                                                         name = project.name,
+                                                         reason = DeletedRepository.DeletionReason.DELETED)
+                        deleted_repo.save()
+
         case 'suspend':
             # TODO: Handle Suspensions
             pass
