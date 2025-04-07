@@ -59,10 +59,25 @@ class FAQAdmin(admin.ModelAdmin):
 
     search_fields = ['question', 'answer']
 
+class ResponseInline(admin.StackedInline):
+    model = Response
+    extra = 0
+    can_delete = False
+    show_change_link = True
+
+    readonly_fields = ['committer', 'survey_response']
+    fields = readonly_fields + ['tags']
+
+    def has_add_permission(self, request, obj):
+        return False
+
+
 @admin.register(ProjectCommitter)
 class ProjectCommitterAdmin(admin.ModelAdmin):
-    readonly_fields = ['project', 'committer', 'initial_commit', 'maintainer_survey_response']
+    readonly_fields = ['project', 'committer', 'initial_commit', 'is_maintainer', 'maintainer_survey_response']
     fields = readonly_fields + ['tags']
+
+    inlines = [ResponseInline]
 
     list_display = ['project_owner', 'project_name', 'committer']
     list_display_links = ['committer']
@@ -119,18 +134,6 @@ class ProjectAdmin(admin.ModelAdmin):
     def force_fetch(self, request, queryset):
         for proj in queryset.all():
             fetch_project.apply_async([proj.pk], queue=proj.host_node.hostname)
-
-class ResponseInline(admin.StackedInline):
-    model = Response
-    extra = 0
-    can_delete = False
-    show_change_link = True
-
-    readonly_fields = ['committer', 'survey_response']
-    fields = readonly_fields + ['tags']
-
-    def has_add_permission(self, request, obj):
-        return False
 
 @admin.register(Commit)
 class CommitAdmin(admin.ModelAdmin):
