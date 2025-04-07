@@ -51,6 +51,7 @@ class DeletedRepository(models.Model):
     node = models.ForeignKey(Node, on_delete=models.CASCADE, editable=False)
     owner = models.CharField(max_length=200, editable=False)
     name = models.CharField(max_length=200, editable=False)
+    subdir = models.CharField(max_length=200, editable=False, null=True)
 
     reason = models.CharField(max_length=2,
                               choices=DeletionReason.choices,
