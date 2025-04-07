@@ -43,6 +43,7 @@ class DeletedRepository(models.Model):
         UNUSED = ('UN', "Unused")
         IRRELEVANT = ('IR', "Irrelevant")
         MANUAL = ('MN', "Manual")
+        DELETED = ('DE', "Deleted")
 
     node = models.ForeignKey(Node, on_delete=models.CASCADE, editable=False)
     owner = models.CharField(max_length=200, editable=False)
