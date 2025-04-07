@@ -45,5 +45,7 @@ class Command(BaseCommand):
                                                 reason=DeletedRepository.DeletionReason.MANUAL)
             if not options['dry_run']:
                 deletion_record.save()
+                project.host_node = to_node
+                project.save()
                 fetch_project.apply_async([project.id], queue=to_node.hostname)
 
