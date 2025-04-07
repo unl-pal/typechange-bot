@@ -64,7 +64,16 @@ def process_installation_repositories(payload):
                 owner, name = repo['full_name'].split('/')
                 if Project.objects.filter(owner=owner, name=name).count() > 0:
                     for project in Project.objects.filter(owner=owner, name=name):
+                        deleted_repo = DeletedRepository(node = project.host_node,
+                                                         owner = project.owner,
+                                                         name = project.name,
+                                                         reason = DeletedRepository.DeletionReason.DELETED)
+                        if project.data_sub_directory is not None:
+                            deleted_repo.subdir = project.data_sub_directory
+                        deleted_repo.save()
+
                         project.installation_id = None
+                        project.data_sub_directory = None
                         project.remove_date = timezone.now()
                         project.track_changes = False
                         project.save()
