@@ -97,6 +97,7 @@ class MaintainerReason(NS_Node):
 
 class Committer(models.Model):
     username = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, null=True, editable=False)
     email_address = models.EmailField(null=True)
     initial_contact_date = models.DateTimeField("initial contact date", auto_now_add=True, editable=False)
     last_contact_date = models.DateTimeField("date of last contact", auto_now=True, editable=False)
