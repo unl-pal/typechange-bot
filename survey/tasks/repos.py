@@ -85,7 +85,10 @@ def rename_repo(old_owner, old_name, new_owner, new_name):
 @app.task()
 def delete_repo(deleted_pk):
     repo = DeletedRepository.objects.get(id=deleted_pk)
-    path = settings.DATA_DIR / repo.owner / repo.name
+    if repo.subdir is not None:
+        path = settings.DATA_DIR / repo.subdir / repo.owner / repo.name
+    else:
+        path = settings.DATA_DIR / repo.owner / repo.name
     if path.exists():
         for root, dirs, files in os.walk(path, topdown=False):
             for name in files:

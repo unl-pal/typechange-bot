@@ -43,9 +43,13 @@ class Command(BaseCommand):
                                                 owner=project.owner,
                                                 name=project.name,
                                                 reason=DeletedRepository.DeletionReason.MANUAL)
+            if project.data_sub_directory is not None:
+                deletion_record.subdir = project.data_sub_directory
+
             if not options['dry_run']:
                 deletion_record.save()
                 project.host_node = to_node
+                project.data_sub_directory = None
                 project.save()
                 fetch_project.apply_async([project.id], queue=to_node.hostname)
 

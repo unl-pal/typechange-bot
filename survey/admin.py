@@ -43,7 +43,8 @@ class ProjectInline(admin.StackedInline):
 
 @admin.register(Node)
 class NodeAdmin(admin.ModelAdmin):
-    readonly_fields = ['hostname', 'count_projects_on', 'last_active', 'enabled']
+    readonly_fields = ['hostname', 'count_projects_on', 'last_active']
+    fields = readonly_fields + ['enabled', 'use_datadir_subdirs']
 
     inlines = [ProjectInline]
 
