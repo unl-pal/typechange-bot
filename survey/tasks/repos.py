@@ -8,6 +8,7 @@ from django.db.models import Q
 from survey.models import Project, DeletedRepository
 from survey.utils import get_typechecker_configuration
 from git import Repo
+import os
 
 __all__ = [
     'install_repo',
@@ -86,9 +87,9 @@ def delete_repo(deleted_pk):
     repo = DeletedRepository.objects.get(id=deleted_pk)
     path = settings.DATA_DIR / repo.owner / repo.name
     if path.exists():
-        for root, dirs, files in path.walk(top_down=False):
+        for root, dirs, files in os.walk(path, topdown=False):
             for name in files:
-                (root / name).unlink()
+                os.remove(os.path.join(root, name))
             for name in dirs:
-                (root / name).rmdir()
+                os.rmdir(os.path.join(root, name))
     repo.delete()
