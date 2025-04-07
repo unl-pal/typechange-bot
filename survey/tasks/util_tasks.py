@@ -6,6 +6,7 @@ from survey.models import ProjectCommitter
 
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.template import loader
+from django.conf import settings
 
 @app.task()
 def send_email(subject, message, **kwargs):
@@ -24,7 +25,10 @@ def send_maintainer_email(maintainer_id: int):
         message_html = html_template.render(template_data)
         text_template = loader.get_template('maintainer-request.txt')
         message_text = text_template.render(template_data)
-        message = EmailMultiAlternatives(f'Research Opportunity: Can we monitor {maintainer.project.owner}/{maintainer.project.name}?', message_html, to=[maintainer.email_address])
+        message = EmailMultiAlternatives(f'Research Opportunity: Can we monitor {maintainer.project.owner}/{maintainer.project.name}?',
+                                         message_html,
+                                         to=[maintainer.email_address],
+                                         reply_to=[f'{settings.ADMIN_NAME} <{settings.ADMIN_EMAIL}>'])
         message.content_subtype = "html"
         message.attach_alternative(message_text, 'text/plain')
         message.send()

@@ -30,6 +30,8 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 MAINTENANCE_MODE = config('MAINTENANCE_MODE', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv(), default='localhost,127.0.0.1')
+ADMIN_NAME = config('ADMIN_NAME', default='TypeChange Bot Admin')
+ADMIN_EMAIL = config('ADMIN_EMAIL', default='')
 
 
 # Application definition
