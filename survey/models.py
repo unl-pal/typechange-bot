@@ -142,6 +142,7 @@ class Project(models.Model):
     remove_date = models.DateTimeField('project remove date', blank=True, null=True, editable=False)
     committers = models.ManyToManyField(Committer, through='ProjectCommitter')
     host_node = models.ForeignKey(Node, on_delete=models.CASCADE, editable=False, null=True)
+    data_sub_directory = models.CharField('data subdirectory', max_length=200, editable=False, null=True)
 
     _repo = None
     _gh_app = None
@@ -169,7 +170,10 @@ class Project(models.Model):
 
     @property
     def path(self) -> Path:
-        return settings.DATA_DIR / self.owner / self.name
+        if self.data_sub_directory is not None:
+            return settings.DATA_DIR / self.data_sub_directory / self.owner / self.name
+        else:
+            return settings.DATA_DIR / self.owner / self.name
 
     @property
     def is_on_current_node(self) -> bool:
