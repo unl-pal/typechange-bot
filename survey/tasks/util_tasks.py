@@ -16,7 +16,7 @@ def send_email(subject, message, **kwargs):
 @app.task()
 def send_maintainer_email(maintainer_id: int):
     maintainer = ProjectCommitter.objects.get(id=maintainer_id)
-    if maintainer.is_maintainer and not maintainer.has_been_emailed and maintainer.email_address is not None:
+    if maintainer.is_maintainer and not maintainer.has_been_emailed and maintainer.committer.email_address is not None:
         template_data = {
             'NAME': f'{maintainer.committer.username}',
             'PROJECT': f'{maintainer.project.owner}/{maintainer.project.name}'
@@ -27,7 +27,7 @@ def send_maintainer_email(maintainer_id: int):
         message_text = text_template.render(template_data)
         message = EmailMultiAlternatives(f'Research Opportunity: Can we monitor {maintainer.project.owner}/{maintainer.project.name}?',
                                          message_html,
-                                         to=[maintainer.email_address],
+                                         to=[maintainer.committer.formatted_email_address],
                                          reply_to=[f'{settings.ADMIN_NAME} <{settings.ADMIN_EMAIL}>'])
         message.content_subtype = "html"
         message.attach_alternative(message_text, 'text/plain')
