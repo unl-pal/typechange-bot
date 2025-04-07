@@ -18,8 +18,8 @@ def send_maintainer_email(maintainer_id: int):
     maintainer = ProjectCommitter.objects.get(id=maintainer_id)
     if maintainer.is_maintainer and not maintainer.has_been_emailed and maintainer.committer.email_address is not None:
         template_data = {
-            'NAME': f'{maintainer.committer.username}',
-            'PROJECT': f'{maintainer.project.owner}/{maintainer.project.name}'
+            'NAME': f'{maintainer.committer.name_or_username}',
+            'PROJECT': f'{maintainer.project}'
         }
         html_template = loader.get_template('maintainer-request.html')
         message_html = html_template.render(template_data)
