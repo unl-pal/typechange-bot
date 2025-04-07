@@ -8,6 +8,8 @@ from markdownx.models import MarkdownxField
 from django.utils import timezone
 from datetime import timedelta
 
+from typing import Optional
+
 from pathlib import Path
 
 application_auth = Auth.AppAuth(settings.GITHUB_APP_ID, settings.GITHUB_APP_KEY)
@@ -114,6 +116,11 @@ class Committer(models.Model):
         if self.name is None:
             return self.username
         return self.name
+
+    @property
+    def formatted_email_address(self) -> Optional[str]:
+        if self.email_address:
+            return f'"{self.name_or_username}" <{self.email_address}>'
 
     @property
     def should_contact(self) -> bool:
