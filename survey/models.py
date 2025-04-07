@@ -94,8 +94,7 @@ class MaintainerReason(NS_Node):
         return f"{self.get_parent()} → {self.name}"
 
     class Meta:
-        verbose_name = "Maintainer Response Codes"
-
+        verbose_name = "Maintainer Response Code"
 
 class Committer(models.Model):
     username = models.CharField(max_length=200)
