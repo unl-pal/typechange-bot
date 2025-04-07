@@ -110,6 +110,12 @@ class Committer(models.Model):
     tags = models.ManyToManyField(InitialReason)
 
     @property
+    def name_or_username(self) -> str:
+        if self.name is None:
+            return self.username
+        return self.name
+
+    @property
     def should_contact(self) -> bool:
         if self.opt_out is not None or self.removal is not None:
             return False
