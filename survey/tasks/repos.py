@@ -9,6 +9,7 @@ from survey.models import Project, DeletedRepository
 from survey.utils import get_typechecker_configuration
 from git import Repo
 import os
+import shutil
 
 __all__ = [
     'install_repo',
@@ -56,6 +57,10 @@ def install_repo(owner: str, repo: str, installation_id: str):
 @app.task()
 def clone_repo(project_id):
     project = Project.objects.get(id=project_id)
+    if current_node.use_datadir_subdirs:
+        locations = { p: shutil.disk_usage(p.readlink()).free for p in settings.DATA_DIR.iterdir() if p.is_symlink() }
+        subdir = max(locations, key=locations.get).parts[-1]
+        project.data_subdir = subdir
     local_path = project.path
     local_path.parent.mkdir(exist_ok=True, parents=True)
     repo = Repo.clone_from(project.clone_url, local_path)
