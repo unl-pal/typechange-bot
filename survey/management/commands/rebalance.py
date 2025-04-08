@@ -9,7 +9,7 @@ import pandas as pd
 
 from survey.models import Project, Node, DeletedRepository
 
-from survey.tasks import fetch_project
+from survey.tasks import clone_project
 
 class Command(BaseCommand):
     help = "Rebalance and move projects."
@@ -108,4 +108,4 @@ class Command(BaseCommand):
                     prj.save()
                 print(f'Fetching {prj} on {new_node}')
                 if not options['dry_run']:
-                    fetch_project.apply_async([prj.id], queue=new_node.hostname)
+                    clone_project.apply_async([prj.id], queue=new_node.hostname)

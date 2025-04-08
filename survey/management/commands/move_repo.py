@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 
 from survey.models import Project, Node, DeletedRepository
-from survey.tasks import fetch_project
+from survey.tasks import clone_project
 
 class Command(BaseCommand):
     help = "Move project(s) to a different node."
@@ -51,5 +51,5 @@ class Command(BaseCommand):
                 project.host_node = to_node
                 project.data_sub_directory = None
                 project.save()
-                fetch_project.apply_async([project.id], queue=to_node.hostname)
+                clone_project.apply_async([project.id], queue=to_node.hostname)
 
