@@ -34,12 +34,12 @@ def process_installation(payload):
                                                          owner = project.owner,
                                                          name = project.name,
                                                          reason = DeletedRepository.DeletionReason.DELETED)
-                        if project.data_sub_directory is not None:
-                            deleted_repo.subdir = project.data_sub_directory
+                        if project.data_subdir is not None:
+                            deleted_repo.subdir = project.data_subdir
                         deleted_repo.save()
 
                         project.installation_id = None
-                        project.data_sub_directory = None
+                        project.data_subdir = None
                         project.remove_date = timezone.now()
                         project.track_changes = False
                         project.save()
@@ -68,12 +68,12 @@ def process_installation_repositories(payload):
                                                          owner = project.owner,
                                                          name = project.name,
                                                          reason = DeletedRepository.DeletionReason.DELETED)
-                        if project.data_sub_directory is not None:
-                            deleted_repo.subdir = project.data_sub_directory
+                        if project.data_subdir is not None:
+                            deleted_repo.subdir = project.data_subdir
                         deleted_repo.save()
 
                         project.installation_id = None
-                        project.data_sub_directory = None
+                        project.data_subdir = None
                         project.remove_date = timezone.now()
                         project.track_changes = False
                         project.save()

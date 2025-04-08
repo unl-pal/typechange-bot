@@ -96,15 +96,15 @@ class Command(BaseCommand):
             projects_to_move = movable_repositories[:remaining]
             for prj in projects_to_move:
                 deletion_record = DeletedRepository(node=prj.host_node, owner=prj.owner, name=prj.name, reason=DeletedRepository.DeletionReason.REBALANCE)
-                if prj.data_sub_directory is not None:
-                    deletion_record.subdir = prj.data_sub_directory
+                if prj.data_subdir is not None:
+                    deletion_record.subdir = prj.data_subdir
                 print(f'Created deletion record for {prj} on {prj.host_node}.')
                 if not options['dry_run']:
                     deletion_record.save()
                 prj.host_node = new_node
                 print(f'Changed {prj} node to {new_node}')
                 if not options['dry_run']:
-                    prj.data_sub_directory = None
+                    prj.data_subdir = None
                     prj.save()
                 print(f'Fetching {prj} on {new_node}')
                 if not options['dry_run']:
