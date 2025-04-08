@@ -68,10 +68,10 @@ def fetch_project(project_id: int):
     project = Project.objects.get(id=project_id)
     try:
         repo = Repo(project.path)
+        repo.remote().fetch()
     except:
-        project.path.parent.mkdir(exist_ok=True, parents=True)
-        repo = Repo.clone_from(project.clone_url, project.path)
-    repo.remote().fetch()
+        clone_repo(project_id)
+
 
 @app.task()
 def rename_repo(old_owner, old_name, new_owner, new_name):
