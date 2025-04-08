@@ -60,7 +60,8 @@ def clone_repo(project_id):
     local_path.parent.mkdir(exist_ok=True, parents=True)
     repo = Repo.clone_from(project.clone_url, local_path)
     project.host_node = current_node
-    project.typechecker_files = get_typechecker_configuration(repo, project.primary_language)
+    if project.typechecker_files is None:
+        project.typechecker_files = get_typechecker_configuration(repo, project.primary_language)
     project.save()
 
 @app.task(ignore_result = True)
