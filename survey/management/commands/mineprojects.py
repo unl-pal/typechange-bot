@@ -1,86 +1,128 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-from django.core.management.base import BaseCommand, CommandError
+from typing import List, Tuple
 
+import pandas as pd
+
+from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 
-from survey.project_mining_utils import get_git_hub, g as github
-from github import GithubException
+from github import Github, RateLimitExceededException
+from survey.utils import get_typechecker_configuration, has_annotations
+from survey.models import Project, Committer, ProjectCommitter
+
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+import pytz
 
 import git
 from tempfile import TemporaryDirectory
 from pathlib import Path
 
-import ast
-
-class TypeAnnotationDetectionVisitor(ast.NodeVisitor):
-    def visitFunctionDef(self, node):
-        if node.returns is not None:
-            return True
-
-        for arg in (node.args.posonlyargs + node.args.args + node.args.kwonlyargs):
-            if arg.annotation is not None:
-                return True
-
-        return super().generic_visit(node)
-
-    def visitAnnAssign(self, node):
-        return True
+import json
 
 class Command(BaseCommand):
-    help = "Mine GitHub projects."
+    help = "Mine GitHub Projects"
 
-    def has_typechecker_configuration(self, repository, language):
-        if language == 'python':
-            for filename in  ['mypy.ini', '.mypy.ini', '.pyre_configuration', '.pytype.toml', 'pyrightconfig.json']:
-                try:
-                    repository.get_contents(filename)
-                    return True
-                except:
-                    continue
-            return False
-        if language == 'typescript':
-            for filename in ['tsconfig.json', 'jsconfig.json']:
-                try:
-                    repository.get_contents(filename)
-                    return True
-                except:
-                    continue
-            return False
-        # TODO Handle Ruby, R, PHP
-        return False
+    language = None
+    tokens = []
+    destination = []
+    min_contributors = 1
+    min_contributions = (7, 1)
+    min_stars = 2
+    check_annotations = False
+    check_config = False
 
-    def has_annotations(self, repository, language):
-        if language == 'typescript':
-            return True
-        if language == 'python':
-            with TemporaryDirectory() as temp:
-                git.Repo.clone_from(f'https://github.com/{repository.full_name}', temp)
-                for filename in Path(temp).glob('**/*.py'):
-                    try:
-                        with open(filename, 'r') as fh:
-                            tree = ast.parse(fh.read())
-                        visitor = TypeAnnotationDetectionVisitor()
-                        if visitor.visit(tree):
-                            return True
-                    except:
-                        continue
-            return False
-        # TODO Handle Ruby, R, PHP
-        return False
+    # Search Options, Backoff, Rate Limit
+    default_backoff = 15
+    ex_backoff = default_backoff
+    api_search_limit = 1000
+
+    gh = None
+
+    results = None
+    page_num = 0
+
+    def collect_maintainers(self, repo):
+        stats = None
+        while True:
+            try:
+                stats = repo.get_stats_contributors()
+                break
+            except RateLimitExceededException:
+                self.wait_limit()
+
+        login = []
+        people = []
+        totals = []
+
+        for s in stats:
+            weeks = [ week for week in s.weeks if week.w >= (datetime.now(week.w.tzinfo) + relativedelta(months=-6)) ]
+            total = sum([ week.c for week in weeks ])
+
+            if total > 0:
+                login.append(s.author.login)
+                people.append(s.author)
+                totals.append(total)
+        df = pd.DataFrame(zip(login, people, totals), columns = ['login', 'stats', 'contributions'])
+        df = df[~df['login'].str.contains('\\[bot\\]')]
+        cutoff = df['contributions'].mean() + 1.5 * df['contributions'].std()
+
+        def get_email(login):
+            while True:
+                try:
+                    user = self.gh.get_user(login)
+                    if user and user.email:
+                        return (user.email, user.name)
+                    else:
+                        return None
+                except RateLimitExceededException:
+                    self.wait_limit()
+
+        df2 = df[df['contributions'] >= cutoff] \
+            .assign(email_and_name = lambda df: df.login.apply(get_email)) \
+            .dropna(axis=0) \
+            .assign(email = lambda df: df.email_and_name.apply(lambda x: x[0]),
+                    name = lambda df: df.email_and_name.apply(lambda x: x[1]),
+                    project = lambda df: repo.full_name) \
+            .reset_index() \
+            [['login', 'name', 'email']]
+
+        return df2
+
+
+    def get_next_page(self):
+        try:
+            page = self.results.get_page(self.page_num)
+            self.page_num += 1
+            return page
+        except RateLimitExceededException:
+            self.wait_limit()
+            return self.get_next_page()
+
+    def check_contribution(self, id):
+        try:
+            repo = self.gh.get_repository(id)
+            return repo.get_stats_participation().all[-self.min_contributions[1]:] >= self.min_contributions[0]
+        except RateLimitExceededException:
+            self.wait_limit()
+            return self.check_contribution(id)
+
+    def wait_limit(self):
+        seconds = int(5 + (self.gh.rate_limiting_resettime.replace(tzinfo=pytz.UTC) - datetime.now(pytz.UTC)).total_seconds())
+        print(f'Hit rate limit: sleeping for {seconds} seconds')
+        time.sleep(seconds)
 
     def add_arguments(self, parser):
-        parser.add_argument('--apikey',
-                            help="GitHub API Key (override settings)",
-                            type=str)
+
         parser.add_argument('language',
-                            help='Language to search',
+                            help='Programming language to search for.')
+        parser.add_argument('--token',
+                            help='Token used for GitHub API Access.',
+                            required=True,
                             type=str)
-        parser.add_argument('--min-stars',
-                            help='Minimum stars',
-                            type=int,
-                            default=2)
+
         parser.add_argument('--min-contributors',
                             help='Minimum number of contributors',
                             type=int,
@@ -91,6 +133,10 @@ class Command(BaseCommand):
                             metavar=('COMMITS', 'WEEKS'),
                             type=int,
                             default=[7, 1])
+        parser.add_argument('--min-stars',
+                            help='Minimum stars',
+                            type=int,
+                            default=2)
         parser.add_argument('--check-annotations',
                             help='Check for annotations in candidate projects.',
                             default=False,
@@ -99,41 +145,90 @@ class Command(BaseCommand):
                             help="Check for typechecker configuration.",
                             default=False,
                             action='store_true')
-        parser.add_argument('--outfile',
-                            help="Data output file",
-                            type=Path)
 
-    def handle(self, *args, **options):
-        if options['apikey'] is None:
-            gh = github
-        else:
-            gh = get_git_hub(options['apikey'])
+    def handle(self, *args, language=None, token=None, destination=None,
+               min_contributors=None, min_contributions=None, min_stars=None,
+               check_annotations=None, check_config=None,
+               **options):
+        self.language = language
+        self.destination = destination
+        self.token = token
+        self.min_contributors = min_contributors
+        self.min_contributions = min_contributions
+        self.min_stars = min_stars
+        self.check_annotations = check_annotations
+        self.check_config = check_config
 
-        fh = None
-        if options['outfile']:
-            if options['outfile'].exists():
-                fh = open(options['outfile'], 'a', buffering=1)
-            else:
-                fh = open(options['outfile'], 'w', buffering=1)
-                fh.write("repo,language,configured_typechecker,annotations_detected,stars\n")
+        for tok in self.tokens:
+            self.sleep[tok] = -1
 
-        search_string = f'language:{options["language"].lower()}'
+        self.rotate_tokens()
 
-        print("repo,language,configured_typechecker,annotations_detected,stars")
+        self.gh = Github(self.token, per_page=100)
 
-        repos = gh.search_repositories(query=search_string, sort='stars', order='desc')
-        for project in repos[:100]:
-            if project.stargazers_count < options['min_stars']:
-                continue
+        self.results = self.gh.search_repositories(f'language:{self.language} stars:>={self.min_stars}',
+                                                sort='updated',
+                                                order='desc')
 
-            meets_participation_requirement = sum(project.get_stats_participation().all[-options['min_contributions'][1]:]) >= options['min_contributions'][0]
-            if not meets_participation_requirement:
-                continue
+        while True:
+            repos = self.get_next_page()
+            for repo in repos:
+                d = repo.raw_data
 
-            has_typechecker = self.has_typechecker_configuration(project, options["language"].lower()) if options['check_config'] else False
-            has_annotations = self.has_annotations(project, options["language"].lower()) if options['check_annotations'] else False
+                id = str(d['id'])
+                path = self.destination / id[0] / id[1] / id[2]
+                filename = path / (id + '.json')
+                bad_path = self.destination / 'bad' / id[0] / id[1] / id[2]
+                bad_filename = bad_path / (id + '.json')
 
-            out_line = f'{project.full_name},{options["language"].lower()},{has_typechecker},{has_annotations},{project.stargazers_count}'
-            print(out_line)
-            if fh:
-                fh.write(out_line + '\n')
+                if not filename.exists():
+                    if not bad_filename.exists():
+
+                        if not self.check_configuration(id):
+                            bad_path.mkdir(parents=True, exist_ok=True)
+                            with open(bad_filename, 'w') as fh:
+                                fh.write(json.dumps(d, indent=2))
+                            print(f'Bad {bad_filename}')
+                            continue
+
+                        d['has_typechecker_configuration'] = None
+                        d['has_annotations'] = None
+                        if self.check_config or self.check_annotations:
+                            with TemporaryDirectory() as temp_dir:
+                                gitrepo = git.Repo.clone_from(f'https://github.com/{repo.full_name}', temp_dir)
+                                if self.check_config:
+                                    d['has_typechecker_configuration'] = get_typechecker_configuration(temp_dir, self.language)
+                                if self.check_annotations:
+                                    d['has_annotations'] = has_annotations(gitrepo, self.language)
+
+                        path.mkdir(parents=True, exist_ok=True)
+                        with open(path, 'w') as fh:
+                            fh.write(json.dumps(d, indent=2))
+                        print(f'Good {filename}')
+
+                        if d['has_annotations'] or d['has_typechecker_configuration'] is not None:
+                            owner, name = repo.full_name.split('/')
+                            proj = Project(primary_language=self.language,
+                                           owner=owner,
+                                           name=name,
+                                           typechecker_files = d['has_typechecker_configuration'],
+                                           track_changes = True)
+                            proj.save()
+                            df = self.collect_repo_maintainers(repo)
+                            for i, row in df.iterrows():
+                                try:
+                                    committer = Committer.objects.get(username=row['login'])
+                                except Committer.DoesNotExist:
+                                    committer = Committer(username=row['login'],
+                                                          name=row['name'],
+                                                          email = row['email'])
+                                    committer.save()
+
+                                proj_committer = ProjectCommitter(project=proj, committer=committer, is_maintainer=True)
+                                proj_committer.save()
+
+                    else:
+                        print(f'Bad {filename}')
+
+                else:
+                    print(f'Skipped {filename}')

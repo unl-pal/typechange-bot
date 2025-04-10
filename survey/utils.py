@@ -10,6 +10,7 @@ from .models import Commit, Project
 from django.db.models import Q
 from .ast_diff import AstDiff
 import whatthepatch
+import ast
 
 from enum import StrEnum, auto
 
@@ -80,6 +81,35 @@ def get_typechecker_configuration(repo, language: str, commit_like: str='HEAD'):
     if len(typecheckers) > 0:
         return '\n'.join(typecheckers)
     return None
+
+class TypeAnnotationDetectionVisitor(ast.NodeVisitor):
+    def visitFunctionDef(self, node):
+        if node.returns is not None:
+            return True
+
+        for arg in (node.args.posonlyargs + node.args.args + node.args.kwonlyargs):
+            if arg.annotation is not None:
+                return True
+
+        return super().generic_visit(node)
+
+    def visitAnnAssign(self, node):
+        return True
+
+def has_annotations(repo, language):
+    if language=='Python':
+        for filename in Path(repo.working_tree_dir).glob('**/*.py'):
+            try:
+                with open(filename, 'r') as fh:
+                    tree = ast.parse(fh.read())
+                    visitor = TypeAnnotationDetectionVisitor()
+                    if visitor.visit(tree):
+                        return True
+            except:
+                continue
+        return False
+    # TODO: Check for other languages
+    return False
 
 def file_is_relevant(name: str, language: str) -> bool:
     if language == 'Python':
