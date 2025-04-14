@@ -11,6 +11,7 @@ from django.conf import settings
 from github import Github, RateLimitExceededException
 from survey.utils import get_typechecker_configuration, has_annotations
 from survey.models import Project, Committer, ProjectCommitter
+from survey.tasks import prescreen_project
 
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -185,48 +186,30 @@ class Command(BaseCommand):
                 if not filename.exists():
                     if not bad_filename.exists():
 
-                        if not self.check_configuration(id):
-                            bad_path.mkdir(parents=True, exist_ok=True)
-                            with open(bad_filename, 'w') as fh:
-                                fh.write(json.dumps(d, indent=2))
-                            print(f'Bad {bad_filename}')
-                            continue
-
-                        d['has_typechecker_configuration'] = None
-                        d['has_annotations'] = None
-                        if self.check_config or self.check_annotations:
-                            with TemporaryDirectory() as temp_dir:
-                                gitrepo = git.Repo.clone_from(f'https://github.com/{repo.full_name}', temp_dir)
-                                if self.check_config:
-                                    d['has_typechecker_configuration'] = get_typechecker_configuration(temp_dir, self.language)
-                                if self.check_annotations:
-                                    d['has_annotations'] = has_annotations(gitrepo, self.language)
-
                         path.mkdir(parents=True, exist_ok=True)
                         with open(path, 'w') as fh:
                             fh.write(json.dumps(d, indent=2))
                         print(f'Good {filename}')
 
-                        if d['has_annotations'] or d['has_typechecker_configuration'] is not None:
-                            owner, name = repo.full_name.split('/')
-                            proj = Project(language=self.language,
-                                           owner=owner,
-                                           name=name,
-                                           typechecker_files = d['has_typechecker_configuration'],
-                                           track_changes = True)
-                            proj.save()
-                            df = self.collect_repo_maintainers(repo)
-                            for i, row in df.iterrows():
-                                try:
-                                    committer = Committer.objects.get(username=row['login'])
-                                except Committer.DoesNotExist:
-                                    committer = Committer(username=row['login'],
-                                                          name=row['name'],
-                                                          email = row['email'])
-                                    committer.save()
+                        owner, name = repo.full_name.split('/')
+                        proj = Project(language=self.language,
+                                       owner=owner,
+                                       name=name)
+                        proj.save()
+                        prescreen_projects.apply_async([proj.id])
 
-                                proj_committer = ProjectCommitter(project=proj, committer=committer, is_maintainer=True)
-                                proj_committer.save()
+                        df = self.collect_repo_maintainers(repo)
+                        for i, row in df.iterrows():
+                            try:
+                                committer = Committer.objects.get(username=row['login'])
+                            except Committer.DoesNotExist:
+                                committer = Committer(username=row['login'],
+                                                      name=row['name'],
+                                                      email=row['email'])
+                                committer.save()
+
+                            proj_committer = ProjectCommitter(project=proj, committer=committer, is_maintainer=True)
+                            proj_committer.save()
 
                     else:
                         print(f'Bad {filename}')
