@@ -160,7 +160,6 @@ class Project(models.Model):
     owner = models.CharField('project owner', max_length=200, editable=False)
     name = models.CharField('project name', max_length=200, editable=False)
     installation_id = models.IntegerField('installation ID', editable=False, null=True)
-    primary_language = models.CharField('primary programming language', max_length=30, editable=False, null=True)
     language = models.CharField('Primary programming language',
                                 max_length=2,
                                 choices=ProjectLanguage.choices,
