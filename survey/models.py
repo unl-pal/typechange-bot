@@ -146,6 +146,9 @@ class Project(models.Model):
     host_node = models.ForeignKey(Node, on_delete=models.CASCADE, editable=False, null=True)
     data_subdir = models.CharField('data subdirectory', max_length=200, editable=False, null=True)
 
+    has_typechecker_configuration = models.BooleanField('Does the project have type checker configuration?', editable=False, default=False)
+    annotations_detected = models.BooleanField('Have annotations been detected?', editable=False, default=False)
+
     _repo = None
     _gh_app = None
 
