@@ -20,4 +20,4 @@ class Command(BaseCommand):
         for node in nodes:
             print(f" - {node.hostname} ({node.last_active}, {node.count_projects_on})")
             for project in node.project_set.all():
-                print(f"    - {project}, {'Tracking' if project.track_changes else 'Not Tracking'}, {project.primary_language}")
+                print(f"    - {project}, {'Tracking' if project.track_changes else 'Not Tracking'}, {project.language.label}")

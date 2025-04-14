@@ -134,10 +134,37 @@ class Committer(models.Model):
         return f'{self.username}'
 
 class Project(models.Model):
+    class ProjectLanguage(models.TextChoices):
+        PYTHON = ('PY', "Python")
+        TYPESCRIPT = ('TS', "TypeScript")
+        RUBY = ('RB', 'Ruby')
+        PHP = ('PH', 'PHP')
+        R_LANG = ('RL', "GNU R")
+
+        @classmethod
+        def from_github_name(cls, gh_name: str):
+            lang = gh_name.lower()
+            if lang == 'python':
+                return cls.PYTHON
+            elif lang == 'typescript':
+                return cls.TYPESCRIPT
+            elif lang == "Ruby":
+                return cls.RUBY
+            elif lang == "R":
+                return cls.R_LANG
+            elif lang == "PHP":
+                return cls.PHP
+            return cls.PYTHON
+
+
     owner = models.CharField('project owner', max_length=200, editable=False)
     name = models.CharField('project name', max_length=200, editable=False)
     installation_id = models.IntegerField('installation ID', editable=False, null=True)
     primary_language = models.CharField('primary programming language', max_length=30, editable=False, null=True)
+    language = models.CharField('Primary programming language',
+                                max_length=2,
+                                choices=ProjectLanguage.choices,
+                                default=ProjectLanguage.PYTHON)
     track_changes = models.BooleanField('are we tracking this project\'s changes?', null=False, editable=False, default=False)
     typechecker_files = models.TextField('list of typechecker configuration files detected', null=True, editable=False)
     add_date = models.DateTimeField('project add date', auto_now_add=True, editable=False)

@@ -117,7 +117,8 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
 
         parser.add_argument('language',
-                            help='Programming language to search for.')
+                            help='Programming language to search for.',
+                            choices=[ item[0] for item in Project.ProjectLanguage.choices ])
         parser.add_argument('--token',
                             help='Token used for GitHub API Access.',
                             required=True,
@@ -208,7 +209,7 @@ class Command(BaseCommand):
 
                         if d['has_annotations'] or d['has_typechecker_configuration'] is not None:
                             owner, name = repo.full_name.split('/')
-                            proj = Project(primary_language=self.language,
+                            proj = Project(language=self.language,
                                            owner=owner,
                                            name=name,
                                            typechecker_files = d['has_typechecker_configuration'],

@@ -25,9 +25,9 @@ position_re = re.compile(r'\[(\d+),(\d+)\]', re.IGNORECASE)
 
 tree_re = re.compile(r'^(typed_parameter|type_annotation|type|union_type|help)', re.IGNORECASE)
 
-def get_typechecker_configuration(repo, language: str, commit_like: str='HEAD'):
+def get_typechecker_configuration(repo, language: Project.ProjectLanguage, commit_like: str='HEAD'):
     typecheckers = []
-    if language == 'Python':
+    if language == Project.ProjectLanguage.PYTHON:
         for object in repo.rev_parse(commit_like).tree.traverse():
             if object.type == 'blob':
                 if object.name in ['mypy.ini',
@@ -43,7 +43,7 @@ def get_typechecker_configuration(repo, language: str, commit_like: str='HEAD'):
                         for tool in ['mypy', 'pytype', 'pyright']:
                             if tool in data['tool'].keys():
                                 typecheckers.append(f'{object.path}[tool.{tool}]')
-    elif language == 'TypeScript':
+    elif language == Project.ProjectLanguage.TYPESCRIPT:
         for object in repo.rev_parse(commit_like).tree.traverse():
             if object.type == 'blob':
                 if re.search(r'[tj]sconfig.json$', object.name):
@@ -71,11 +71,11 @@ def get_typechecker_configuration(repo, language: str, commit_like: str='HEAD'):
                                                  "useUnknownInCatchVariables"]:
                             if typecheck_option in data['compilerOptions'].keys():
                                 typecheckers.append(f'{object.path}[compilerOptions][{typecheck_option}]')
-    elif language == "Ruby":
+    elif language == Project.ProjectLanguage.RUBY:
         pass
-    elif language == "R":
+    elif language == Project.ProjectLanguage.R_LANG:
         pass
-    elif language == "PHP":
+    elif language == Project.ProjectLanguage.PHP:
         pass
 
     if len(typecheckers) > 0:
@@ -97,26 +97,31 @@ class TypeAnnotationDetectionVisitor(ast.NodeVisitor):
         return True
 
 def has_annotations(repo, language):
-    if language=='Python':
-        for filename in Path(repo.working_tree_dir).glob('**/*.py'):
-            try:
-                with open(filename, 'r') as fh:
-                    tree = ast.parse(fh.read())
-                    visitor = TypeAnnotationDetectionVisitor()
-                    if visitor.visit(tree):
-                        return True
-            except:
-                continue
-        return False
-    # TODO: Check for other languages
-    return False
+    match language:
+        case Project.ProjectLanguage.PYTHON:
+            for filename in Path(repo.working_tree_dir).glob('**/*.py'):
+                try:
+                    with open(filename, 'r') as fh:
+                        tree = ast.parse(fh.read())
+                        visitor = TypeAnnotationDetectionVisitor()
+                        if visitor.visit(tree):
+                            return True
+                except:
+                    continue
+            return False
+        case Project.ProjectLanguage.TYPESCRIPT:
+            return True
+        case _:
+            return False
 
 def file_is_relevant(name: str, language: str) -> bool:
-    if language == 'Python':
-        return python_file_check.search(name) is not None
-    elif language == 'TypeScript':
-        return typescript_file_check.search(name) is not None
-    return False
+    match language:
+        case Project.ProjectLanguage.PYTHON:
+            return python_file_check.search(name) is not None
+        case Project.ProjectLanguage.TYPESCRIPT:
+            return typescript_file_check.search(name) is not None
+        case _:
+            return False
 
 
 class ChangeType(StrEnum):
@@ -125,7 +130,7 @@ class ChangeType(StrEnum):
     CHANGED = auto()
 
 def check_commit_is_relevant(repo: Repo, commit: Commit) -> Optional[List[Tuple[str, int, ChangeType]]]:
-    language = commit.project.primary_language
+    language = commit.project.language
     git_commit = repo.rev_parse(commit.hash)
 
     # Check if it's a merge: merges aren't interesting, but their children may already have been...
@@ -153,7 +158,7 @@ def check_commit_is_relevant(repo: Repo, commit: Commit) -> Optional[List[Tuple[
                     patch = list(whatthepatch.parse_patch(patch_str))[0]
                     break
             try:
-                astdiff = AstDiff.from_diff(git_commit, diff, language.lower())
+                astdiff = AstDiff.from_diff(git_commit, diff, language.label.lower())
                 relevant_changes = is_diff_relevant(astdiff)
                 if relevant_changes:
                     for file, line, is_added in relevant_changes:

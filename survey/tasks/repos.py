@@ -38,13 +38,14 @@ def install_repo(owner: str, repo: str, installation_id: str):
     #     return
 
     try:
-        project.primary_language = project.gh.language
+        language = project.gh.language
     except:
         languages = project.gh.get_languages()
-        project.primary_language = max(languages, key=languages.get)
+        language = max(languages, key=languages.get)
 
-    if project.primary_language in ['TypeScript', 'Python', 'PHP', 'R']:
+    if language in ['TypeScript', 'Python', 'PHP', 'R', 'Ruby']:
         project.track_changes = True
+        project.language = Project.ProjectLanguage.from_github_name(language)
 
     project.save()
 
@@ -66,7 +67,7 @@ def clone_repo(project_id):
     repo = Repo.clone_from(project.clone_url, local_path)
     project.host_node = current_node
     if project.typechecker_files is None:
-        project.typechecker_files = get_typechecker_configuration(repo, project.primary_language)
+        project.typechecker_files = get_typechecker_configuration(repo, project.language)
     project.save()
 
 @app.task(ignore_result = True)
