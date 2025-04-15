@@ -265,11 +265,11 @@ class Command(BaseCommand):
                 except Committer.DoesNotExist:
                     committer = Committer(username = maintainer['login'],
                                           name = maintainer['name'],
-                                          email = row['email'])
+                                          email_address = maintainer['email'])
                     committer.save()
 
                 project_committer = ProjectCommitter(project=proj, committer=committer, is_maintainer=True)
-                proj_committer.save()
+                project_committer.save()
 
     last_wait_finished = datetime.now()
     last_wait_length = -1
