@@ -27,7 +27,9 @@ dependencies = [
 mysql = [ "mysqlclient~=2.2.7" ]
 dev = [
 "django-extensions~=3.2",
-"mypy~=1.11.2"
+"mypy~=1.11.2",
+"types-pytz~=2024.2",
+"types-python-dateutil"
 ]
 gumtree_support = [
 "parso~=0.8.4",
