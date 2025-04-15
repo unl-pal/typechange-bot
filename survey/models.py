@@ -102,14 +102,14 @@ class Committer(models.Model):
     username = models.CharField(max_length=200)
     name = models.CharField(max_length=200, null=True, editable=False)
     email_address = models.EmailField(null=True)
-    initial_contact_date = models.DateTimeField("initial contact date", auto_now_add=True, editable=False)
-    last_contact_date = models.DateTimeField("date of last contact", auto_now=True, editable=False)
-    consent_timestamp = models.DateTimeField("date of consent", null=True, editable=False)
-    consent_project_commit = models.TextField("location of consent", null=True, blank=True, editable=True)
-    opt_out = models.DateTimeField("date of opt-out", null=True, blank=True, editable=False)
-    removal = models.DateTimeField("date of removal request & processing", null=True, blank=True, editable=False)
+    initial_contact_date = models.DateTimeField('first contact', auto_now_add=True, editable=False)
+    last_contact_date = models.DateTimeField("last contact", auto_now=True, editable=False)
+    consent_timestamp = models.DateTimeField("consent date", null=True, editable=False)
+    consent_project_commit = models.TextField("consent location", null=True, blank=True, editable=True)
+    opt_out = models.DateTimeField("opt-out date", null=True, blank=True, editable=False)
+    removal = models.DateTimeField("removal date", null=True, blank=True, editable=False)
     projects = models.ManyToManyField('Project', through='ProjectCommitter')
-    initial_survey_response = models.TextField('response to initial survey', null=True, blank=True, editable=False)
+    initial_survey_response = models.TextField('initial survey response', null=True, blank=True, editable=False)
     tags = models.ManyToManyField(InitialReason)
 
     @property
@@ -157,23 +157,23 @@ class Project(models.Model):
             return cls.PYTHON
 
 
-    owner = models.CharField('project owner', max_length=200, editable=False)
-    name = models.CharField('project name', max_length=200, editable=False)
+    owner = models.CharField('owner', max_length=200, editable=False)
+    name = models.CharField('name', max_length=200, editable=False)
     installation_id = models.IntegerField('installation ID', editable=False, null=True)
-    language = models.CharField('Primary programming language',
+    language = models.CharField('primary language',
                                 max_length=2,
                                 choices=ProjectLanguage.choices,
                                 default=ProjectLanguage.PYTHON)
-    track_changes = models.BooleanField('are we tracking this project\'s changes?', null=False, editable=False, default=False)
-    typechecker_files = models.TextField('list of typechecker configuration files detected', null=True, editable=False)
-    add_date = models.DateTimeField('project add date', auto_now_add=True, editable=False)
-    remove_date = models.DateTimeField('project remove date', blank=True, null=True, editable=False)
+    track_changes = models.BooleanField('tracking?', null=False, editable=False, default=False)
+    typechecker_files = models.TextField('typchecker files detected', null=True, editable=False)
+    add_date = models.DateTimeField('add date', auto_now_add=True, editable=False)
+    remove_date = models.DateTimeField('remove date', blank=True, null=True, editable=False)
     committers = models.ManyToManyField(Committer, through='ProjectCommitter')
     host_node = models.ForeignKey(Node, on_delete=models.CASCADE, editable=False, null=True)
     data_subdir = models.CharField('data subdirectory', max_length=200, editable=False, null=True)
 
-    has_typechecker_configuration = models.BooleanField('Does the project have type checker configuration?', editable=False, default=False)
-    annotations_detected = models.BooleanField('Have annotations been detected?', editable=False, default=False)
+    has_typechecker_configuration = models.BooleanField('has typechecker config?', editable=False, default=False)
+    annotations_detected = models.BooleanField('annotations detected?', editable=False, default=False)
 
     _repo = None
     _gh_app = None
