@@ -326,6 +326,11 @@ class Command(BaseCommand):
                             type=int,
                             default=2)
 
+        parser.add_argument('--no-pause',
+                            action='store_true',
+                            default=False,
+                            help="Disable pausing before starting")
+
         parser.add_argument('--end-date',
                             action='store',
                             type=datetime.fromisoformat,
@@ -359,6 +364,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, language=None, token=None, destination=None,
                min_contributors=None, min_contributions=None, min_stars=None,
+               no_pause=None,
                start_date=None, end_date=None,
                probe_starts=None, probe_counts=None, partition=None,
                partition_data_file=None,
@@ -430,7 +436,8 @@ class Command(BaseCommand):
         self.partition = [x for x in self.partition if x >= last_partition and x <= self.END_DATE]
         self.store_partition_data_file()
 
-        input("Press enter to continue...\a\n")
+        if not no_pause:
+            input("Press enter to continue...\a\n")
 
         self.gh.per_page = 100
 
