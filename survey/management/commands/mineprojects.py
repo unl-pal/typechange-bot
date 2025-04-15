@@ -257,7 +257,7 @@ class Command(BaseCommand):
             proj.save()
             prescreen_project.apply_async([proj.id])
 
-            maintainers = self.collect_repo_maintainers(repo)
+            maintainers = self.collect_maintainers(repo)
             for i, maintainer in maintainers.iterrows():
                 print(f'Processing maintainer {maintainer["login"]}')
                 try:
