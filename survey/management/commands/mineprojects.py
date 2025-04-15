@@ -275,9 +275,13 @@ class Command(BaseCommand):
     def enforce_rate_limits(self, backoff_in = None):
         self.store_partition_data_file()
         rate_limit_reset_time = datetime.fromtimestamp(self.gh.rate_limiting_resettime, tz=pytz.UTC).replace(tzinfo=pytz.UTC)
-        time_until_reset = int((rate_limit_reset_time - datetime.now(pytz.UTC)).total_seconds)
+        time_until_reset = int((rate_limit_reset_time - datetime.now(pytz.UTC)).total_seconds())
         time_since_last_reset = ((datetime.now() - self.last_wait_finished).total_seconds() - 2*self.ex_backoff)
-        if time_until_reset <= 1:
+        if datetime.now(pytz.UTC) < datetime.fromtimestamp(self.gh.rate_limiting_resettime, tz=pytz.UTC):
+            if backoff_in is not None:
+                print(f"Ratelimit requested: not needed (in {backoff_in}).")
+            else:
+                print("Ratelimit requested: not needed.")
             return
         if time_since_last_reset <= self.last_wait_length:
             if self.ex_backoff > self.default_backoff:
@@ -289,7 +293,7 @@ class Command(BaseCommand):
                 self.ex_backoff = self.default_backoff
             self.last_wait_length = time_until_reset + self.default_backoff
 
-        if backoff_in:
+        if backoff_in is not None:
             print(f'Hit rate limit: sleeping for {self.last_wait_length} seconds (in {backoff_in}).')
         else:
             print(f'Hit rate limit: sleeping for {self.last_wait_length} seconds.')
