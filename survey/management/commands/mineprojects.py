@@ -415,7 +415,7 @@ class Command(BaseCommand):
         self.partition = [x for x in self.partition if x >= last_partition and x <= self.END_DATE]
         self.store_partition_data_file()
 
-        input("Press enter to continue...\n")
+        input("Press enter to continue...\a\n")
 
         self.gh.per_page = 100
 
