@@ -446,6 +446,7 @@ class Command(BaseCommand):
             self.current_partition = i
             try:
                 self.download_partition(last_partition, current_partition)
+                self.store_partition_data_file()
             except KeyboardInterrupt as ex:
                 self.store_partition_data_file()
                 raise ex
