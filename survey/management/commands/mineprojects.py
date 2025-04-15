@@ -135,7 +135,7 @@ class Command(BaseCommand):
             self.store_partition_data_file()
             raise ex
         except:
-            self.enforce_rate_limits()
+            self.enforce_rate_limits('get_counts_for_category')
             self.gh.per_page = gh_page_count
             return self.get_counts_for_category(min_val, max_val, desc)
 
@@ -168,7 +168,7 @@ class Command(BaseCommand):
                         else:
                             return None
                     except RateLimitExceededException:
-                        self.enforce_rate_limits()
+                        self.enforce_rate_limits('get_email')
                         get_email(login)
 
             df2 = df[df['contributions'] >= cutoff] \
@@ -182,7 +182,7 @@ class Command(BaseCommand):
 
             return df2
         except RateLimitExceededException:
-            self.enforce_rate_limits()
+            self.enforce_rate_limits('collect_maintainers')
             return self.collect_maintainers(repo)
 
     def check_contribution(self, id):
@@ -190,7 +190,7 @@ class Command(BaseCommand):
             repo = self.gh.get_repository(id)
             return repo.get_stats_participation().all[-(self.min_contributions[1] * 28):] >= self.min_contributions[0]
         except RateLimitExceededException:
-            self.enforce_rate_limits()
+            self.enforce_rate_limits('check_contribution')
             return self.check_contribution(id)
 
     def process_partition(self, start, end):
@@ -210,13 +210,13 @@ class Command(BaseCommand):
 
             for repo in results:
                 self.process_repo(repo)
-                self.enforce_rate_limits()
+                self.enforce_rate_limits('process_partition:repo_iterator')
 
         except KeyboardInterrupt as ex:
             self.store_partition_data_file()
             raise ex
         except:
-            self.enforce_rate_limits()
+            self.enforce_rate_limits('process_partition')
             return self.process_partition(start, end)
 
 
@@ -244,11 +244,12 @@ class Command(BaseCommand):
 
     def process_repo(self, repo):
         owner, name = repo.full_name.split('/')
-        print(f'Processing: {repo.full_name}')
         try:
             proj = Project.objects.get(owner=owner, name=name)
+            print(f'Processing {repo.full_name}: already known.')
             return
         except Project.DoesNotExist:
+            print(f'Processing {repo.full_name}:')
             proj = Project(language=self.language,
                            owner=owner,
                            name=name)
@@ -257,6 +258,7 @@ class Command(BaseCommand):
 
             maintainers = self.collect_repo_maintainers(repo)
             for i, maintainer in maintainers.iterrows():
+                print(f'Processing maintainer {maintainer["login"]}')
                 try:
                     committer = Committer.objects.get(username = maintainer['login'])
                 except Committer.DoesNotExist:
@@ -270,19 +272,27 @@ class Command(BaseCommand):
 
     last_wait_finished = datetime.now()
     last_wait_length = -1
-    def enforce_rate_limits(self):
+    def enforce_rate_limits(self, backoff_in = None):
         self.store_partition_data_file()
-        if ((datetime.now() - self.last_wait_finished).total_seconds() - 2*self.ex_backoff) <= self.last_wait_length:
-            print("Using exponential backoff for rate-limiting.")
-            rate_limit_reset = datetime.fromtimestamp(self.gh.rate_limiting_resettime, tz=pytz.UTC).replace(tzinfo=pytz.UTC)
-            self.last_wait_length = int((rate_limit_reset - datetime.now(pytz.UTC)).total_seconds()) + self.ex_backoff
+        rate_limit_reset_time = datetime.fromtimestamp(self.gh.rate_limiting_resettime, tz=pytz.UTC).replace(tzinfo=pytz.UTC)
+        time_until_reset = int((rate_limit_reset_time - datetime.now(pytz.UTC)).total_seconds)
+        time_since_last_reset = ((datetime.now() - self.last_wait_finished).total_seconds() - 2*self.ex_backoff)
+        if time_until_reset <= 1:
+            return
+        if time_since_last_reset <= self.last_wait_length:
+            if self.ex_backoff > self.default_backoff:
+                print("Using exponential backoff for rate-limiting.")
+            self.last_wait_length = time_until_reset + self.ex_backoff
             self.ex_backoff *= 2
         else:
-            self.ex_backoff = self.default_backoff
-            rate_limit_reset = datetime.fromtimestamp(self.gh.rate_limiting_resettime, tz=pytz.UTC).replace(tzinfo=pytz.UTC)
-            self.last_wait_length = int(self.default_backoff + (rate_limit_reset - datetime.now(pytz.UTC)).total_seconds())
+            if self.ex_backoff > self.default_backoff:
+                self.ex_backoff = self.default_backoff
+            self.last_wait_length = time_until_reset + self.default_backoff
 
-        print(f'Hit rate limit: sleeping for {self.last_wait_length} seconds.')
+        if backoff_in:
+            print(f'Hit rate limit: sleeping for {self.last_wait_length} seconds (in {backoff_in}).')
+        else:
+            print(f'Hit rate limit: sleeping for {self.last_wait_length} seconds.')
         time.sleep(self.last_wait_length)
         self.last_wait_finished = datetime.now()
 
