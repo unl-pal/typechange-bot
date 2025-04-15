@@ -80,20 +80,15 @@ class ProjectCommitterAdmin(admin.ModelAdmin):
 
     inlines = [ResponseInline]
 
-    list_display = ['project_owner', 'project_name', 'committer']
+    list_display = ['committer', 'disp_project', 'is_maintainer']
     list_display_links = ['committer']
-    list_filter = ['project__owner', 'project__name', 'committer__username']
+    list_filter = ['is_maintainer', 'committer__username', 'project__owner', 'project__name']
 
     search = ['survey_response']
 
-    @admin.display(description='Owner')
-    def project_owner(self, obj):
-        return obj.project.owner
-
     @admin.display(description='Project')
-    def project_name(self, obj):
-        return obj.project.name
-
+    def disp_project(self, obj):
+        return str(obj.project)
 
 @admin.register(Committer)
 class CommitterAdmin(admin.ModelAdmin):
