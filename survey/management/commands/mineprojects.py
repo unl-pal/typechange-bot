@@ -362,7 +362,8 @@ class Command(BaseCommand):
                             type=Path,
                             help='Name of file to store partition data in.')
 
-    def handle(self, *args, language=None, token=None, destination=None,
+    def handle(self, *args,
+               language=None, token=None, destination=None,
                min_contributors=None, min_contributions=None, min_stars=None,
                no_pause=None,
                start_date=None, end_date=None,
