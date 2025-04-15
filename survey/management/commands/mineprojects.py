@@ -364,23 +364,25 @@ class Command(BaseCommand):
         self.gh = Github(self.token, per_page=1)
 
         if not self.read_partition_data_file():
-            # Do initialization of partition, etc. here.
-            pass
+            self.start_values = probe_starts
+            self.period_counts = probe_counts
+            self.partition = partition
+            if start_date is not None:
+                self.START_DATE = start_date
 
-        self.partition = partition
-        if start_date is not None:
-            self.START_DATE = start_date
+            if end_date is not None:
+                self.END_DATE = end_date
 
-        if end_date is not None:
-            self.END_DATE = end_date
 
-        if len(probe_starts) == 0 or len(probe_starts) != len(probe_counts):
+        if len(self.start_values) == 0 or len(self.start_values) != len(self.period_counts):
+            print("Probing date values.")
             self.probe_date_values()
             print(f'--probe-starts {",".join([start.isoformat() for start in self.start_values])}')
             print(f'--probe-counts {",".join([str(count) for count in self.period_counts])}')
             self.store_partition_data_file()
 
         if len(self.partition) == 0:
+            print("Generating initial partitions list.")
             i = 0
             for j, val in enumerate(self.period_counts):
                 i = j
