@@ -103,6 +103,8 @@ class Command(BaseCommand):
 
     counts_memo: dict = {}
     def get_counts_for_category(self, min_val, max_val = None, desc = True):
+        gh_page_count = self.gh.per_page
+        self.gh.per_page = 1
         if isinstance(min_val, datetime):
             min_val = min_val.isoformat()
             if max_val is not None:
@@ -121,19 +123,21 @@ class Command(BaseCommand):
 
             # self.wait_limit()
             query = f'language:{self.language.label} {val}'
-            print(f'{query!r} - ', end='')
+            print(f'Running query {query!r}')
             results = self.gh.search_repositories(query)
             results.get_page(0)
 
             self.counts_memo[(min_val, max_val)] = results.totalCount
-            print(results.total_count)
+            print(f'Query {query!r} got {results.totalCount} results')
 
+            self.gh.per_page = gh_page_count
             return results.totalCount
         except KeyboardInterrupt as ex:
             self.store_partition_data_file()
             raise ex
         except:
             self.wait_limit()
+            self.gh.per_page = gh_page_count
             return self.get_counts_for_category(min_val, max_val, desc)
 
     def collect_maintainers(self, repo):
