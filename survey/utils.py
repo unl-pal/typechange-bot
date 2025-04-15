@@ -48,7 +48,10 @@ def get_typechecker_configuration(repo, language: Project.ProjectLanguage, commi
         for object in repo.rev_parse(commit_like).tree.traverse():
             if object.type == 'blob':
                 if re.search(r'[tj]sconfig.json$', object.name):
-                    data = json.loads(object.data_stream.read().decode)
+                    try:
+                        data = json.loads(object.data_stream.read().decode())
+                    except:
+                        continue
                     if 'compilerOptions' in data.keys():
                         for typecheck_option in ["allowUnreachableCode",
                                                  "allowUnusedLabels",
