@@ -110,12 +110,12 @@ class CommitterAdmin(admin.ModelAdmin):
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
-    fields = ['add_date', 'remove_date', 'host_node', 'language', 'track_changes', 'typechecker_files', 'committers']
+    fields = ['add_date', 'remove_date', 'host_node', 'language', 'track_changes', 'typechecker_files', 'committers', 'has_typechecker_configuration', 'annotations_detected']
     readonly_fields = fields
 
-    list_display = ['owner', 'name', 'language', 'host_node', 'track_changes']
+    list_display = ['owner', 'name', 'language', 'host_node', 'track_changes', 'has_typechecker_configuration', 'annotations_detected']
     list_display_links = ['owner', 'name']
-    list_filter = ['owner', 'name', 'language', 'host_node']
+    list_filter = ['owner', 'name', 'language', 'host_node', 'has_typechecker_configuration', 'annotations_detected']
 
     actions = ['delete_repos', 'force_fetch']
 
