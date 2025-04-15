@@ -108,10 +108,29 @@ class CommitterAdmin(admin.ModelAdmin):
     def should_contact(self, obj):
         return obj.should_contact
 
+class ProjectCommitterInline(admin.TabularInline):
+    model = ProjectCommitter
+    extra = 0
+    can_delete = False
+    show_change_link = True
+
+    readonly_fields = ['committer', 'is_maintainer', 'should_contact']
+    fields = readonly_fields
+
+    @admin.display(boolean=True,
+                   description="Contactable?")
+    def should_contact(self, obj):
+        return obj.committer.should_contact
+
+    def has_add_permission(self, request, obj):
+        return False
+
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
-    fields = ['add_date', 'remove_date', 'host_node', 'language', 'track_changes', 'typechecker_files', 'committers', 'has_typechecker_configuration', 'annotations_detected']
+    fields = ['add_date', 'remove_date', 'host_node', 'language', 'track_changes', 'typechecker_files', 'has_typechecker_configuration', 'annotations_detected']
     readonly_fields = fields
+
+    inlines = [ProjectCommitterInline]
 
     list_display = ['owner', 'name', 'language', 'host_node', 'track_changes', 'has_typechecker_configuration', 'annotations_detected']
     list_display_links = ['owner', 'name']
