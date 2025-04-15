@@ -149,6 +149,7 @@ GITHUB_APP_ID = config('GITHUB_APP_ID', default='FOO')
 GITHUB_API_KEY = config('GITHUB_API_KEY', default='FOO')
 
 # Celery Configuration
+CELERY_RESULT_EXTENDED = config('CELERY_RESULT_EXTENDED', default=True, cast=bool)
 CELERY_TIMEZONE = config("CELERY_TIMEZONE", default=TIME_ZONE)
 CELERY_TASK_TRACK_STARTED = config("CELERY_TASK_TRACK_STARTED", default=True, cast=bool)
 CELERY_TASK_TIME_LIMIT = config("CELERY_TASK_TIME_LIMIT", default=30 * 60, cast=int)
