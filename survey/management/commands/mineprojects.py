@@ -135,7 +135,7 @@ class Command(BaseCommand):
             self.store_partition_data_file()
             raise ex
         except:
-            self.wait_limit()
+            self.enforce_rate_limits()
             self.gh.per_page = gh_page_count
             return self.get_counts_for_category(min_val, max_val, desc)
 
@@ -168,7 +168,7 @@ class Command(BaseCommand):
                         else:
                             return None
                     except RateLimitExceededException:
-                        self.wait_limit()
+                        self.enforce_rate_limits()
                         get_email(login)
 
             df2 = df[df['contributions'] >= cutoff] \
@@ -182,7 +182,7 @@ class Command(BaseCommand):
 
             return df2
         except RateLimitExceededException:
-            self.wait_limit()
+            self.enforce_rate_limits()
             return self.collect_maintainers(repo)
 
     def check_contribution(self, id):
@@ -190,7 +190,7 @@ class Command(BaseCommand):
             repo = self.gh.get_repository(id)
             return repo.get_stats_participation().all[-(self.min_contributions[1] * 28):] >= self.min_contributions[0]
         except RateLimitExceededException:
-            self.wait_limit()
+            self.enforce_rate_limits()
             return self.check_contribution(id)
 
     def process_partition(self, start, end):
@@ -210,13 +210,13 @@ class Command(BaseCommand):
 
             for repo in results:
                 self.process_repo(repo)
-                self.wait_limit()
+                self.enforce_rate_limits()
 
         except KeyboardInterrupt as ex:
             self.store_partition_data_file()
             raise ex
         except:
-            self.wait_limit()
+            self.enforce_rate_limits()
             return self.process_partition(start, end)
 
 
@@ -270,7 +270,7 @@ class Command(BaseCommand):
 
     last_wait_finished = datetime.now()
     last_wait_length = -1
-    def wait_limit(self):
+    def enforce_rate_limits(self):
         self.store_partition_data_file()
         if ((datetime.now() - self.last_wait_finished).total_seconds() - 2*self.ex_backoff) <= self.last_wait_length:
             print("Using exponential backoff for rate-limiting.")
