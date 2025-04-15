@@ -132,11 +132,7 @@ class Command(BaseCommand):
             raise ex
         except:
             self.wait_limit()
-            time.sleep(self.ex_backoff)
-            self.ex_backoff *= 2
             return self.get_counts_for_category(min_val, max_val, desc)
-        finally:
-            self.ex_backoff = self.default_backoff
 
     def collect_maintainers(self, repo):
         stats = None
@@ -218,11 +214,7 @@ class Command(BaseCommand):
             raise ex
         except:
             self.wait_limit()
-            time.sleep(self.ex_backoff)
-            self.ex_backoff *= 2
             return self.process_partition(start, end)
-        finally:
-            self.ex_backoff = self.default_backoff
 
 
     part_memo: dict = {}
@@ -274,12 +266,23 @@ class Command(BaseCommand):
                 proj_committer.save()
 
 
+    last_wait_finished = datetime.now()
+    last_wait_length = -1
     def wait_limit(self):
         self.store_partition_data_file()
-        rate_limit_reset = datetime.fromtimestamp(self.gh.rate_limiting_resettime, tz=pytz.UTC).replace(tzinfo=pytz.UTC)
-        seconds = int(5 + (rate_limit_reset - datetime.now(pytz.UTC)).total_seconds())
-        print(f'Hit rate limit: sleeping for {seconds} seconds (reset at {rate_limit_reset.isoformat()}, {datetime.now(pytz.UTC).isoformat()})')
-        time.sleep(seconds)
+        if ((datetime.now() - self.last_wait_finished).total_seconds() - 2*self.ex_backoff) <= self.last_wait_length:
+            print("Using exponential backoff for rate-limiting.")
+            rate_limit_reset = datetime.fromtimestamp(self.gh.rate_limiting_resettime, tz=pytz.UTC).replace(tzinfo=pytz.UTC)
+            self.last_wait_length = int((rate_limit_reset - datetime.now(pytz.UTC)).total_seconds()) + self.ex_backoff
+            self.ex_backoff *= 2
+        else:
+            self.ex_backoff = self.default_backoff
+            rate_limit_reset = datetime.fromtimestamp(self.gh.rate_limiting_resettime, tz=pytz.UTC).replace(tzinfo=pytz.UTC)
+            self.last_wait_length = int(self.default_backoff + (rate_limit_reset - datetime.now(pytz.UTC)).total_seconds())
+
+        print(f'Hit rate limit: sleeping for {self.last_wait_length} seconds.')
+        time.sleep(self.last_wait_length)
+        self.last_wait_finished = datetime.now()
 
     def add_arguments(self, parser):
 
