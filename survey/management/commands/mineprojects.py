@@ -405,12 +405,12 @@ class Command(BaseCommand):
                 last_count = self.period_counts[i + 1]
             self.partition.append(self.END_DATE)
             self.store_partition_data_file()
+            print(f'--partition {",".join([start.isoformat() for start in self.partition])}')
 
 
         self.partition.sort()
         last_partition = self.START_DATE
         self.partition = [x for x in self.partition if x >= last_partition and x <= self.END_DATE]
-        print(f'--partition {",".join([start.isoformat() for start in self.partition])}')
         self.store_partition_data_file()
 
         input("Press enter to continue...\n")
