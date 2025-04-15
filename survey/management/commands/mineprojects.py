@@ -216,7 +216,7 @@ class Command(BaseCommand):
         except KeyboardInterrupt as ex:
             self.store_partition_data_file()
             raise ex
-        except:
+        except RateLimitExceededException:
             self.enforce_rate_limits('process_partition')
             return self.process_partition(start, end)
 
