@@ -121,7 +121,6 @@ class Command(BaseCommand):
             else:
                 val = f'pushed:<{min_val}'
 
-            # self.wait_limit()
             query = f'language:{self.language.label} {val}'
             print(f'Running query {query!r}')
             results = self.gh.search_repositories(query)
@@ -142,50 +141,49 @@ class Command(BaseCommand):
 
     def collect_maintainers(self, repo):
         stats = None
-        while True:
-            try:
-                stats = repo.get_stats_contributors()
-                break
-            except RateLimitExceededException:
-                self.wait_limit()
+        try:
+            stats = repo.get_stats_contributors()
+            login = []
+            people = []
+            totals = []
 
-        login = []
-        people = []
-        totals = []
+            for s in stats:
+                weeks = [ week for week in s.weeks if week.w >= (datetime.now(week.w.tzinfo) + relativedelta(months=-6)) ]
+                total = sum([ week.c for week in weeks ])
 
-        for s in stats:
-            weeks = [ week for week in s.weeks if week.w >= (datetime.now(week.w.tzinfo) + relativedelta(months=-6)) ]
-            total = sum([ week.c for week in weeks ])
+                if total > 0:
+                    login.append(s.author.login)
+                    people.append(s.author)
+                    totals.append(total)
 
-            if total > 0:
-                login.append(s.author.login)
-                people.append(s.author)
-                totals.append(total)
-        df = pd.DataFrame(zip(login, people, totals), columns = ['login', 'stats', 'contributions'])
-        df = df[~df['login'].str.contains('\\[bot\\]')]
-        cutoff = df['contributions'].mean() + 1.5 * df['contributions'].std()
+            df = pd.DataFrame(zip(login, people, totals), columns = ['login', 'stats', 'contributions'])
+            df = df[~df['login'].str.contains('\\[bot\\]')]
+            cutoff = df['contributions'].mean() + 1.5 * df['contributions'].std()
 
-        def get_email(login):
-            while True:
-                try:
-                    user = self.gh.get_user(login)
-                    if user and user.email:
-                        return (user.email, user.name)
-                    else:
-                        return None
-                except RateLimitExceededException:
-                    self.wait_limit()
+            def get_email(login):
+                    try:
+                        user = self.gh.get_user(login)
+                        if user and user.email:
+                            return (user.email, user.name)
+                        else:
+                            return None
+                    except RateLimitExceededException:
+                        self.wait_limit()
+                        get_email(login)
 
-        df2 = df[df['contributions'] >= cutoff] \
-            .assign(email_and_name = lambda df: df.login.apply(get_email)) \
-            .dropna(axis=0) \
-            .assign(email = lambda df: df.email_and_name.apply(lambda x: x[0]),
-                    name = lambda df: df.email_and_name.apply(lambda x: x[1]),
-                    project = lambda df: repo.full_name) \
-            .reset_index() \
-            [['login', 'name', 'email']]
+            df2 = df[df['contributions'] >= cutoff] \
+                    .assign(email_and_name = lambda df: df.login.apply(get_email)) \
+                    .dropna(axis=0) \
+                    .assign(email = lambda df: df.email_and_name.apply(lambda x: x[0]),
+                            name = lambda df: df.email_and_name.apply(lambda x: x[1]),
+                            project = lambda df: repo.full_name) \
+                    .reset_index() \
+                    [['login', 'name', 'email']]
 
-        return df2
+            return df2
+        except RateLimitExceededException:
+            self.wait_limit()
+            return self.collect_maintainers(repo)
 
     def check_contribution(self, id):
         try:
@@ -210,10 +208,9 @@ class Command(BaseCommand):
             results = self.gh.search_repositories(f'language:{self.language.label} {val}')
             results.get_page(0)
 
-            self.wait_limit()
-
             for repo in results:
                 self.process_repo(repo)
+                self.wait_limit()
 
         except KeyboardInterrupt as ex:
             self.store_partition_data_file()
@@ -270,7 +267,6 @@ class Command(BaseCommand):
 
                 project_committer = ProjectCommitter(project=proj, committer=committer, is_maintainer=True)
                 proj_committer.save()
-
 
     last_wait_finished = datetime.now()
     last_wait_length = -1
