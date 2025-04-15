@@ -48,6 +48,8 @@ class Command(BaseCommand):
 
     gh = None
 
+    partition = None
+
     results = None
     page_num = 0
 
@@ -80,7 +82,7 @@ class Command(BaseCommand):
                 self.end_values = partition_data_dict['start_values']
                 self.START_DATE = datetime.fromisoformat(partition_data_dict['start_date'])
                 self.END_DATE = datetime.fromisoformat(partition_data_dict['end_date'])
-                self.partitions = list(datetime.fromisoformat(date) for date in partition_data_dict['partitions'])[partition_data_dict['current_partition']:]
+                self.partition = list(datetime.fromisoformat(date) for date in partition_data_dict['partitions'])[partition_data_dict['current_partition']:]
                 print('Done!')
                 return True
             except:
