@@ -209,8 +209,9 @@ class Command(BaseCommand):
             results.get_page(0)
 
             for repo in results:
+                self.enforce_rate_limits('process_partition:repo_iterator:pre_process')
                 self.process_repo(repo)
-                self.enforce_rate_limits('process_partition:repo_iterator')
+                self.enforce_rate_limits('process_partition:repo_iterator:post_process')
 
         except KeyboardInterrupt as ex:
             self.store_partition_data_file()
