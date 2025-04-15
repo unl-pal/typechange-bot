@@ -11,6 +11,7 @@ from django.db.models import Q
 from .ast_diff import AstDiff
 import whatthepatch
 import ast
+from pathlib import Path
 
 from enum import StrEnum, auto
 

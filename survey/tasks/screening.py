@@ -18,9 +18,9 @@ def prescreen_project(project_id: int) -> None:
     with TemporaryDirectory() as temp_dir:
         git_repo = Repo.clone_from(project.clone_url, temp_dir,
                                    multi_options=[ "--depth 1",
-                                                   "--shallow-submodules"
+                                                   "--shallow-submodules",
                                                    "--no-remote-submodules" ])
-        typechecker_config = get_typechecker_configuration(temp_dir, project.language)
+        typechecker_config = get_typechecker_configuration(git_repo, project.language)
         if typechecker_config is not None:
             project.typechecker_files = typechecker_config
             project.has_typechecker_configuration = True
