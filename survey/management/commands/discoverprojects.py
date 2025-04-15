@@ -152,9 +152,10 @@ class Command(BaseCommand):
                 total = sum([ week.c for week in weeks ])
 
                 if total > 0:
-                    login.append(s.author.login)
-                    people.append(s.author)
-                    totals.append(total)
+                    if s.author is not None:
+                        login.append(s.author.login)
+                        people.append(s.author)
+                        totals.append(total)
 
             df = pd.DataFrame(zip(login, people, totals), columns = ['login', 'stats', 'contributions'])
             df = df[~df['login'].str.contains('\\[bot\\]')]
