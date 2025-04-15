@@ -25,7 +25,7 @@ from pathlib import Path
 import json
 
 class Command(BaseCommand):
-    help = "Mine GitHub Projects"
+    help = "Discover GitHub Projects"
 
     language = None
     token = None
@@ -396,7 +396,6 @@ class Command(BaseCommand):
 
             if end_date is not None:
                 self.END_DATE = end_date
-
 
         if len(self.start_values) == 0 or len(self.start_values) != len(self.period_counts):
             print("Probing date values.")
