@@ -103,6 +103,11 @@ class CommitterAdmin(admin.ModelAdmin):
     list_display = ['username', 'last_contact_date', 'should_contact']
     list_filter = ['last_contact_date']
 
+    @admin.display(boolean=True,
+                   description="Contactable?")
+    def should_contact(self, obj):
+        return obj.should_contact
+
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
     fields = ['add_date', 'remove_date', 'host_node', 'language', 'track_changes', 'typechecker_files', 'committers']
