@@ -119,7 +119,7 @@ class Command(BaseCommand):
             if max_val is not None and min_val != max_val:
                 val = f'pushed:{max_val}..{min_val}'
             elif desc:
-                val = f'pushed:>{min_val}'
+                val = f'pushed:>{max_val}'
             else:
                 val = f'pushed:<{min_val}'
 
