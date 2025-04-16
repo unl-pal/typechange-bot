@@ -172,6 +172,7 @@ class Project(models.Model):
     host_node = models.ForeignKey(Node, on_delete=models.CASCADE, editable=False, null=True)
     data_subdir = models.CharField('data subdirectory', max_length=200, editable=False, null=True)
 
+    has_language_files = models.BooleanField('has files in the language?', editable=False, default=False)
     has_typechecker_configuration = models.BooleanField('has typechecker config?', editable=False, default=False)
     annotations_detected = models.BooleanField('annotations detected?', editable=False, default=False)
 
