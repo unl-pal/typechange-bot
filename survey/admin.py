@@ -82,7 +82,7 @@ class ProjectCommitterAdmin(admin.ModelAdmin):
 
     list_display = ['committer', 'disp_project', 'is_maintainer']
     list_display_links = ['committer']
-    list_filter = ['is_maintainer', 'committer__username', 'project__owner', 'project__name']
+    list_filter = ['is_maintainer', 'committer__username']
 
     search = ['survey_response']
 
@@ -168,7 +168,7 @@ class CommitAdmin(admin.ModelAdmin):
     list_display = ["project_owner", "project_name", 'hash', 'is_relevant', 'relevance_type']
     list_display_links = list_display[:3]
 
-    list_filter = ['project__owner', 'project__name', 'relevance_type']
+    list_filter = ['relevance_type']
 
     @admin.display(description='Owner')
     def project_owner(self, obj):
@@ -185,7 +185,7 @@ class ResponseAdmin(admin.ModelAdmin):
 
     list_display = ['project_owner', 'project_name', 'commit', 'committer']
     list_display_links = list_display[:3]
-    list_filter = ['commit__project__owner', 'commit__project__name', 'committer']
+    list_filter = ['committer']
 
     search = ['survey_response']
 
