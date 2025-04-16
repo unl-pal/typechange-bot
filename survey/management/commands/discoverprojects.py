@@ -200,7 +200,6 @@ class Command(BaseCommand):
                 val = f'pushed:>={start}'
 
             results = self.gh.search_repositories(f'language:{self.language.label} {val}')
-            results.get_page(0)
 
             for repo in results:
                 self.enforce_rate_limits('process_partition:repo_iterator:pre_process')
