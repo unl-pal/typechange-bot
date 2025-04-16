@@ -153,7 +153,10 @@ class ProjectAdmin(admin.ModelAdmin):
     @admin.action(description="Fetch Selected Projects")
     def force_fetch(self, request, queryset):
         for proj in queryset.all():
-            fetch_project.apply_async([proj.pk], queue=proj.host_node.hostname)
+            if proj.host_node is not None:
+                fetch_project.apply_async([proj.pk], queue=proj.host_node.hostname)
+            else:
+                fetch_project.apply_async([proj.pk])
 
 @admin.register(Commit)
 class CommitAdmin(admin.ModelAdmin):
