@@ -129,7 +129,7 @@ class ProjectAdmin(admin.ModelAdmin):
 
     list_display = ['owner', 'name', 'language', 'host_node', 'track_changes', 'has_typechecker_configuration', 'annotations_detected']
     list_display_links = ['owner', 'name']
-    list_filter = ['track_changes', 'has_typechecker_configuration', 'annotations_detected', 'owner', 'name', 'language', 'host_node']
+    list_filter = ['track_changes', 'has_typechecker_configuration', 'annotations_detected', 'language', 'host_node']
 
     actions = ['delete_repos', 'force_fetch']
 
