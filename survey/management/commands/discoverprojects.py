@@ -252,7 +252,7 @@ class Command(BaseCommand):
             prescreen_project.apply_async([proj.id])
 
             for maintainer in self.collect_maintainers(repo):
-                print(f'Processing maintainer {maintainer["login"]}')
+                print(f'Processing maintainer {maintainer}')
                 try:
                     committer = Committer.objects.get(username = maintainer['login'])
                 except Committer.DoesNotExist:
