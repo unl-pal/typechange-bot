@@ -117,7 +117,7 @@ class Command(BaseCommand):
 
         try:
             if max_val is not None and min_val != max_val:
-                val = f'pushed:{min_val}..{max_val}'
+                val = f'pushed:{max_val}..{min_val}'
             elif desc:
                 val = f'pushed:>{min_val}'
             else:
@@ -189,9 +189,9 @@ class Command(BaseCommand):
                     end = end.isoformat()
 
             if end is not None and start != end:
-                val = f'pushed:{start}..{end}'
+                val = f'pushed:{end}..{start}'
             else:
-                val = f'pushed:>={start}'
+                val = f'pushed:<={start}'
 
             results = self.gh.search_repositories(f'language:{self.language.label} {val}')
 
@@ -219,13 +219,13 @@ class Command(BaseCommand):
         if self.get_counts_for_category(start, end) <= 1000:
             print(f'Partition {start}..{end} has <= 1000 items')
             self.process_partition(start, end)
-        elif start < end:
+        elif start > end:
             if end - start == 1:
                 self.download_partition(start, start)
                 self.download_partition (end, end)
             else:
                 if isinstance(start, datetime):
-                    mid = datetime.fromtimestamp(start.timestamp() + (end.timestamp() - start.timestamp()) / 2, tz=pytz.UTC)
+                    mid = datetime.fromtimestamp(end.timestamp() + (start.timestamp() - end.timestamp()) / 2, tz=pytz.UTC)
                 else:
                     mid = start + (end - start) // 2
 
@@ -426,8 +426,9 @@ class Command(BaseCommand):
 
 
         self.partition.sort()
-        last_partition = self.START_DATE
-        self.partition = [x for x in self.partition if x >= last_partition and x <= self.END_DATE]
+        self.partition = self.partition[::-1]
+        last_partition = self.END_DATE
+        self.partition = [x for x in self.partition if x <= last_partition and x >= self.START_DATE]
         self.store_partition_data_file()
 
         if not no_pause:
