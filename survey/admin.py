@@ -122,14 +122,14 @@ class ProjectCommitterInline(admin.TabularInline):
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
-    fields = ['add_date', 'remove_date', 'host_node', 'language', 'track_changes', 'typechecker_files', 'has_typechecker_configuration', 'annotations_detected']
+    fields = ['add_date', 'remove_date', 'host_node', 'language', 'track_changes', 'typechecker_files', 'has_language_files', 'has_typechecker_configuration', 'annotations_detected']
     readonly_fields = fields
 
     inlines = [ProjectCommitterInline]
 
-    list_display = ['owner', 'name', 'language', 'host_node', 'track_changes', 'has_typechecker_configuration', 'annotations_detected']
+    list_display = ['owner', 'name', 'language', 'host_node', 'track_changes', 'has_language_files', 'has_typechecker_configuration', 'annotations_detected']
     list_display_links = ['owner', 'name']
-    list_filter = ['track_changes', 'has_typechecker_configuration', 'annotations_detected', 'language', 'host_node']
+    list_filter = ['track_changes', 'has_language_files', 'has_typechecker_configuration', 'annotations_detected', 'language', 'host_node']
 
     actions = ['delete_repos', 'force_fetch']
 
