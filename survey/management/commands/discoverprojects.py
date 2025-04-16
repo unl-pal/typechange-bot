@@ -65,6 +65,7 @@ class Command(BaseCommand):
                 'start_date': self.START_DATE.isoformat(),
                 'end_date': self.END_DATE.isoformat(),
                 'partitions': list( partition.isoformat() for partition in self.partition ),
+                'part_memo': self.part_memo,
                 'current_partition': self.current_partition
             }
             with open(self.partition_data_file, 'w+') as fh:
@@ -83,6 +84,7 @@ class Command(BaseCommand):
                 self.START_DATE = datetime.fromisoformat(partition_data_dict['start_date'])
                 self.END_DATE = datetime.fromisoformat(partition_data_dict['end_date'])
                 self.partition = list(datetime.fromisoformat(date) for date in partition_data_dict['partitions'])[partition_data_dict['current_partition']:]
+                self.part_memo = partition_data_dict['part_memo']
                 print('Done!')
                 return True
             except:
@@ -208,9 +210,11 @@ class Command(BaseCommand):
 
     part_memo: dict = {}
     def download_partition(self, start, end):
-        if (start, end) in self.part_memo:
+        if isinstance(start, datetime) and f'{start.isoformat()}..{end.isoformat()}' in self.part_memo:
             return
-        self.part_memo[(start, end)] = True
+
+        if f'{start!r}..{end!r}' in self.part_memo:
+            return
 
         if self.get_counts_for_category(start, end) <= 1000:
             print(f'Partition {start}..{end} has <= 1000 items')
@@ -227,6 +231,11 @@ class Command(BaseCommand):
 
                 self.download_partition(start, mid)
                 self.download_partition(mid, end)
+
+        if isinstance(start, datetime):
+            self.part_memo[f'{start.isoformat()}..{end.isoformat()}'] = True
+        else:
+            self.part_memo[f'{start!r}..{end!r}'] = True
 
     def process_repo(self, repo):
         owner, name = repo.full_name.split('/')
