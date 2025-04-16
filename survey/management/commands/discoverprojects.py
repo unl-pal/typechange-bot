@@ -93,15 +93,15 @@ class Command(BaseCommand):
             return False
 
     def probe_date_values(self):
-        current = self.START_DATE
+        current = self.END_DATE
         last = None
-        while last is None or last < self.END_DATE:
+        while last is None or last > self.START_DATE:
             self.start_values.append(current)
             self.period_counts.append(self.get_counts_for_category(current, desc=False))
             self.store_partition_data_file()
 
             last = current
-            current = current + relativedelta(weeks=1)
+            current = current - relativedelta(weeks=1)
 
     counts_memo: dict = {}
     def get_counts_for_category(self, min_val, max_val = None, desc = True):
