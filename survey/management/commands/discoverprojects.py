@@ -242,8 +242,7 @@ class Command(BaseCommand):
             proj.save()
             prescreen_project.apply_async([proj.id])
 
-            maintainers = self.collect_maintainers(repo)
-            for maintainer in maintainers.iterrows():
+            for maintainer in self.collect_maintainers(repo):
                 print(f'Processing maintainer {maintainer["login"]}')
                 try:
                     committer = Committer.objects.get(username = maintainer['login'])
