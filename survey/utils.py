@@ -126,6 +126,15 @@ def has_annotations(repo, language):
         case _:
             return False
 
+def has_language_file(repo, language):
+    match language:
+        case Project.ProjectLanguage.PYTHON:
+            return len(list(Path(repo.working_tree_dir).glob('**/*.py'))) > 0
+        case Project.ProjectLanguage.TYPESCRIPT:
+            return len(list(Path(repo.working_tree_dir).glob('**/*.ts'))) > 0
+        case _:
+            return False
+
 def file_is_relevant(name: str, language: str) -> bool:
     match language:
         case Project.ProjectLanguage.PYTHON:
