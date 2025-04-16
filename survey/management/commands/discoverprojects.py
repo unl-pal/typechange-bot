@@ -179,14 +179,6 @@ class Command(BaseCommand):
             self.enforce_rate_limits('get_email')
             return self.get_email(login)
 
-    def check_contribution(self, id):
-        try:
-            repo = self.gh.get_repository(id)
-            return repo.get_stats_participation().all[-(self.min_contributions[1] * 28):] >= self.min_contributions[0]
-        except RateLimitExceededException:
-            self.enforce_rate_limits('check_contribution')
-            return self.check_contribution(id)
-
     def process_partition(self, start, end):
         try:
             if isinstance(start, datetime):
