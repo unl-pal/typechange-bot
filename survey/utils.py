@@ -39,11 +39,14 @@ def get_typechecker_configuration(repo, language: Project.ProjectLanguage, commi
                     typecheckers.append(object.path)
 
                 elif object.name == 'pyproject.toml':
-                    data = tomllib.loads(object.data_stream.read().decode())
-                    if 'tool' in data.keys():
-                        for tool in ['mypy', 'pytype', 'pyright']:
-                            if tool in data['tool'].keys():
-                                typecheckers.append(f'{object.path}[tool.{tool}]')
+                    try:
+                        data = tomllib.loads(object.data_stream.read().decode())
+                        if 'tool' in data.keys():
+                            for tool in ['mypy', 'pytype', 'pyright']:
+                                if tool in data['tool'].keys():
+                                    typecheckers.append(f'{object.path}[tool.{tool}]')
+                    except tomllib.TOMLDecodeError:
+                        continue
     elif language == Project.ProjectLanguage.TYPESCRIPT:
         for object in repo.rev_parse(commit_like).tree.traverse():
             if object.type == 'blob':
