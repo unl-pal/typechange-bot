@@ -161,30 +161,23 @@ class Command(BaseCommand):
             df = df[~df['login'].str.contains('\\[bot\\]')]
             cutoff = df['contributions'].mean() + 1.5 * df['contributions'].std()
 
-            def get_email(login):
-                    try:
-                        user = self.gh.get_user(login)
-                        if user and user.email:
-                            return (user.email, user.name)
-                        else:
-                            return None
-                    except RateLimitExceededException:
-                        self.enforce_rate_limits('get_email')
-                        get_email(login)
+            return df[df['contributions'] >= cutoff]['login'].to_list()
 
-            df2 = df[df['contributions'] >= cutoff] \
-                    .assign(email_and_name = lambda df: df.login.apply(get_email)) \
-                    .dropna(axis=0) \
-                    .assign(email = lambda df: df.email_and_name.apply(lambda x: x[0]),
-                            name = lambda df: df.email_and_name.apply(lambda x: x[1]),
-                            project = lambda df: repo.full_name) \
-                    .reset_index() \
-                    [['login', 'name', 'email']]
-
-            return df2
         except RateLimitExceededException:
             self.enforce_rate_limits('collect_maintainers')
             return self.collect_maintainers(repo)
+
+
+    def get_email(self, login):
+        try:
+            user = self.gh.get_user(login)
+            if user and user.email:
+                return (user.email, user.name)
+            else:
+                return (None, None)
+        except RateLimitExceededException:
+            self.enforce_rate_limits('get_email')
+            return self.get_email(login)
 
     def check_contribution(self, id):
         try:
@@ -259,14 +252,15 @@ class Command(BaseCommand):
             prescreen_project.apply_async([proj.id])
 
             maintainers = self.collect_maintainers(repo)
-            for i, maintainer in maintainers.iterrows():
+            for maintainer in maintainers.iterrows():
                 print(f'Processing maintainer {maintainer["login"]}')
                 try:
                     committer = Committer.objects.get(username = maintainer['login'])
                 except Committer.DoesNotExist:
-                    committer = Committer(username = maintainer['login'],
-                                          name = maintainer['name'],
-                                          email_address = maintainer['email'])
+                    email, name = self.get_email(maintainer)
+                    committer = Committer(username = maintainer,
+                                          name = name,
+                                          email_address = email)
                     committer.save()
 
                 project_committer = ProjectCommitter(project=proj, committer=committer, is_maintainer=True)
