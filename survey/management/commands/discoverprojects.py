@@ -254,7 +254,7 @@ class Command(BaseCommand):
             for maintainer in self.collect_maintainers(repo):
                 print(f'Processing maintainer {maintainer}')
                 try:
-                    committer = Committer.objects.get(username = maintainer['login'])
+                    committer = Committer.objects.get(username = maintainer)
                 except Committer.DoesNotExist:
                     email, name = self.get_email(maintainer)
                     committer = Committer(username = maintainer,
