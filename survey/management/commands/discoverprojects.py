@@ -148,7 +148,7 @@ class Command(BaseCommand):
             totals = []
 
             for s in stats:
-                weeks = [ week for week in s.weeks if week.w >= (datetime.now(week.w.tzinfo) + relativedelta(months=-6)) ]
+                weeks = [ week for week in s.weeks if week.w >= (datetime.now(week.w.tzinfo) + relativedelta(months=-6)) ] # TODO: Fix to use START_DATE
                 total = sum([ week.c for week in weeks ])
 
                 if total > 0:
