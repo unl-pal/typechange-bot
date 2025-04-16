@@ -87,28 +87,36 @@ def get_typechecker_configuration(repo, language: Project.ProjectLanguage, commi
     return None
 
 class TypeAnnotationDetectionVisitor(ast.NodeVisitor):
-    def visitFunctionDef(self, node):
+
+    found_annot = False
+
+    def visit_FunctionDef(self, node):
         if node.returns is not None:
+            self.found_annot = True
             return True
 
         for arg in (node.args.posonlyargs + node.args.args + node.args.kwonlyargs):
             if arg.annotation is not None:
+                self.found_annot = True
                 return True
 
         return super().generic_visit(node)
 
-    def visitAnnAssign(self, node):
+    def visit_AnnAssign(self, node):
+        self.found_annot = True
         return True
 
 def has_annotations(repo, language):
     match language:
         case Project.ProjectLanguage.PYTHON:
             for filename in Path(repo.working_tree_dir).glob('**/*.py'):
+                print(f'Checking {filename}')
                 try:
                     with open(filename, 'r') as fh:
                         tree = ast.parse(fh.read())
                         visitor = TypeAnnotationDetectionVisitor()
-                        if visitor.visit(tree):
+                        visitor.visit(tree)
+                        if visitor.found_annot:
                             return True
                 except:
                     continue
