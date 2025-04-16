@@ -5,14 +5,16 @@ from .common import current_node, app
 
 from survey.models import Project
 from django.utils import timezone
+from django.db.utils import OperationalError
 
 from survey.utils import get_typechecker_configuration, has_annotations, has_language_file
 from git import Repo
 from tempfile import TemporaryDirectory
 from pathlib import Path
 
-@app.task()
+@app.task(autoretry_for=(OperationalError,))
 def prescreen_project(project_id: int) -> None:
+
     project: Project = Project.objects.get(id=project_id)
 
     project.has_language_files = False
@@ -40,3 +42,4 @@ def prescreen_project(project_id: int) -> None:
     project.track_changes = project.has_language_files and (project.has_typechecker_configuration or project.annotations_detected)
 
     project.save()
+
