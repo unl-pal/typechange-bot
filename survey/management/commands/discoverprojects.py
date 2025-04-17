@@ -168,6 +168,8 @@ class Command(BaseCommand):
         except RateLimitExceededException:
             self.enforce_rate_limits('collect_maintainers')
             return self.collect_maintainers(repo)
+        except TypeError:
+            return []
 
 
     def get_email(self, login):
