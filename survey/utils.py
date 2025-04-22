@@ -105,6 +105,9 @@ class TypeAnnotationDetectionVisitor(ast.NodeVisitor):
 
         return super().generic_visit(node)
 
+    def visit_AsyncFunctionDef(self, node):
+        return self.visit_FunctionDef(node)
+
     def visit_AnnAssign(self, node):
         self.found_annot = True
         return True
