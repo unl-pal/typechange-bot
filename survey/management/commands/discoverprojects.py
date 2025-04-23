@@ -246,6 +246,8 @@ class Command(BaseCommand):
             print(f'Processing {repo.full_name}: already known.')
             return
         except Project.DoesNotExist:
+            if repo.fork:
+                return
             print(f'Processing {repo.full_name}:')
             proj = Project(language=self.language,
                            owner=owner,
