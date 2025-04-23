@@ -123,7 +123,7 @@ class Command(BaseCommand):
             else:
                 val = f'pushed:<{min_val}'
 
-            query = f'language:{self.language.label} {val}'
+            query = f'language:{self.language.label} stars:>={self.min_stars} {val}'
             print(f'Running query {query!r}')
             results = self.gh.search_repositories(query)
             results.get_page(0)
@@ -195,7 +195,7 @@ class Command(BaseCommand):
             else:
                 val = f'pushed:<={start}'
 
-            results = self.gh.search_repositories(f'language:{self.language.label} {val}')
+            results = self.gh.search_repositories(f'language:{self.language.label} stars:>={self.min_stars} {val}')
 
             for repo in results:
                 self.enforce_rate_limits('process_partition:repo_iterator:pre_process')
