@@ -50,7 +50,7 @@ class Command(BaseCommand):
             self.last_wait_length = time_until_reset + self.default_backoff
 
 
-    def add_argument(self, parser):
+    def add_arguments(self, parser):
 
         parser.add_argument('language',
                             help="Projects in language to post-filter",
