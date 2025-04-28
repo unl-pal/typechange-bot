@@ -60,35 +60,35 @@ class Command(BaseCommand):
                             default=settings.GITHUB_API_KEY,
                             type=str)
 
-        parseradd_argument('--min-stars',
-                           help='Minimum stars',
-                           type=int,
-                           default=2)
+        parser.add_argument('--min-stars',
+                            help='Minimum stars',
+                            type=int,
+                            default=2)
 
-        def handle(self, *args,
-                   language=None, token=None, min_stars=None,
-                   **options):
+    def handle(self, *args,
+               language=None, token=None, min_stars=None,
+               **options):
 
-            if token is None:
-                raise CommandError('A GitHub API key must be provided with either GITHUB_API_KEY or --token.', returncode=2)
+        if token is None:
+            raise CommandError('A GitHub API key must be provided with either GITHUB_API_KEY or --token.', returncode=2)
 
-            self.language = Project.ProjectLanguage(language)
-            self.min_stars = min_stars
-            self.token = token
+        self.language = Project.ProjectLanguage(language)
+        self.min_stars = min_stars
+        self.token = token
 
-            self.gh = Github(self.token, per_page=1)
+        self.gh = Github(self.token, per_page=1)
 
-            for project in Project.objects.filter(language=self.language):
-                print(f'Checking {project}... ', end='')
-                gh_proj = self.gh.get_project(str(project))
-                if gh_proj.fork or (gh_proj.stargazers_count < self.min_stars):
-                    project.track_changes = False
-                    project.save()
-                    print('Not tracking.')
-                else:
-                    print('Tracking status unchanged.')
+        for project in Project.objects.filter(language=self.language):
+            print(f'Checking {project}... ', end='')
+            gh_proj = self.gh.get_project(str(project))
+            if gh_proj.fork or (gh_proj.stargazers_count < self.min_stars):
+                project.track_changes = False
+                project.save()
+                print('Not tracking.')
+            else:
+                print('Tracking status unchanged.')
 
-                self.enforce_rate_limits()
+            self.enforce_rate_limits()
 
 
     pass
