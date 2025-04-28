@@ -77,7 +77,7 @@ class Command(BaseCommand):
 
         self.gh = Github(self.token, per_page=1)
 
-        for project in Project.objects.filter(language=self.language, track_changes=True, installation_id__isnone=True):
+        for project in Project.objects.filter(language=self.language, track_changes=True, installation_id__isnull=True):
             print(f'Checking {project}... ', end='')
             try:
                 gh_proj = self.gh.get_repo(str(project))
