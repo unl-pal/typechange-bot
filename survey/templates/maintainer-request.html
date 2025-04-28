@@ -1,8 +1,15 @@
-<p>Hello {{NAME}},</p>
+<p>Hello {{ committer.name_or_username }},</p>
 
 <p>
-    I’m Samuel Flint, and I’m working with Dr. Robert Dyer from the University of Nebraska-Lincoln on a study about type annotations in dynamic languages.
-    Your project, <a href="https://github.com/{{PROJECT}}">{{PROJECT}}</a>, is highly relevant to our research, and we’d like your permission to monitor it.
+    I'm Samuel Flint, and I'm working with Dr. Robert Dyer from the University of Nebraska-Lincoln on a study about type annotations in dynamic languages.
+    We would like your permission to monitor the following projects, which are highly relevant to our research, and for which you are maintainer:
+    <ul>
+        {% for project_committer in committer.projectcommitter_set.all %}
+        {% if project_committer.is_maintainer and project_committer.project.track_changes %}
+        <li><a href="{{ project_committer.project.clone_url }}">{{project_committer.project}}</a></li>
+        {% endif %}
+        {% endfor %}
+    </ul>
 </p>
 
 <p>
@@ -11,12 +18,12 @@
 </p>
 
 <p>
-    Would you be willing to have us monitor your project?
-    If so, please install the bot using the instructions here: <a href="https://github.com/apps/typechangebot">Install Bot</a>.
+    Would you be willing to have us monitor your projects?
+    If so, please install the bot using the instructions <a href="https://github.com/apps/typechangebot">here</a>.
 </p>
 
+<p>Additional help is available from <a href="https://docs.github.com/en/apps/using-github-apps/installing-a-github-app-from-a-third-party">GitHub</a>.</p>
 <p>Thanks for considering!</p>
-
 <p>Samuel W. Flint and Robert Dyer</p>
 
 <p>

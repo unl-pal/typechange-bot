@@ -2,7 +2,7 @@
 # coding: utf-8
 
 from .common import app, current_node
-from survey.models import ProjectCommitter
+from survey.models import Committer
 
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.template import loader
@@ -14,23 +14,20 @@ def send_email(subject, message, **kwargs):
     email.send()
 
 @app.task()
-def send_maintainer_email(maintainer_id: int):
-    maintainer = ProjectCommitter.objects.get(id=maintainer_id)
-    if maintainer.is_maintainer and not maintainer.has_been_emailed and maintainer.committer.email_address is not None:
-        template_data = {
-            'NAME': f'{maintainer.committer.name_or_username}',
-            'PROJECT': f'{maintainer.project}'
-        }
+def send_maintainer_email(committer_id: int):
+    committer = Committer.objects.get(id=committer_id)
+    if committer.email_address is not None and not committer.has_been_emailed:
+        template_data = { 'committer': committer }
         html_template = loader.get_template('maintainer-request.html')
         message_html = html_template.render(template_data)
         text_template = loader.get_template('maintainer-request.txt')
         message_text = text_template.render(template_data)
-        message = EmailMultiAlternatives(f'Research Opportunity: Can we monitor {maintainer.project.owner}/{maintainer.project.name}?',
+        message = EmailMultiAlternatives(f'Research Opportunity: Can we monitor your projects?',
                                          message_html,
-                                         to=[maintainer.committer.formatted_email_address],
+                                         to=[committer.formatted_email_address],
                                          reply_to=[f'{settings.ADMIN_NAME} <{settings.ADMIN_EMAIL}>'])
         message.content_subtype = "html"
         message.attach_alternative(message_text, 'text/plain')
         message.send()
-        maintainer.has_been_emailed = True
-        maintainer.save()
+        committer.has_been_emailed = True
+        committer.save()
