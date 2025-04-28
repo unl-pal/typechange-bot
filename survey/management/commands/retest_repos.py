@@ -29,7 +29,6 @@ class Command(BaseCommand):
     last_wait_finished = datetime.now()
     last_wait_length = -1
     def enforce_rate_limits(self, backoff_in = None):
-        self.store_partition_data_file()
         rate_limit_reset_time = datetime.fromtimestamp(self.gh.rate_limiting_resettime, tz=pytz.UTC).replace(tzinfo=pytz.UTC)
         time_until_reset = int((rate_limit_reset_time - datetime.now(pytz.UTC)).total_seconds())
         time_since_last_reset = ((datetime.now() - self.last_wait_finished).total_seconds() - 2*self.ex_backoff)
