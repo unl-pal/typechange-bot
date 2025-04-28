@@ -6,7 +6,7 @@ from django.conf import settings
 
 from survey.models import Project, Committer, ProjectCommitter
 
-from github import Github, RateLimitExceededException
+from github import Github, RateLimitExceededException, UnknownObjectException
 
 
 from datetime import datetime
@@ -79,13 +79,19 @@ class Command(BaseCommand):
 
         for project in Project.objects.filter(language=self.language):
             print(f'Checking {project}... ', end='')
-            gh_proj = self.gh.get_repo(str(project))
-            if gh_proj.fork or (gh_proj.stargazers_count < self.min_stars):
-                project.track_changes = False
-                project.save()
-                print('Not tracking.')
-            else:
-                print('Tracking status unchanged.')
+            try:
+                gh_proj = self.gh.get_repo(str(project))
+                if gh_proj.fork or (gh_proj.stargazers_count < self.min_stars):
+                    project.track_changes = False
+                    project.save()
+                    print('Not tracking.')
+                else:
+                    print('Tracking status unchanged.')
+            except UnknownObjectException:
+                project.delete()
+                print('Deleted, unable to find')
+            except:
+                pass
 
             self.enforce_rate_limits()
 
