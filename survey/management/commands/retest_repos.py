@@ -80,7 +80,7 @@ class Command(BaseCommand):
 
         for project in Project.objects.filter(language=self.language):
             print(f'Checking {project}... ', end='')
-            gh_proj = self.gh.get_project(str(project))
+            gh_proj = self.gh.get_repo(str(project))
             if gh_proj.fork or (gh_proj.stargazers_count < self.min_stars):
                 project.track_changes = False
                 project.save()
