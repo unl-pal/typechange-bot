@@ -90,6 +90,8 @@ class Command(BaseCommand):
             except UnknownObjectException:
                 project.delete()
                 print('Deleted, unable to find')
+            except KeyboardInterrupt as ex:
+                raise ex
             except:
                 pass
 
