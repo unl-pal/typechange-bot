@@ -6,7 +6,7 @@ from django.conf import settings
 
 from survey.models import Project, Committer, ProjectCommitter
 
-from github import GitHub, RateLimitExceededException
+from github import Github, RateLimitExceededException
 
 
 from datetime import datetime
