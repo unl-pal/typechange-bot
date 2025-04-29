@@ -63,8 +63,8 @@ class Command(BaseCommand):
 
         self.pause_total_seconds = self.pause_seconds + 60 * (self.pause_minutes + 60 * self.pause_hours)
 
-        while Committer.objects.filter(email_address__isnull=False).count() > 0:
-            for committer in Committer.objects.filter(email_address__isnull=False)[:self.burst_size]:
+        while Committer.objects.filter(email_address__isnull=False, has_been_emailed=False).count() > 0:
+            for committer in Committer.objects.filter(email_address__isnull=False, has_been_emailed=False)[:self.burst_size]:
                 print(f'Sending to committer {committer}')
                 if not dry_run:
                     send_maintainer_email.delay(committer.id)
