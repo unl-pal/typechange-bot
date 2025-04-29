@@ -63,7 +63,9 @@ class Command(BaseCommand):
 
         self.pause_total_seconds = self.pause_seconds + 60 * (self.pause_minutes + 60 * self.pause_hours)
 
-        while Committer.objects.filter(email_address__isnull=False, has_been_emailed=False).count() > 0:
+        remaining = Committer.objects.filter(email_address__isnull=False, has_been_emailed=False).count()
+
+        while remaining > 0:
             for committer in Committer.objects.filter(email_address__isnull=False, has_been_emailed=False)[:self.burst_size]:
                 print(f'Sending to committer {committer}')
                 if not dry_run:
@@ -72,5 +74,9 @@ class Command(BaseCommand):
             if dry_run:
                 break
 
-            print(f'Pausing {self.pause_hours:02d}:{self.pause_minutes:02d}:{self.pause_seconds:02d}')
+            remaining = Committer.objects.filter(email_address__isnull=False, has_been_emailed=False).count()
+            if remaining == 0:
+                break
+
+            print(f'Pausing {self.pause_hours:02d}:{self.pause_minutes:02d}:{self.pause_seconds:02d} ({remaining} remaining)')
             time.sleep(self.pause_total_seconds)
