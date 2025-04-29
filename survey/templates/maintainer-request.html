@@ -2,7 +2,7 @@
 
 <p>
     I'm Samuel Flint, and I'm working with Dr. Robert Dyer from the University of Nebraska-Lincoln on a study about type annotations in dynamic languages.
-    We would like your permission to monitor the following projects, which are highly relevant to our research, and for which you are maintainer:
+    We would like your permission to monitor the following project(s), which are highly relevant to our research, and for which you are maintainer:
     <ul>
         {% for project_committer in committer.projectcommitter_set.all %}
         {% if project_committer.is_maintainer and project_committer.project.track_changes %}
@@ -18,7 +18,7 @@
 </p>
 
 <p>
-    Would you be willing to have us monitor your projects?
+    Would you be willing to have us monitor your project(s)?
     If so, please install the bot using the instructions <a href="https://github.com/apps/typechangebot">here</a>.
 </p>
 
