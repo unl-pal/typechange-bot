@@ -72,5 +72,5 @@ class Command(BaseCommand):
             if dry_run:
                 break
 
-            print(f'Pausing {self.pause_hours}:{self.pause_minutes}:{self.pause_seconds}')
+            print(f'Pausing {self.pause_hours:02d}:{self.pause_minutes:02d}:{self.pause_seconds:02d}')
             time.sleep(self.pause_total_seconds)
