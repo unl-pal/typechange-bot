@@ -120,6 +120,20 @@ class ProjectCommitterInline(admin.TabularInline):
     def has_add_permission(self, request, obj):
         return False
 
+class IsInstalledFilter(admin.SimpleListFilter):
+    title = "installed?"
+    parameter_name='is_installed'
+
+    def lookups(self, request, model_admin):
+        return(('yes', 'Yes'),
+               ('no', 'No'))
+
+    def queryset(self, request, query_set):
+        if self.value() == 'yes':
+            return query_set.filter(installation_id__isnull=False)
+        elif self.value() == 'no':
+            return query_set.filter(installation_id__isnull=True)
+
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
     fields = ['add_date', 'remove_date', 'host_node', 'language', 'track_changes', 'typechecker_files', 'has_language_files', 'has_typechecker_configuration', 'annotations_detected']
@@ -127,11 +141,16 @@ class ProjectAdmin(admin.ModelAdmin):
 
     inlines = [ProjectCommitterInline]
 
-    list_display = ['owner', 'name', 'language', 'host_node', 'track_changes', 'has_language_files', 'has_typechecker_configuration', 'annotations_detected']
+    list_display = ['owner', 'name', 'language', 'host_node', 'is_installed', 'track_changes', 'has_language_files', 'has_typechecker_configuration', 'annotations_detected']
     list_display_links = ['owner', 'name']
-    list_filter = ['track_changes', 'has_language_files', 'has_typechecker_configuration', 'annotations_detected', 'language', 'host_node']
+    list_filter = ['track_changes', IsInstalledFilter, 'has_language_files', 'has_typechecker_configuration', 'annotations_detected', 'language', 'host_node']
 
     actions = ['delete_repos', 'force_fetch']
+
+    @admin.display(boolean=True,
+                   description="Installed?")
+    def is_installed(self, obj):
+        return obj.is_installed
 
     def has_delete_permissions(self, request, obj=None):
         return False

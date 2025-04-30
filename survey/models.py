@@ -161,6 +161,7 @@ class Project(models.Model):
     owner = models.CharField('owner', max_length=200, editable=False)
     name = models.CharField('name', max_length=200, editable=False)
     installation_id = models.IntegerField('installation ID', editable=False, null=True)
+
     language = models.CharField('primary language',
                                 max_length=2,
                                 choices=ProjectLanguage.choices,
@@ -182,6 +183,10 @@ class Project(models.Model):
 
     def __str__(self):
         return f'{self.owner}/{self.name}'
+
+    @property
+    def is_installed(self):
+        return self.installation_id is not None
 
     @property
     def clone_url(self):
