@@ -189,6 +189,7 @@
 
         <ul>
             {% for question in questions %}
+            {% if question.display %}
             <li>
                 <p><b>{{ question.question }}</b></p>
                 <p>
@@ -197,6 +198,7 @@
                     {% endautoescape %}
                 </p>
             </li>
+            {% endif %}
             {% endfor %}
         </ul>
         {% endif %}

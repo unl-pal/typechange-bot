@@ -287,6 +287,7 @@ class Response(models.Model):
 
 class FAQ(models.Model):
     question = MarkdownxField('Frequently Asked Question')
+    display = models.BooleanField(default=False)
     answer = MarkdownxField()
     weight = models.IntegerField()
 

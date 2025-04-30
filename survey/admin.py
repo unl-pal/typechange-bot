@@ -53,9 +53,9 @@ class NodeAdmin(admin.ModelAdmin):
 
 @admin.register(FAQ)
 class FAQAdmin(admin.ModelAdmin):
-    fields = ['weight', 'question', 'answer']
+    fields = ['weight', 'display', 'question', 'answer']
 
-    list_display = ['weight', 'question', 'answer']
+    list_display = ['weight', 'display', 'question', 'answer']
     list_display_links = ['question']
 
     search_fields = ['question', 'answer']
