@@ -31,11 +31,10 @@ def install_repo(owner: str, repo: str, installation_id: str):
 
     project.save()
 
-    # TODO: Uncomment when live
-    # if project.gh.fork:
-    #     project.track_changes = False
-    #     project.save()
-    #     return
+    if project.gh.fork:
+        project.track_changes = False
+        project.save()
+        return
 
     try:
         language = project.gh.language
