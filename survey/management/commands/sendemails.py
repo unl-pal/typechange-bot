@@ -50,7 +50,7 @@ class Command(BaseCommand):
 
         parser.add_argument('--queue',
                             help='Send mail via specific queue.',
-                            choice=[ node.hostname for node in Node.objects.all()] )
+                            choices=[ node.hostname for node in Node.objects.all()] )
 
         pass
 
