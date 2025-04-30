@@ -5,7 +5,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 
 from survey.tasks import send_maintainer_email
-from survey.models import Committer, Project, ProjectCommitter
+from survey.models import Committer, Project, ProjectCommitter, Node
 
 import time
 
@@ -48,12 +48,17 @@ class Command(BaseCommand):
                             action='store_true',
                             help='When passed, do not send emails, just show the first burst.')
 
+        parser.add_argument('--queue',
+                            help='Send mail via specific queue.',
+                            choice=[ node.hostname for node in Node.objects.all()] )
+
         pass
 
     def handle(self, *args,
                burst_size=1,
                dry_run=False,
                pause_hours=0, pause_minutes=3, pause_seconds=0,
+               queue=None,
                **options):
 
         self.burst_size = burst_size
@@ -69,7 +74,10 @@ class Command(BaseCommand):
             for committer in Committer.objects.filter(email_address__isnull=False, has_been_emailed=False)[:self.burst_size]:
                 print(f'Sending to committer {committer}')
                 if not dry_run:
-                    send_maintainer_email.delay(committer.id)
+                    if queue is not None:
+                        send_maintainer_email.apply_async([committer.id], queue=queue)
+                    else:
+                        send_maintainer_email.delay(committer.id)
 
             if dry_run:
                 break
