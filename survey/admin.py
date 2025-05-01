@@ -80,11 +80,10 @@ class ProjectCommitterAdmin(admin.ModelAdmin):
 
     inlines = [ResponseInline]
 
+    search_fields = ['project__owner', 'project__name', 'committer__username', 'maintainer_survey_response']
     list_display = ['committer', 'disp_project', 'is_maintainer']
     list_display_links = ['committer']
     list_filter = ['is_maintainer', 'committer__username']
-
-    search = ['survey_response']
 
     @admin.display(description='Project')
     def disp_project(self, obj):
@@ -95,6 +94,7 @@ class CommitterAdmin(admin.ModelAdmin):
     readonly_fields = ['username', 'initial_contact_date', 'last_contact_date', 'consent_timestamp', 'consent_project_commit', 'opt_out', 'projects', 'initial_survey_response', 'should_contact']
     fields = readonly_fields + ['tags']
 
+    search_fields = ['username', 'project__name', 'project__owner']
     list_display = ['username', 'last_contact_date', 'should_contact']
     list_filter = ['last_contact_date']
 
@@ -141,6 +141,7 @@ class ProjectAdmin(admin.ModelAdmin):
 
     inlines = [ProjectCommitterInline]
 
+    search_fields = ['owner', 'name']
     list_display = ['owner', 'name', 'language', 'host_node', 'is_installed', 'track_changes', 'has_language_files', 'has_typechecker_configuration', 'annotations_detected']
     list_display_links = ['owner', 'name']
     list_filter = ['track_changes', IsInstalledFilter, 'has_language_files', 'has_typechecker_configuration', 'annotations_detected', 'language', 'host_node']
@@ -184,6 +185,7 @@ class CommitAdmin(admin.ModelAdmin):
 
     inlines = [ResponseInline]
 
+    search_fields = ['project__owner', 'project__name', 'committer__username', 'author__username']
     list_display = ["project_owner", "project_name", 'hash', 'is_relevant', 'relevance_type']
     list_display_links = list_display[:3]
 
@@ -202,11 +204,10 @@ class ResponseAdmin(admin.ModelAdmin):
     readonly_fields = ['commit', 'committer', 'survey_response']
     fields = readonly_fields + ['tags']
 
+    search_fields = ['commit__project__owner', 'commit__project__name', 'committer__committer__username', 'survey_response']
     list_display = ['project_owner', 'project_name', 'commit', 'committer']
     list_display_links = list_display[:3]
     list_filter = ['committer']
-
-    search = ['survey_response']
 
     @admin.display(description='Owner')
     def project_owner(self, obj):
