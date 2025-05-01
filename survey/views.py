@@ -34,9 +34,9 @@ def github_webhook(request):
             repo_name = payload['repository']['name']
             try:
                 proj = Project.objects.get(owner=repo_owner, name=repo_name)
+                process_push_data.apply_async([repo_owner, repo_name, payload['commits']], queue=project.host_node.hostname)
             except Project.DoesNotExist:
                 pass
-            process_push_data.apply_async([repo_owner, repo_name, payload['commits']], queue=project.host_node.hostname)
         case "commit_comment":
             process_comment.delay(payload['comment']['user']['login'], payload['comment']['body'], payload['repository']['owner']['login'], payload['repository']['name'], payload['comment'])
         case "repository":
