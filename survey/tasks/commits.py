@@ -61,7 +61,8 @@ def change_type_to_relevance_type(change_type: ChangeType):
         case _:
             return Commit.RelevanceType.IRRELEVANT
 
-def process_commit(commit_pk: int):
+@app.task(bind = True, autoretry_for=(ValueError,), retry_backoff=2, max_retries=5)
+def process_commit(self, commit_pk: int):
     commit = Commit.objects.get(id=commit_pk)
     project = commit.project
 
