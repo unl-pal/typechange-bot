@@ -52,7 +52,7 @@ class Command(BaseCommand):
     def handle(self, *args,
                token=None, **options):
 
-        self.gh = Github(self.token, per_page=1)
+        self.gh = Github(token, per_page=1)
 
         for project in Project.objects.filter(track_changes=True, installation_id__isnull=True):
             print(f'Checking {project}...', end='')
