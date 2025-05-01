@@ -32,7 +32,7 @@ def process_push_data(owner, repo, commits):
     project = Project.objects.get(Q(owner=owner) & Q(name=repo))
 
     if project.track_changes:
-        fetch_project.apply_async([project.id], queue=project.host_node.hostname)
+        fetch_project(project.id)
         for commit_data in commits:
             try:
                 commit = Commit(project=project,
@@ -43,7 +43,7 @@ def process_push_data(owner, repo, commits):
             except IntegrityError:
                 commit = Commit.objects.get(Q(project=project) & Q(hash=commit_data['id']))
 
-            process_commit.apply_async([commit.pk], queue=project.host_node.hostname)
+            process_commit(commit.pk)
 
 def change_type_to_relevance_type(change_type: ChangeType):
     match change_type:
@@ -56,8 +56,7 @@ def change_type_to_relevance_type(change_type: ChangeType):
         case _:
             return Commit.RelevanceType.IRRELEVANT
 
-@app.task(bind = True, autoretry_for=(ValueError,), retry_backoff=2, max_retries=5)
-def process_commit(self, commit_pk: int):
+def process_commit(commit_pk: int):
     commit = Commit.objects.get(id=commit_pk)
     project = commit.project
 
