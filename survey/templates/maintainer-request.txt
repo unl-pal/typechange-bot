@@ -6,7 +6,7 @@ I'm Samuel Flint, and I'm working with Dr. Robert Dyer from the University of Ne
 
 If you agree, we will provide a bot that tracks changes related to type annotations.  The bot will notify committers after relevant changes, asking them to participate in the study (no more than once every 24 hours, and they can opt-out or request data removal at any time).
 
-Because of how GitHub's permissions structure is designed, we request the read and write permissions to repository data so that we can comment on relevant commits to request participation and responses.  We do not write to repository contents.  Additional information about our bot is available on the project website: https://cse-rdyer-05.unl.edu/tcbot/
+Because of how GitHub's permissions structure is designed, we request read permission to repository data so that we can comment on relevant commits to request participation and responses.  Additional information about our bot is available on the project website: https://cse-rdyer-05.unl.edu/tcbot/
 
 Would you be willing to have us monitor your project(s)?  If so, please install the bot using the instructions here:
 https://github.com/apps/typechangebot
