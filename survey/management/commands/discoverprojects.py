@@ -246,7 +246,7 @@ class Command(BaseCommand):
             print(f'Processing {repo.full_name}: already known.')
             return
         except Project.DoesNotExist:
-            if repo.fork:
+            if repo.fork or repo.archived or (repo.mirror_url is not None):
                 return
             print(f'Processing {repo.full_name}:')
             proj = Project(language=self.language,
