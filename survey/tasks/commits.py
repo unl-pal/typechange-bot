@@ -45,7 +45,10 @@ def process_push_data(owner, repo, commits):
             except:
                 continue
 
-            process_commit(commit.pk)
+            try:
+                process_commit(commit.pk)
+            except:
+                continue
 
 def change_type_to_relevance_type(change_type: ChangeType):
     match change_type:
