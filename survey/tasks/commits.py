@@ -42,6 +42,8 @@ def process_push_data(owner, repo, commits):
                 commit.save()
             except IntegrityError:
                 commit = Commit.objects.get(Q(project=project) & Q(hash=commit_data['id']))
+            except:
+                continue
 
             process_commit(commit.pk)
 
