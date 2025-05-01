@@ -236,9 +236,9 @@ def process_comment(comment_user: str, comment_body: str, repo_owner: str, repo_
             response.save()
             committer.save()
 
-        for comment in commit.gh.get_comments():
-            if comment.id == comment_payload['id']:
-                comment.create_reaction('+1')
+        # for comment in commit.gh.get_comments():
+        #     if comment.id == comment_payload['id']:
+        #         comment.create_reaction('+1')
 
         # template = loader.get_template('acknowledgment.md')
         # commit.gh.create_comment(template.render({'BOT_NAME': settings.GITHUB_APP_NAME}))
