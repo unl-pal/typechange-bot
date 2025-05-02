@@ -73,7 +73,14 @@ class Command(BaseCommand):
         while remaining > 0:
             for committer in Committer.objects.filter(email_address__isnull=False, has_been_emailed=False)[:self.burst_size]:
                 print(f'Sending to committer {committer}')
+                maintained_tracked_projects = committer.projectcommitter_set.filter(is_maintainer=True, project__track_changes=True).count()
                 if not dry_run:
+                    if maintained_tracked_projects == 0:
+                        print(f"Committer {cmt.username} has no trackable projects.")
+                        committer.has_been_emailed = True
+                        committer.save()
+                        continue
+
                     if queue is not None:
                         send_maintainer_email.apply_async([committer.id], queue=queue)
                     else:
