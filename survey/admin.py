@@ -96,7 +96,7 @@ class CommitterAdmin(admin.ModelAdmin):
 
     search_fields = ['username', 'project__name', 'project__owner']
     list_display = ['username', 'consented', 'last_contact_date', 'should_contact']
-    list_filter = ['consented', 'last_contact_date']
+    list_filter = ['last_contact_date']
 
     @admin.display(boolean=True,
                    description="Contactable?")
