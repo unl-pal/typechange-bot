@@ -83,7 +83,7 @@ class ProjectCommitterAdmin(admin.ModelAdmin):
     search_fields = ['project__owner', 'project__name', 'committer__username', 'maintainer_survey_response']
     list_display = ['committer', 'disp_project', 'is_maintainer']
     list_display_links = ['committer']
-    list_filter = ['is_maintainer', 'committer__username']
+    list_filter = ['is_maintainer']
 
     @admin.display(description='Project')
     def disp_project(self, obj):
@@ -91,12 +91,12 @@ class ProjectCommitterAdmin(admin.ModelAdmin):
 
 @admin.register(Committer)
 class CommitterAdmin(admin.ModelAdmin):
-    readonly_fields = ['username', 'initial_contact_date', 'last_contact_date', 'consent_timestamp', 'consent_project_commit', 'opt_out', 'projects', 'initial_survey_response', 'should_contact']
+    readonly_fields = ['username', 'initial_contact_date', 'last_contact_date', 'consented', 'consent_timestamp', 'consent_project_commit', 'opt_out', 'projects', 'initial_survey_response', 'should_contact']
     fields = readonly_fields + ['tags']
 
     search_fields = ['username', 'project__name', 'project__owner']
     list_display = ['username', 'consented', 'last_contact_date', 'should_contact']
-    list_filter = ['last_contact_date', 'consented']
+    list_filter = ['consented', 'last_contact_date']
 
     @admin.display(boolean=True,
                    description="Contactable?")
