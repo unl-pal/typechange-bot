@@ -89,6 +89,20 @@ class ProjectCommitterAdmin(admin.ModelAdmin):
     def disp_project(self, obj):
         return str(obj.project)
 
+class HasConsentedFilter(admin.SimpleListFilter):
+    title = "consented?"
+    parameter_name='has_consented'
+
+    def lookups(self, request, model_admin):
+        return(('yes', 'Yes'),
+               ('no', 'No'))
+
+    def queryset(self, request, query_set):
+        if self.value() == 'yes':
+            return query_set.filter(consent_timestamp__isnull=False)
+        elif self.value() == 'no':
+            return query_set.filter(consent_timestamp__isnull=True)
+
 @admin.register(Committer)
 class CommitterAdmin(admin.ModelAdmin):
     readonly_fields = ['username', 'initial_contact_date', 'last_contact_date', 'consented', 'consent_timestamp', 'consent_project_commit', 'opt_out', 'projects', 'initial_survey_response', 'should_contact']
@@ -96,7 +110,7 @@ class CommitterAdmin(admin.ModelAdmin):
 
     search_fields = ['username', 'project__name', 'project__owner']
     list_display = ['username', 'consented', 'last_contact_date', 'should_contact']
-    list_filter = ['last_contact_date']
+    list_filter = [HasConsentedFilter, 'last_contact_date']
 
     @admin.display(boolean=True,
                    description="Contactable?")
