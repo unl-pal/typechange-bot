@@ -125,6 +125,10 @@ class Committer(models.Model):
             return f'"{self.name_or_username}" <{self.email_address}>'
 
     @property
+    def consented(self) -> bool:
+        return self.consent_timestamp is not None
+
+    @property
     def should_contact(self) -> bool:
         if self.opt_out is not None or self.removal is not None:
             return False

@@ -95,13 +95,18 @@ class CommitterAdmin(admin.ModelAdmin):
     fields = readonly_fields + ['tags']
 
     search_fields = ['username', 'project__name', 'project__owner']
-    list_display = ['username', 'last_contact_date', 'should_contact']
-    list_filter = ['last_contact_date']
+    list_display = ['username', 'consented', 'last_contact_date', 'should_contact']
+    list_filter = ['last_contact_date', 'consented']
 
     @admin.display(boolean=True,
                    description="Contactable?")
     def should_contact(self, obj):
         return obj.should_contact
+
+    @admin.display(boolean=True,
+                   description="Consented?")
+    def consented(self, obj):
+        return obj.consented
 
 class ProjectCommitterInline(admin.TabularInline):
     model = ProjectCommitter
