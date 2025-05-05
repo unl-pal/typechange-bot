@@ -126,7 +126,7 @@ class Command(BaseCommand):
 
         prc = Project.objects.all().annotate(maintainer_count=Count('committers'))
 
-        for project in prc.filter(maintainer_count=0):
+        for project in prc.filter(maintainer_count=0, track_changes=True, installation_id__isnull=True):
             print(f'Processing {project}')
             try:
                 gh_proj = self.gh.get_repo(str(project))
