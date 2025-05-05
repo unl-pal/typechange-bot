@@ -147,6 +147,4 @@ class Command(BaseCommand):
                 print('Project deleted on GitHub.')
             except KeyboardInterrupt as ex:
                 raise ex
-            except:
-                pass
             self.enforce_rate_limits()
