@@ -17,6 +17,8 @@ from dateutil.relativedelta import relativedelta
 import pytz
 import time
 
+import re
+
 class Command(BaseCommand):
     help = "Discover GitHub Project Maintainers"
 
