@@ -76,6 +76,7 @@ class Command(BaseCommand):
 
             df = pd.DataFrame(zip(login, people, totals), columns = ['login', 'stats', 'contributions'])
             df = df[~df['login'].str.contains('\\[bot\\]')]
+            df = df[~df['login'].str.contains('\\(bot\\)')]
             cutoff = df['contributions'].mean() + 1.5 * df['contributions'].std()
 
             maintainer_logins = df[df['contributions'] >= cutoff]['login'].to_list()
@@ -131,6 +132,8 @@ class Command(BaseCommand):
                         committer = Committer.objects.get(username=maintainer)
                     except Committer.DoesNotExist:
                         email, name = self.get_email(maintainer)
+                        if re.search('\\(bot\\)', name) is not None:
+                            continue
                         committer = Committer(username = maintainer,
                                               name=name,
                                               email_address=email)
