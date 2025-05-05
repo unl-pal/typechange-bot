@@ -118,7 +118,7 @@ class Command(BaseCommand):
 
         self.token = token
 
-        self.gh = Github(self.token, per_page=1)
+        self.gh = Github(self.token)
 
         prc = Project.objects.all().annotate(maintainer_count=Count('committers'))
 
