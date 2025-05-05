@@ -25,6 +25,8 @@ class Command(BaseCommand):
     default_backoff = 15
     ex_backoff = default_backoff
 
+    START_DATE = (datetime.now() - relativedelta(months=7)).replace(tzinfo=pytz.UTC)
+
     gh = None
 
     last_wait_finished = datetime.now()
