@@ -136,9 +136,9 @@ class Command(BaseCommand):
                         committer = Committer.objects.get(username=maintainer)
                     except Committer.DoesNotExist:
                         email, name = self.get_email(maintainer)
-                        if re.search('\\(bot\\)', name) is not None:
+                        if name is not None and re.search('\\(bot\\)', name) is not None:
                             continue
-                        committer = Committer(username = maintainer,
+                        committer = Committer(username=maintainer,
                                               name=name,
                                               email_address=email)
                         committer.save()
