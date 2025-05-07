@@ -7,6 +7,7 @@ import pandas as pd
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db.models import Count
+from django.db.utils import OperationalError
 from django.conf import settings
 
 from github import Github, RateLimitExceededException, UnknownObjectException
@@ -139,10 +140,15 @@ class Command(BaseCommand):
                         if name is not None:
                             if re.search('\\(bot\\)', name) is not None:
                                 continue
-                        committer = Committer(username=maintainer,
-                                              name=name,
-                                              email_address=email)
-                        committer.save()
+                        try:
+                            committer = Committer(username=maintainer,
+                                                  name=name,
+                                                  email_address=email)
+                            committer.save()
+                        except OperationalError:
+                            committer = Committer(username=maintainer,
+                                                  email_address=email)
+                            committer.save()
                     project_committer = ProjectCommitter(project=project, committer=committer, is_maintainer=True)
                     project_committer.save()
             except UnknownObjectException:
