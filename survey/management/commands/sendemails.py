@@ -76,7 +76,7 @@ class Command(BaseCommand):
                 maintained_tracked_projects = committer.projectcommitter_set.filter(is_maintainer=True, project__track_changes=True).count()
                 if not dry_run:
                     if maintained_tracked_projects == 0:
-                        print(f"Committer {cmt.username} has no trackable projects.")
+                        print(f"Committer {committer.username} has no trackable projects.")
                         committer.has_been_emailed = True
                         committer.save()
                         continue
