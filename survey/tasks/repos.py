@@ -85,6 +85,7 @@ def clone_repo(project_id):
         repo = Repo(local_path)
 
     project.host_node = current_node
+    project.save()
 
     if project.typechecker_files is None:
         project.typechecker_files = get_typechecker_configuration(repo, project.language)
