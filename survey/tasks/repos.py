@@ -57,6 +57,17 @@ def install_repo(owner: str, repo: str, installation_id: str):
 @app.task()
 def clone_repo(project_id):
     project = Project.objects.get(id=project_id)
+
+    if project.gh.fork:
+        project.track_changes = False
+        project.save()
+        return
+
+    if project.gh.private:
+        project.track_changes = False
+        project.save()
+        return
+
     if current_node.use_datadir_subdirs:
         locations = { p: shutil.disk_usage(p.readlink()).free for p in settings.DATA_DIR.iterdir() if p.is_symlink() }
         subdir = max(locations, key=locations.get).parts[-1]
