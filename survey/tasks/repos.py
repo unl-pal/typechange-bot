@@ -86,7 +86,7 @@ def clone_repo(project_id):
     if project.typechecker_files is None:
         project.typechecker_files = get_typechecker_configuration(repo, project.language)
     project.has_language_files = has_language_file(repo, project.language)
-    project.annotations_detected = has_annotations(get_repo, project.language)
+    project.annotations_detected = has_annotations(repo, project.language)
 
     project.track_changes = project.has_language_files and ((project.has_typechecker_configuration is not None) or project.annotations_detected)
 
