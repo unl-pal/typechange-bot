@@ -6,8 +6,8 @@ from django.conf import settings
 from django.db.models import Q
 
 from survey.models import Project, DeletedRepository
-from survey.utils import get_typechecker_configuration
-from git import Repo
+from survey.utils import get_typechecker_configuration, has_annotations, has_language_file
+from git import Repo, GitCommandError
 import os
 import shutil
 
@@ -62,11 +62,23 @@ def clone_repo(project_id):
         subdir = max(locations, key=locations.get).parts[-1]
         project.data_subdir = subdir
     local_path = project.path
-    local_path.parent.mkdir(exist_ok=True, parents=True)
-    repo = Repo.clone_from(project.clone_url, local_path)
+    try:
+        local_path.parent.mkdir(exist_ok=True, parents=True)
+        repo = Repo.clone_from(project.clone_url, local_path)
+    except GitCommandError:
+        project.track_changes = False
+        project.save()
+        return
+
     project.host_node = current_node
+
     if project.typechecker_files is None:
         project.typechecker_files = get_typechecker_configuration(repo, project.language)
+    project.has_language_files = has_language_file(repo, project.language)
+    project.annotations_detected = has_annotations(get_repo, project.language)
+
+    project.track_changes = project.has_language_files and ((project.has_typechecker_configuration is not None) or project.annotations_detected)
+
     project.save()
 
 @app.task(ignore_result = True)
