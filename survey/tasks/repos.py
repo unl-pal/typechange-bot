@@ -73,13 +73,16 @@ def clone_repo(project_id):
         subdir = max(locations, key=locations.get).parts[-1]
         project.data_subdir = subdir
     local_path = project.path
-    try:
-        local_path.parent.mkdir(exist_ok=True, parents=True)
-        repo = Repo.clone_from(project.clone_url, local_path)
-    except GitCommandError:
-        project.track_changes = False
-        project.save()
-        return
+    if not local_path.exists():
+        try:
+            local_path.parent.mkdir(exist_ok=True, parents=True)
+            repo = Repo.clone_from(project.clone_url, local_path)
+        except GitCommandError:
+            project.track_changes = False
+            project.save()
+            return
+    else:
+        repo = Repo(local_path)
 
     project.host_node = current_node
 
