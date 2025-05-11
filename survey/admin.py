@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.html import format_html
 
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
@@ -155,7 +156,7 @@ class IsInstalledFilter(admin.SimpleListFilter):
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
-    fields = ['add_date', 'remove_date', 'host_node', 'language', 'track_changes', 'typechecker_files', 'has_language_files', 'has_typechecker_configuration', 'annotations_detected']
+    fields = ['gh_url', 'add_date', 'remove_date', 'host_node', 'language', 'track_changes', 'typechecker_files', 'has_language_files', 'has_typechecker_configuration', 'annotations_detected']
     readonly_fields = fields
 
     inlines = [ProjectCommitterInline]
@@ -166,6 +167,10 @@ class ProjectAdmin(admin.ModelAdmin):
     list_filter = ['track_changes', IsInstalledFilter, 'has_language_files', 'has_typechecker_configuration', 'annotations_detected', 'language', 'host_node']
 
     actions = ['delete_repos', 'force_fetch']
+
+    @admin.display(description="GitHub URL")
+    def gh_url(self, obj):
+        return format_html("<a href='{url}'>{url}</a>", url=obj.clone_url)
 
     @admin.display(boolean=True,
                    description="Installed?")
