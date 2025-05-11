@@ -170,7 +170,7 @@ class ProjectAdmin(admin.ModelAdmin):
 
     @admin.display(description="GitHub URL")
     def gh_url(self, obj):
-        return format_html("<a href='{url}'>{url}</a>", url=obj.clone_url)
+        return format_html("<a target='_blank' href='{url}'>{url}</a>", url=obj.clone_url)
 
     @admin.display(boolean=True,
                    description="Installed?")
