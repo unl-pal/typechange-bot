@@ -204,7 +204,7 @@ class ProjectAdmin(admin.ModelAdmin):
 
 @admin.register(Commit)
 class CommitAdmin(admin.ModelAdmin):
-    fields = ['project', 'hash', 'message', 'diff', 'is_relevant', 'relevance_type']
+    fields = ['gh_url', 'project', 'hash', 'message', 'diff', 'is_relevant', 'relevance_type']
     readonly_fields = fields
 
     inlines = [ResponseInline]
@@ -214,6 +214,10 @@ class CommitAdmin(admin.ModelAdmin):
     list_display_links = list_display[:3]
 
     list_filter = ['relevance_type']
+
+    @admin.display(description="GitHub URL")
+    def gh_url(self, obj):
+        return format_html("<a target='_blank' href='{url}'>{url}</a>", obj.public_url)
 
     @admin.display(description='Owner')
     def project_owner(self, obj):
