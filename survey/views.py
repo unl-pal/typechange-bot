@@ -34,7 +34,7 @@ def github_webhook(request):
             repo_name = payload['repository']['name']
             try:
                 proj = Project.objects.get(owner=repo_owner, name=repo_name)
-                process_push_data.apply_async([repo_owner, repo_name, payload['commits']], queue=project.host_node.hostname)
+                process_push_data.apply_async([repo_owner, repo_name, payload['commits']], queue=proj.host_node.hostname)
             except Project.DoesNotExist:
                 return HttpResponse()
         case "commit_comment":
