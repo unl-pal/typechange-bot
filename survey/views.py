@@ -36,13 +36,13 @@ def github_webhook(request):
                 proj = Project.objects.get(owner=repo_owner, name=repo_name)
                 process_push_data.apply_async([repo_owner, repo_name, payload['commits']], queue=project.host_node.hostname)
             except Project.DoesNotExist:
-                pass
+                return HttpResponse()
         case "commit_comment":
             process_comment.delay(payload['comment']['user']['login'], payload['comment']['body'], payload['repository']['owner']['login'], payload['repository']['name'], payload['comment'])
         case "repository":
             process_repository.delay(payload)
         case _:
-            pass
+            return HttpResponse()
 
     return HttpResponse()
 
