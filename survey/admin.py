@@ -217,7 +217,7 @@ class CommitAdmin(admin.ModelAdmin):
 
     @admin.display(description="GitHub URL")
     def gh_url(self, obj):
-        return format_html("<a target='_blank' href='{url}'>{url}</a>", obj.public_url)
+        return format_html("<a target='_blank' href='{url}'>{url}</a>", url=obj.public_url)
 
     @admin.display(description='Owner')
     def project_owner(self, obj):
