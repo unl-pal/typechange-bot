@@ -14,10 +14,61 @@ from pathlib import Path
 import dj_database_url
 from decouple import config, Csv
 import os.path
+import logging.config
+from jango.utils.log import DEFAULT_LOGGING
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Logging Configuration
+LOGGING_CONFIG = None
+logging.config.dictConfig({
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+    },
+    'formatters': {
+        'django.server': DEFAULT_LOGGING['formatters']['django.server'],
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_true', ],
+            'class': 'logging.StreamHandler',
+        },
+        'django.server': DEFAULT_LOGGING['handlers']['django.server'],
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false', ],
+            'class': 'django.utils.log.AdminEmailHandler',
+            'include_html': True,
+        },
+        'error_file': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false', ],
+            'class': 'logging.FileHandler',
+            'filename': config('ERROR_LOG', default=(BASE_DIR / 'error.log')),
+        },
+    },
+    'loggers': {
+        'django': {
+            'level': 'DEBUG',
+            'handlers': ['console', 'mail_admins', 'error_file', ],
+        },
+        'django.db.backends': {
+            'level': 'DEBUG',
+            'handlers': ['console', ],
+            'propagate': False,
+        },
+        'django.server': DEFAULT_LOGGING['loggers']['django.server'],
+    }
+})
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
