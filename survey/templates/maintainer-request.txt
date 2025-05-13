@@ -17,4 +17,6 @@ Thanks for considering!
 
 Samuel W. Flint and Robert Dyer
 
+If you have any questions, please reply to "{{ ADMIN_NAME }}" <{{ADMIN_EMAIL }}>.
+
 This study as been approved by the University of Nebraska-Lincoln Institutional Review Board (https://research.unl.edu/researchcompliance/human-subjects-research/) with the title "Understanding Developers' Addition and Removal of Type Annotations", IRB# 23988.

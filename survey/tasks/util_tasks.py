@@ -19,7 +19,7 @@ def send_maintainer_email(committer_id: int):
     maintained_tracked_projects = committer.projectcommitter_set.filter(is_maintainer=True, project__track_changes=True).count()
     if committer.email_address is not None and not committer.has_been_emailed:
         if maintained_tracked_projects > 0:
-            template_data = { 'committer': committer }
+            template_data = { 'committer': committer, 'ADMIN_NAME': settings.ADMIN_NAME, 'ADMIN_EMAIL': settings.ADMIN_EMAIL }
             html_template = loader.get_template('maintainer-request.html')
             message_html = html_template.render(template_data)
             text_template = loader.get_template('maintainer-request.txt')
