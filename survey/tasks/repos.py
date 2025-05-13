@@ -130,6 +130,6 @@ def delete_repo(deleted_pk):
                 os.rmdir(os.path.join(root, name))
     parent = path.parent
     path.rmdir()
-    if len(parent.iterdir()) == 0:
+    if len(list(parent.iterdir())) == 0:
         parent.rmdir()
     repo.delete()
