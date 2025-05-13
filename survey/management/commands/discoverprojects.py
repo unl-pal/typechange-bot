@@ -163,7 +163,12 @@ class Command(BaseCommand):
             df = df[~df['login'].str.contains('\\[bot\\]')]
             cutoff = df['contributions'].mean() + 1.5 * df['contributions'].std()
 
-            return df[df['contributions'] >= cutoff]['login'].to_list()
+            maintainer_logins = df[df['contributions'] >= cutoff]['login'].to_list()
+
+            if len(maintainer_logins) > 1:
+                return maintainer_logins
+            else:
+                return df.sort_values('contributions', ascending=False)['login'].to_list()[:2]
 
         except RateLimitExceededException:
             self.enforce_rate_limits('collect_maintainers')
