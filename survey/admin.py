@@ -189,11 +189,13 @@ class ProjectAdmin(admin.ModelAdmin):
     def delete_repos(self, request, queryset):
         for proj in queryset.all():
             del_rec = DeletedRepository(node=proj.host_node,
+                                        subdir=proj.data_subdir,
                                         owner=proj.owner,
                                         name=proj.name,
                                         reason=DeletedRepository.DeletionReason.MANUAL)
             del_rec.save()
             proj.host_node = None
+            proj.data_subdir = None
             proj.save()
 
     @admin.action(description="Fetch Selected Projects")
