@@ -193,6 +193,8 @@ class ProjectAdmin(admin.ModelAdmin):
                                         name=proj.name,
                                         reason=DeletedRepository.DeletionReason.MANUAL)
             del_rec.save()
+            proj.host_node = None
+            proj.save()
 
     @admin.action(description="Fetch Selected Projects")
     def force_fetch(self, request, queryset):
