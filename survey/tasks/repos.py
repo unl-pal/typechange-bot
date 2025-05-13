@@ -128,4 +128,5 @@ def delete_repo(deleted_pk):
                 os.remove(os.path.join(root, name))
             for name in dirs:
                 os.rmdir(os.path.join(root, name))
+    os.rmdir(path)
     repo.delete()
