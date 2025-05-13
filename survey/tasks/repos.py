@@ -31,7 +31,7 @@ def install_repo(owner: str, repo: str, installation_id: str):
 
     project.save()
 
-    if project.gh.fork:
+    if project.gh.fork or project.gh.private:
         project.track_changes = False
         project.save()
         return
