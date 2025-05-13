@@ -185,7 +185,7 @@ def check_commit_is_relevant(repo: Repo, commit: Commit) -> Optional[List[Tuple[
                     patch = list(whatthepatch.parse_patch(patch_str))[0]
                     break
             try:
-                astdiff = AstDiff.from_diff(git_commit, diff, language.label.lower())
+                astdiff = AstDiff.from_diff(git_commit, diff, language.lower())
                 relevant_changes = is_diff_relevant(astdiff)
                 if relevant_changes:
                     for file, line, is_added in relevant_changes:
