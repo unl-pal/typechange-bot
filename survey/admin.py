@@ -217,7 +217,7 @@ class CommitAdmin(admin.ModelAdmin):
     list_display = ["project_owner", "project_name", 'hash', 'is_relevant', 'relevance_type']
     list_display_links = list_display[:3]
 
-    list_filter = ['relevance_type']
+    list_filter = ['is_relevant', 'relevance_type']
 
     @admin.display(description="GitHub URL")
     def gh_url(self, obj):
