@@ -71,6 +71,8 @@ def process_commit(self, commit_pk: int):
         commit.is_relevant = False
         commit.save()
         return
+    commit.is_relevant = True
+    commit.save()
 
     new_author = False
     new_committer = False
