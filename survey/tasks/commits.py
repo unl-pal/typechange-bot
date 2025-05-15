@@ -23,9 +23,9 @@ from pathlib import Path
 
 import re
 
-consent_command: re.Pattern = re.compile(f'@{settings.GITHUB_APP_NAME}(\\[bot\\])?\\sconsent', re.IGNORECASE)
-optout_command = re.compile(f'@{settings.GITHUB_APP_NAME}(\\[bot\\])?\\soptout', re.IGNORECASE)
-remove_command = re.compile(f'@{settings.GITHUB_APP_NAME}(\\[bot\\])?\\sremove', re.IGNORECASE)
+consent_command: re.Pattern = re.compile(f'^\\s+@{settings.GITHUB_APP_NAME}(\\[bot\\])?\\sconsent', re.IGNORECASE)
+optout_command = re.compile(f'^\\s+@{settings.GITHUB_APP_NAME}(\\[bot\\])?\\soptout', re.IGNORECASE)
+remove_command = re.compile(f'^\\s+@{settings.GITHUB_APP_NAME}(\\[bot\\])?\\sremove', re.IGNORECASE)
 
 @app.task(ignore_result = True)
 def process_push_data(owner, repo, commits):
