@@ -107,6 +107,7 @@ class Committer(models.Model):
     last_contact_date = models.DateTimeField("last contact", auto_now=True, editable=False)
     consent_timestamp = models.DateTimeField("consent date", null=True, editable=False)
     consent_project_commit = models.TextField("consent location", null=True, blank=True, editable=True)
+    initial_contact_location = models.TextField("Location of initial contact", null=True, blank=True, editable=False)
     opt_out = models.DateTimeField("opt-out date", null=True, blank=True, editable=False)
     removal = models.DateTimeField("removal date", null=True, blank=True, editable=False)
     projects = models.ManyToManyField('Project', through='ProjectCommitter')
@@ -132,6 +133,9 @@ class Committer(models.Model):
     def should_contact(self) -> bool:
         if self.opt_out is not None or self.removal is not None:
             return False
+
+        if self.initial_contact_location is None:
+            return True
 
         return self.consent_timestamp is not None and self.last_contact_date < (timezone.now() - timedelta(hours=24))
 
