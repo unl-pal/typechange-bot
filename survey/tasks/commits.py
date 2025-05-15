@@ -140,6 +140,13 @@ def process_new_committer(committer_pk: int, commit_pk: int):
     message = template.render({'USER': f'@{committer.username}', 'BOT_NAME': settings.GITHUB_APP_NAME })
     commit.gh.create_comment(message)
 
+def send_error(committer, commands_sent, commit, owner, name):
+    commit_gh = get_comment_gh(commit, owner, name)
+    template = loader.get_template('command-error.md')
+    message = template.render({'USER': f'@{committer}',
+                               'BOT_NAME': settings.GITHUB_APP_NAME,
+                               'COMMANDS': ', '.join(f'@{settings.GITHUB_APP_NAME}[bot] {cmd}' for cmd in commands_sent)})
+    commit_gh.create_comment(message)
 
 @app.task()
 def process_comment(comment_user: str, comment_body: str, repo_owner: str, repo_name: str, comment_payload: dict):
@@ -151,7 +158,25 @@ def process_comment(comment_user: str, comment_body: str, repo_owner: str, repo_
     except:
         return
 
-    if remove_command.search(comment_body):
+    request_removal = remove_command.search(comment_body)
+    request_optout = optout_command.search(comment_body)
+    consented = consent_command.search(comment_body)
+
+    if request_removal and request_optout and consented:
+        send_error(comment_user, ['CONSENT', 'OPTOUT', 'REMOVE'], comment_payload['commit_id'], repo_owner, repo_name)
+        return
+    if request_removal and request_optout:
+        send_error(comment_user, ['OPTOUT', 'REMOVE'], comment_payload['commit_id'], repo_owner, repo_name)
+        return
+    if request_removal and consented:
+        send_error(comment_user, ['CONSENT', 'REMOVE'], comment_payload['commit_id'], repo_owner, repo_name)
+        return
+    if request_optout and consented:
+        send_error(comment_user, ['CONSENT', 'OPTOUT'], comment_payload['commit_id'], repo_owner, repo_name)
+        return
+
+
+    if request_removal:
         with transaction.atomic():
             committer.opt_out = timezone.now()
             committer.removal = timezone.now()
@@ -165,7 +190,7 @@ def process_comment(comment_user: str, comment_body: str, repo_owner: str, repo_
         commit_gh.create_comment(template.render({'USER': f'@{comment_user}', 'BOT_NAME': settings.GITHUB_APP_NAME}))
         return
 
-    if optout_command.search(comment_body):
+    if request_optout:
         committer.opt_out = timezone.now()
         committer.save()
         commenter_new = False
