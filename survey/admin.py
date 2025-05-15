@@ -239,7 +239,6 @@ class ResponseAdmin(admin.ModelAdmin):
     search_fields = ['commit__project__owner', 'commit__project__name', 'committer__committer__username', 'survey_response']
     list_display = ['project_owner', 'project_name', 'commit', 'committer']
     list_display_links = list_display[:3]
-    list_filter = ['committer']
 
     @admin.display(description='Owner')
     def project_owner(self, obj):
