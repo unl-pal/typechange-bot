@@ -77,47 +77,30 @@ def process_commit(self, commit_pk: int):
 
     maintainers_list = None
 
-    if project.committers.filter(username=commit.gh.author.login).count() == 0:
+    for i, cmtr in enumerate([commit.gh.author, commit.gh.committer]):
         try:
-            author = Committer.objects.get(username=commit.gh.author.login)
+            committer = Committer.objects.get(username=cmtr.login)
         except Committer.DoesNotExist:
-            author = Committer(username=commit.gh.author.login)
-            author.save()
-
-        if maintainers_list == None:
-            maintainers_list = collect_repo_maintainers(project.gh, project.gh_app)['login'].to_list()
-
-        is_maintainer = commit.gh.author.login in maintainers_list
-
-        new_author = True
-        project.committers.add(author, through_defaults={'initial_commit': commit, 'is_maintainer': is_maintainer})
-        project.save()
-        process_new_committer.delay(author.pk, commit_pk)
-        process_new_link.delay(author.pk, project.pk)
-
-    if project.committers.filter(username=commit.gh.committer.login).count() == 0:
-        try:
-            committer = Committer.objects.get(commit.gh.committer.login)
-        except Committer.DoesNotExist:
-            committer = Committer(username=commit.gh.committer.login)
+            committer = Committer(username = cmtr.login,
+                                  name = cmtr.name,
+                                  email_address = cmtr.email)
             committer.save()
 
-        if maintainers_list == None:
-            maintainers_list = collect_repo_maintainers(project.gh, project.gh_app)['login'].to_list()
+            if i == 0:
+                new_author = True
+            else:
+                new_committer = True
 
-        is_maintainer = commit.gh.committer.login in maintainers_list
+        if project.committers.filter(username=cmtr.login).count == 0:
+            if maintainers_list == None:
+                maintainers_list = collect_repo_maintainers(project.gh, project.gh_app)['login'].to_list()
+            project.committers.add(committer,
+                                   through_defaults={'initial_commit': commit,
+                                                     'is_maintainer': (True if cmtr.login in maintainers_list else False)})
+            project.save()
 
-        new_committer = True
-        project.committers.add(committer, through_defaults={'initial_commit': commit})
-        project.save()
-        process_new_committer.delay(committer.pk, commit_pk)
-        process_new_link.delay(committer.pk, project.pk)
-
-    commit.is_relevant = True
-    commit.relevance_type = change_type_to_relevance_type(commit_is_relevant[0][2])
-    commit.author = ProjectCommitter.objects.get(Q(project = commit.project) & Q(committer__username=commit.gh.author.login))
-    commit.committer = ProjectCommitter.objects.get(Q(project = commit.project) & Q(committer__username=commit.gh.committer.login))
-    commit.save()
+        if committer.initial_contact_location is None:
+            process_new_committer(committer.pk, commit_pk)
 
     with transaction.atomic():
         notify_who = []
@@ -142,16 +125,14 @@ def process_commit(self, commit_pk: int):
                 user.last_contact_date = timezone.now()
                 user.save()
 
-
-@app.task()
-def process_new_link(committer_pk: int, project_pk: int):
-    # TODO Write code to process new committer/project links
-    pass
-
 @app.task()
 def process_new_committer(committer_pk: int, commit_pk: int):
     committer = Committer.objects.get(id=committer_pk)
     commit = Commit.objects.get(id=commit_pk)
+
+    if committer.initial_contact_location is None:
+        committer.initial_contact_location = commit.public_url
+        committer.save()
 
     template = loader.get_template('informed-consent-message.md')
     message = template.render({'USER': f'@{committer.username}', 'BOT_NAME': settings.GITHUB_APP_NAME })
