@@ -51,7 +51,15 @@ def process_installation(payload):
                 owner, name = repo['full_name'].split('/')
                 try:
                     proj = Project.objects.get(owner=owner, name=name)
+                    deleted_repo = DeletedRepository(node=proj.host_node,
+                                                     owner=proj.owner,
+                                                     name=proj.name,
+                                                     data_subdir=proj.data_subdir,
+                                                     reason=DeletedRepository.DeletionReason.DELETED)
+                    deleted_repo.save()
                     proj.track_changes = False
+                    proj.data_subdir = None
+                    proj.host_node = None
                     proj.save()
                 except Project.DoesNotExist:
                     continue
