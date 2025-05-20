@@ -57,11 +57,11 @@ def process_installation_repositories(payload):
         case 'added':
             installation_id = payload['installation']['id']
             for repo in payload['repositories_added']:
-                owner, name = repo['full_name'].split('/')
+                owner, name = repo['name'].split('/')
                 install_repo.delay(owner, repo, installation_id)
         case 'removed':
             for repo in payload['repositories_removed']:
-                owner, name = repo['full_name'].split('/')
+                owner, name = repo['name'].split('/')
                 if Project.objects.filter(owner=owner, name=name).count() > 0:
                     for project in Project.objects.filter(owner=owner, name=name):
                         deleted_repo = DeletedRepository(node = project.host_node,
