@@ -41,6 +41,7 @@ def process_installation(payload):
 
                         project.installation_id = None
                         project.data_subdir = None
+                        project.host_node = None
                         project.remove_date = timezone.now()
                         project.track_changes = False
                         project.save()
