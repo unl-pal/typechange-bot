@@ -16,7 +16,7 @@ class DeletedRepoAdmin(admin.ModelAdmin):
 
     list_display = readonly_fields
     list_display_links = ['owner', 'name', 'reason']
-    list_filter = readonly_fields
+    list_filter = ['node', 'reason', 'deleted_on']
 
     actions = ['delete_on_workers']
 
@@ -208,7 +208,7 @@ class ProjectAdmin(admin.ModelAdmin):
 
 @admin.register(Commit)
 class CommitAdmin(admin.ModelAdmin):
-    fields = ['gh_url', 'project', 'hash', 'message', 'diff', 'is_relevant', 'relevance_type']
+    fields = ['gh_url', 'project', 'hash', 'message', 'diff', 'is_relevant', 'relevance_type', 'author', 'committer']
     readonly_fields = fields
 
     inlines = [ResponseInline]
