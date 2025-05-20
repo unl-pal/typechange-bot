@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.db.models import Q
 
 from .repos import install_repo, rename_repo
+from .screening import prescreen_project
 
 __all__ = [
     'process_installation',
@@ -45,11 +46,23 @@ def process_installation(payload):
                         project.save()
 
         case 'suspend':
-            # TODO: Handle Suspensions
+            for repo in repositories:
+                owner, name = repo['full_name'].split('/')
+                try:
+                    proj = Project.objects.get(owner=owner, name=name)
+                    proj.track_changes = False
+                    proj.save()
+                except Project.DoesNotExist:
+                    continue
             pass
         case 'unsuspend':
-            # TODO: Handle Unsuspensions
-            pass
+            for repo in repositories:
+                owner, name = repo['full_name'].split('/')
+                try:
+                    proj = Project.objects.get(owner=owner, name=name)
+                    prescreen_project.delay(proj.id)
+                except Project.DoesNotExist:
+                    continue
 
 @app.task()
 def process_installation_repositories(payload):
