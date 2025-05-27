@@ -231,6 +231,20 @@ class CommitAdmin(admin.ModelAdmin):
     def project_name(self, obj):
         return obj.project.name
 
+class IsInitialSurveyFilter(admin.SimpleListFilter):
+    title = "Initial Survey?"
+    parameter_name='is_initial_survey'
+
+    def lookups(self, request, model_admin):
+        return(('yes', 'Yes'),
+               ('no', 'No'))
+
+    def queryset(self, request, query_set):
+        if self.value() == 'yes':
+            return query_set.exclude(survey_response__icontains='### Briefly')
+        elif self.value() == 'no':
+            return query_set.filter(survey_response__icontains='### Briefly')
+
 @admin.register(Response)
 class ResponseAdmin(admin.ModelAdmin):
     readonly_fields = ['commit', 'committer', 'survey_response']
@@ -239,6 +253,8 @@ class ResponseAdmin(admin.ModelAdmin):
     search_fields = ['commit__project__owner', 'commit__project__name', 'committer__committer__username', 'survey_response']
     list_display = ['project_owner', 'project_name', 'commit', 'committer']
     list_display_links = list_display[:3]
+
+    list_filter = [IsInitialSurveyFilter]
 
     @admin.display(description='Owner')
     def project_owner(self, obj):
