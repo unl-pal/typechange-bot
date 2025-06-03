@@ -262,6 +262,8 @@ class Commit(models.Model):
     relevance_type = models.CharField(max_length=2,
                                       choices=RelevanceType.choices,
                                       default=RelevanceType.IRRELEVANT)
+    relevant_change_file = models.TextField(null=True, blank=True, editable=False)
+    relevant_change_line = models.IntegerField(null=True, editable=False)
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     author = models.ForeignKey(ProjectCommitter, on_delete=models.SET_NULL, editable=False, null=True, related_name='author')
