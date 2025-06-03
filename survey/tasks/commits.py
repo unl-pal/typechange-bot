@@ -61,6 +61,19 @@ def change_type_to_relevance_type(change_type: ChangeType):
         case _:
             return Commit.RelevanceType.IRRELEVANT
 
+@app.task(bind=True, autoretry_for=(ValueError,), retry_backoff=2, max_retries=5)
+def post_process_old_commit(self, commit_pk: int):
+    commit = Commit.objects.get(id=commit_pk)
+    project = commit.project
+
+    if commit.is_relevant and commit.relevance_type == Commit.RelevanceType.IRRELEVANT:
+        relevant_file, relevant_line, change_type = check_commit_is_relevant(Repo(project.path), commit)[0]
+        commit.relevance_type = change_type_to_relevance_type(change_type)
+        commit.relevant_change_file = relevant_file
+        commit.relevant_change_line = relevant_line
+        commit.save()
+
+
 @app.task(bind = True, autoretry_for=(ValueError,), retry_backoff=2, max_retries=5)
 def process_commit(self, commit_pk: int):
     commit = Commit.objects.get(id=commit_pk)
