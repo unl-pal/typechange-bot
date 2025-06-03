@@ -59,7 +59,7 @@ def change_type_to_relevance_type(change_type: ChangeType):
         case ChangeType.CHANGED:
             return Commit.RelevanceType.CHANGED
         case _:
-            return Commit.RelevanceType.IRRELEVANT
+            return Commit.RelevanceType.CHANGED
 
 @app.task(bind=True, autoretry_for=(ValueError,), retry_backoff=2, max_retries=5)
 def post_process_old_commit(self, commit_pk: int):
@@ -72,7 +72,6 @@ def post_process_old_commit(self, commit_pk: int):
         commit.relevant_change_file = relevant_file
         commit.relevant_change_line = relevant_line
         commit.save()
-
 
 @app.task(bind = True, autoretry_for=(ValueError,), retry_backoff=2, max_retries=5)
 def process_commit(self, commit_pk: int):
