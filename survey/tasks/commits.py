@@ -84,6 +84,7 @@ def process_commit(self, commit_pk: int):
         commit.save()
         return
     relevant_file, relevant_line, change_type = commit_is_relevant[0]
+    commit.json_data = commit.gh.raw_data
     commit.relevance_type = change_type_to_relevance_type(change_type)
     commit.relevant_change_file = relevant_file
     commit.relevant_change_line = relevant_line
