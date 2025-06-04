@@ -208,7 +208,7 @@ class ProjectAdmin(admin.ModelAdmin):
 
 @admin.register(Commit)
 class CommitAdmin(admin.ModelAdmin):
-    fields = ['gh_url', 'project', 'hash', 'message', 'diff', 'is_relevant', 'relevance_type', 'author', 'committer']
+    fields = ['gh_url', 'project', 'hash', 'message', 'diff', 'is_relevant', 'relevance_type', 'relevant_change_file', 'relevant_change_line', 'author', 'committer']
     readonly_fields = fields
 
     inlines = [ResponseInline]
