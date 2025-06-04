@@ -272,7 +272,7 @@ class ResponseAdmin(admin.ModelAdmin):
 
     @admin.display(description='Committer')
     def link_to_committer(self, obj):
-        link = reverse("admin:survey_committer_change", args=[obj.committer.id])
+        link = reverse("admin:survey_projectcommitter_change", args=[obj.committer.id])
         return format_html('<a href="{}">{}</a>', link, obj.committer)
 
 @admin.register(ChangeReason)
