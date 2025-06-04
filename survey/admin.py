@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.urls import reverse
 from django.utils.html import format_html
 
 from treebeard.admin import TreeAdmin
@@ -251,7 +252,7 @@ class ResponseAdmin(admin.ModelAdmin):
     fields = readonly_fields + ['tags']
 
     search_fields = ['commit__project__owner', 'commit__project__name', 'committer__committer__username', 'survey_response']
-    list_display = ['project_owner', 'project_name', 'commit', 'committer']
+    list_display = ['project_owner', 'project_name', 'link_to_commit', 'link_to_committer']
     list_display_links = list_display[:3]
 
     list_filter = [IsInitialSurveyFilter]
@@ -263,6 +264,16 @@ class ResponseAdmin(admin.ModelAdmin):
     @admin.display(description='Project')
     def project_name(self, obj):
         return obj.commit.project.name
+
+    @admin.display(description='Commit')
+    def link_to_commit(self, obj):
+        link = reverse("admin:survey_commit_change", args=[obj.commit.id])
+        return format_html('<a href="{}">{}</a>', link, obj.commit)
+
+    @admin.display(description='Committer')
+    def link_to_committer(self, obj):
+        link = reverse("admin:survey_committer_change", args=[obj.committer.id])
+        return format_html('<a href="{}">{}</a>', link, obj.committer)
 
 @admin.register(ChangeReason)
 class ChangeReasonAdmin(TreeAdmin):
