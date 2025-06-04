@@ -229,7 +229,7 @@ def is_diff_relevant(diff: AstDiff) -> Optional[List[Tuple[str, int, ChangeType]
         updated = True if update_re.search(action['action']) else False
         change_type = (ChangeType.ADDED if added else (ChangeType.CHANGED if updated else ChangeType.REMOVED))
 
-        position_string = action['parent' if added else 'tree']
+        position_string = action['parent' if not (added or updated) else 'tree']
         position_start, position_end = list(map(int, position_re.search(position_string).groups()))
 
         linenum = -1
