@@ -269,6 +269,8 @@ class Commit(models.Model):
     author = models.ForeignKey(ProjectCommitter, on_delete=models.SET_NULL, editable=False, null=True, related_name='author')
     committer = models.ForeignKey(ProjectCommitter, on_delete=models.SET_NULL, editable=False, null=True, related_name='pusher')
 
+    json_data = models.JSONField(null=True, editable=False)
+
     _commit = None
 
     class Meta:
