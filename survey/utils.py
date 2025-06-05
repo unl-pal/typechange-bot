@@ -213,8 +213,7 @@ def check_commit_is_relevant(repo: Repo, commit: Commit) -> Optional[List[Tuple[
 def locate_type_tree(diff: AstDiff, start: int, end: int) -> bool:
 
     for match in diff.matches:
-        # print(match['src'])
-        if re.match(r'^type', match['src']):
+        if tree_re.match(match['src']):
             print('matched', match)
             position_start, position_end = list(map(int, position_re.search(match['src']).groups()))
             if position_start <= start and end <= position_end:
