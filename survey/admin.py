@@ -241,10 +241,10 @@ class IsInitialSurveyFilter(admin.SimpleListFilter):
                ('no', 'No'))
 
     def queryset(self, request, query_set):
-        if self.value() == 'yes':
-            return query_set.exclude(survey_response__icontains='### Briefly')
-        elif self.value() == 'no':
-            return query_set.filter(survey_response__icontains='### Briefly')
+        if self.value() == 'no':
+            return query_set.exclude(survey_response__icontains='### When declaring')
+        elif self.value() == 'yes':
+            return query_set.filter(survey_response__icontains='### When declaring')
 
 @admin.register(Response)
 class ResponseAdmin(admin.ModelAdmin):
