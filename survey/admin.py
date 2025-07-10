@@ -255,7 +255,7 @@ class ResponseAdmin(admin.ModelAdmin):
     list_display = ['project_owner', 'project_name', 'link_to_commit', 'link_to_committer']
     list_display_links = list_display[:3]
 
-    list_filter = [IsInitialSurveyFilter]
+    list_filter = [IsInitialSurveyFilter, 'tags']
 
     @admin.display(description='Owner')
     def project_owner(self, obj):
