@@ -297,7 +297,7 @@ class Response(models.Model):
     committer = models.ForeignKey(ProjectCommitter, on_delete=models.CASCADE, editable=False)
     committer_commits_at_time = models.IntegerField(null=True, editable=False)
     survey_response = models.TextField(editable=False)
-    tags = models.ManyToManyField(ChangeReason)
+    tags = models.ManyToManyField(ChangeReason, related_name='responses')
 
     def __str__(self):
         return f'Response of {self.committer} on {self.commit}'

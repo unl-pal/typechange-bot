@@ -275,9 +275,22 @@ class ResponseAdmin(admin.ModelAdmin):
         link = reverse("admin:survey_projectcommitter_change", args=[obj.committer.id])
         return format_html('<a href="{}">{}</a>', link, obj.committer)
 
+class ReasonInline(admin.StackedInline):
+    model = ChangeReason.responses.through
+
+    def has_add_permission(self, request, obj):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
 @admin.register(ChangeReason)
 class ChangeReasonAdmin(TreeAdmin):
     form = movenodeform_factory(ChangeReason)
+    inlines = [ReasonInline]
 
     search_fields = ['description']
 
