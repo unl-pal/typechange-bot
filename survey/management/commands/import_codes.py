@@ -53,9 +53,15 @@ class Command(BaseCommand):
 
         df = pd.read_csv(codebook)
         for i, row in df.iterrows():
-            if row[description_column_name] is None:
-                node = parent_node.add_child(name=row[code_column_name])
-                print(node)
-            else:
-                node = parent_node.add_child(name=row[code_column_name], description=row[description_column_name])
-                print(node)
+            found = False
+            for child in parent_node.get_children():
+                if child.name == row[code_column_name]:
+                    found = True
+                    break
+            if not found:
+                if row[description_column_name] is None:
+                    node = parent_node.add_child(name=row[code_column_name])
+                    print(node)
+                else:
+                    node = parent_node.add_child(name=row[code_column_name], description=row[description_column_name])
+                    print(node)
