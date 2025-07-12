@@ -214,7 +214,7 @@ def locate_type_tree(diff: AstDiff, start: int, end: int) -> bool:
 
     for match in diff.matches:
         if tree_re.match(match['src']):
-            print('matched', match)
+            #print('matched', match)
             position_start, position_end = list(map(int, position_re.search(match['src']).groups()))
             if position_start <= start and end <= position_end:
                 return True
