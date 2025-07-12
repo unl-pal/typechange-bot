@@ -185,6 +185,7 @@ class Project(models.Model):
     has_language_files = models.BooleanField('has files in the language?', editable=False, default=False)
     has_typechecker_configuration = models.BooleanField('has typechecker config?', editable=False, default=False)
     annotations_detected = models.BooleanField('annotations detected?', editable=False, default=False)
+    metrics_collected = models.BooleanField('metrics collected?', editable=False, default=False)
 
     _repo = None
     _gh_app = None
@@ -314,3 +315,44 @@ class FAQ(models.Model):
 
     def __str__(self):
         return f'FAQ: {self.question}'
+
+
+class MetricsCommit(models.Model):
+    class RelevanceType(models.TextChoices):
+        IRRELEVANT = ('IR', "Irrelevant")
+        ADDED = ('AD', 'Added')
+        REMOVED = ('RM', 'Removed')
+        CHANGED = ('CH', 'Changed')
+
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, editable=False)
+    hash = models.CharField(max_length=40, editable=False)
+    relevance_type = models.CharField(max_length=2,
+                                      choices=RelevanceType.choices,
+                                      default=RelevanceType.IRRELEVANT)
+    relevant_change_file = models.TextField(null=True, blank=True, editable=False)
+    relevant_change_line = models.IntegerField(null=True, editable=False)
+
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    author = models.CharField(max_length=200, editable=False)
+    committer = models.CharField(max_length=200, editable=False)
+
+    _commit = None
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['project', 'hash'], name='unique_metricscommit_hash_in_project')
+        ]
+
+    def __str__(self):
+        return f'{self.hash}'
+
+    @property
+    def public_url(self):
+        return f'{self.project.clone_url}/commit/{self.hash}'
+
+    @property
+    def gh(self):
+        if self._commit is not None:
+            return self._commit
+        self._commit = self.project.gh.get_commit(sha=self.hash)
+        return self._commit
