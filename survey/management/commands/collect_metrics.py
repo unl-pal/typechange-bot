@@ -25,7 +25,8 @@ class Command(BaseCommand):
         try:
             repo = Repo(project.path)
             for commit in repo.iter_commits():
-                self.process_commit(project, repo, commit)
+                if len(commit.parents):
+                    self.process_commit(project, repo, commit)
         except KeyboardInterrupt as ex:
             raise ex
         except:
