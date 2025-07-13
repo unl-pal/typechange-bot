@@ -306,6 +306,21 @@ class Response(models.Model):
             return True
         return False
 
+    @property
+    def response(self) -> None | str:
+        response = None
+        if not self.is_initial_survey:
+            response = self.survey_response
+            add_remove_start = response.find('add/remove')
+            if add_remove_start != -1:
+                respose = response[add_remove_start:]
+                start = response.find('\n')
+                response = response[start:].strip()
+                if len(response) == 0:
+                    response = None
+        return response
+
+
     def __str__(self):
         return f'Response of {self.committer} on {self.commit}'
 
