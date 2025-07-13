@@ -307,6 +307,18 @@ class Response(models.Model):
         return False
 
     @property
+    def never_include(self):
+        if self.is_initial_survey:
+            never_start = self.survey_response.find('where you never include')
+            if never_start != -1:
+                response = self.survey_response[never_start:]
+                start = response.find('\n')
+                response = response[start:].strip()
+                if len(response) == 0:
+                    return None
+                return response
+
+    @property
     def response(self) -> None | str:
         response = None
         if not self.is_initial_survey:
