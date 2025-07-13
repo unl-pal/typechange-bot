@@ -307,6 +307,25 @@ class Response(models.Model):
         return False
 
     @property
+    def factors(self):
+        if self.is_initial_survey:
+            declaring_start = self.survey_response.find("When declaring")
+            if declaring_start != -1:
+                response = self.survey_response[declaring_start:]
+                nl = response.find('nl')
+                response = response[nl:].strip()
+                always_start = response.find('you always include')
+                if always_start == -1:
+                    return response
+                response = response[:always_start].strip()
+                end_nl = response.rfind('\n')
+                response = response[:end_nl].strip()
+                if len(response) == 0:
+                    return None
+                lines = response.split('\n')
+                return list(line.strip() if line[0:2] != ' - ' else line[2:].strip() for line in lines)
+
+    @property
     def always_include(self):
         if self.is_initial_survey:
             always_start = self.survey_response.find('where you always include')
