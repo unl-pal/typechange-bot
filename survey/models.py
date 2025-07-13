@@ -300,6 +300,12 @@ class Response(models.Model):
     survey_response = models.TextField(editable=False)
     tags = models.ManyToManyField(ChangeReason, related_name='responses')
 
+    @property
+    def is_initial_survey(self) -> bool:
+        if self.survey_response.find('### When declaring') != -1:
+            return True
+        return False
+
     def __str__(self):
         return f'Response of {self.committer} on {self.commit}'
 
