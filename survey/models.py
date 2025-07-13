@@ -307,6 +307,24 @@ class Response(models.Model):
         return False
 
     @property
+    def always_include(self):
+        if self.is_initial_survey:
+            always_start = self.survey_response.find('where you always include')
+            if always_start != -1:
+                response = self.survey_response[always_start:]
+                nl = response.find('\n')
+                response = response[nl:].strip()
+                never_start = response.find('where you never')
+                if never_start == -1:
+                    return response
+                response = response[:never_start]
+                end_nl = response.rfind('\n')
+                response = response[:end_nl].strip()
+                if len(response) == 0:
+                    return None
+                return response
+
+    @property
     def never_include(self):
         if self.is_initial_survey:
             never_start = self.survey_response.find('where you never include')
