@@ -50,7 +50,6 @@ class Command(BaseCommand):
                             type=str,
                             default=settings.OPENAI_API_KEY)
         parser.add_argument('--debug',
-                            type=bool,
                             default=False,
                             action='store_true')
 
