@@ -8,12 +8,16 @@ from survey.models import Response, ChangeReason
 import openai
 import pandas as pd
 
+import re
+
 class Command(BaseCommand):
     help = 'Run LLM to code responses.'
 
     survey_type = None
     api_key = None
     change_reasons = None
+
+    change_names = set()
 
     def add_arguments(self, parser):
         parser.add_argument('--survey-type',
@@ -28,6 +32,26 @@ class Command(BaseCommand):
                             default=False)
 
         parser.add_argument('out_file')
+
+    def clean_codes(self, in_codes):
+        for match in re.matchall('\*\*', in_codes):
+            in_codes = re.sub(match, '', in_codes)
+        original_codes = re.split('[ :,;\n]', in_codes)
+
+        if len(self.change_names) == 0:
+            for reason in self.change_reasons:
+                self.change_names.add(reason.name)
+
+        codes = []
+        non_codes = []
+
+        for code in original_codes:
+            if code in self.change_names:
+                codes.append(code)
+            else:
+                non_codes.append(code)
+
+        return codes + ['**'] + non_codes
 
     def query_open_ai(self, prompt):
         client = openai.OpenAI(api_key=self.api_key)
@@ -45,9 +69,7 @@ class Command(BaseCommand):
                 }
             ]
         )
-
-        codes = response.choices[0].message.content.split(',')
-        return codes
+        return response.choices[0].message.content
 
     def make_prompt(self, response):
         template = loader.get_template('prompt-template.md')
@@ -91,10 +113,12 @@ class Command(BaseCommand):
                 print(prompt)
                 break
             print(f'Coding {response}')
-            codes = self.query_open_ai(prompt)
+            llm_output = self.query_open_ai(prompt)
+            codes = self.clean_codes(llm_out)
             output.append({'id': response.id,
                            'type': survey_type,
-                           'codes': codes})
+                           'llm_output': llm_output,
+                           'codes': codes.join(';')})
 
         df = pd.DataFrame(output)
         print(df.head())
