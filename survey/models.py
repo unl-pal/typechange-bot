@@ -309,7 +309,8 @@ class Response(models.Model):
     @property
     def factors(self):
         if self.is_initial_survey:
-            declaring_start = self.survey_response.find("When declaring")
+            response = '\n'.join(line for line in self.survey_response.split('\n') if line[0] != '>')
+            declaring_start = response.find("When declaring")
             if declaring_start != -1:
                 response = self.survey_response[declaring_start:]
                 nl = response.find('nl')
@@ -328,7 +329,8 @@ class Response(models.Model):
     @property
     def always_include(self):
         if self.is_initial_survey:
-            always_start = self.survey_response.find('where you always include')
+            response = '\n'.join(line for line in self.survey_response.split('\n') if line[0] != '>')
+            always_start = response.find('where you always include')
             if always_start != -1:
                 response = self.survey_response[always_start:]
                 nl = response.find('\n')
@@ -346,7 +348,8 @@ class Response(models.Model):
     @property
     def never_include(self):
         if self.is_initial_survey:
-            never_start = self.survey_response.find('where you never include')
+            response = '\n'.join(line for line in self.survey_response.split('\n') if line[0] != '>')
+            never_start = response.find('where you never include')
             if never_start != -1:
                 response = self.survey_response[never_start:]
                 start = response.find('\n')
@@ -357,18 +360,16 @@ class Response(models.Model):
 
     @property
     def response(self) -> None | str:
-        response = None
         if not self.is_initial_survey:
-            response = self.survey_response
+            response = '\n'.join(line for line in self.survey_response.split('\n') if line[0] != '>')
             add_remove_start = response.find('add/remove')
             if add_remove_start != -1:
                 respose = response[add_remove_start:]
                 start = response.find('\n')
                 response = response[start:].strip()
                 if len(response) == 0:
-                    response = None
-        return response
-
+                    return
+                return response
 
     def __str__(self):
         return f'Response of {self.committer} on {self.commit}'
