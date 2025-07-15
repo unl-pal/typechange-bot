@@ -27,9 +27,6 @@ class Command(BaseCommand):
         parser.add_argument('--api-key',
                             type=str,
                             required=True)
-        parser.add_argument('--debug',
-                            action='store_true',
-                            default=False)
 
         parser.add_argument('out_file')
 
@@ -82,7 +79,6 @@ class Command(BaseCommand):
     def handle(self, *arguments,
                survey_type=None,
                api_key=None,
-               debug=False,
                out_file=None,
                **options):
         openai.api_key = api_key
@@ -110,10 +106,8 @@ class Command(BaseCommand):
             if prompt_in is None:
                 continue
             prompt = self.make_prompt(prompt_in)
-            if debug:
-                print(prompt)
-                break
-            print(f'Coding {response}')
+
+            print(f'Coding {response}... ', end='')
             llm_output = self.query_open_ai(prompt)
             codes = self.clean_codes(llm_output)
             data_out = {'id': response.id,
@@ -124,6 +118,7 @@ class Command(BaseCommand):
             if survey_type == 'change':
                 data_out['relevance_type'] = response.commit.relevance_type
             output.append(data_out)
+            print('Done!')
 
         df = pd.DataFrame(output)
         print(df.head())
