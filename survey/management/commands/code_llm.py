@@ -20,7 +20,7 @@ class Command(BaseCommand):
                             required=True,
                             choices=['always', 'never', 'change'])
         parser.add_argument('--api-key',
-                            type='str',
+                            type=str,
                             required=True)
         parser.add_argument('--debug',
                             action='store_true',
