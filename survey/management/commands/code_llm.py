@@ -77,6 +77,8 @@ class Command(BaseCommand):
         output = []
         for response in Response.objects.all():
             prompt_in = None
+            if survey_type != 'change' and not response.is_initial_survey:
+                continue
             if survey_type == 'always':
                 prompt_in = response.always_include
             elif survey_type == 'never':
