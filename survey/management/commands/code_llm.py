@@ -91,7 +91,7 @@ class Command(BaseCommand):
             if debug:
                 print(prompt)
                 break
-            codes = self.query_open_ai()
+            codes = self.query_open_ai(prompt)
             output.append({'id': response.id,
                            'type': survey_type,
                            'codes': codes})
