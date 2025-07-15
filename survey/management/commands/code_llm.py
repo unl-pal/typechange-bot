@@ -76,7 +76,7 @@ class Command(BaseCommand):
                 "json_schema": self.schema
             }
         )
-        return json.loads(response.choices[0].message.content)['code']
+        return sorted(json.loads(response.choices[0].message.content)['code'])
 
     def make_prompt(self, response):
         template = loader.get_template('prompt-template.md')
