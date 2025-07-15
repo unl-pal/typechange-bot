@@ -63,7 +63,7 @@ class DeletedRepository(models.Model):
         verbose_name_plural = 'Deleted Repositories'
 
 class ChangeReason(NS_Node):
-    name = models.CharField(max_length=20, null=False, blank=False)
+    name = models.CharField(max_length=32, null=False, blank=False)
     description = models.TextField(null=True, blank=True)
 
     def __str__(self):
