@@ -60,7 +60,7 @@ class Command(BaseCommand):
         client = openai.OpenAI(api_key=self.api_key)
         response = client.chat.completions.create(
             model="gpt-4.1-mini-2025-04-14",
-            temperature=0.3,
+            temperature=0.2,
             max_tokens=1024,
             top_p=0.5,
             frequency_penalty=0,
