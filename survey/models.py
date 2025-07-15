@@ -301,6 +301,10 @@ class Response(models.Model):
     tags = models.ManyToManyField(ChangeReason, related_name='responses')
 
     @property
+    def survey_cleaned(self):
+        return '\n'.join(line.rstrip() for line in self.survey_response.split('\n') if not line.startswith('>'))
+
+    @property
     def is_initial_survey(self) -> bool:
         if self.survey_response.find('### When declaring') != -1:
             return True
@@ -309,7 +313,7 @@ class Response(models.Model):
     @property
     def factors(self):
         if self.is_initial_survey:
-            response = '\n'.join(line for line in self.survey_response.split('\n') if (len(line) == 0 or line[0] != '>'))
+            response = self.survey_cleaned
             declaring_start = response.find("When declaring")
             if declaring_start != -1:
                 response = self.survey_response[declaring_start:]
@@ -329,7 +333,7 @@ class Response(models.Model):
     @property
     def always_include(self):
         if self.is_initial_survey:
-            response = '\n'.join(line for line in self.survey_response.split('\n') if (len(line) == 0 or line[0] != '>'))
+            response = self.survey_cleaned
             always_start = response.find('where you always include')
             if always_start != -1:
                 response = self.survey_response[always_start:]
@@ -348,7 +352,7 @@ class Response(models.Model):
     @property
     def never_include(self):
         if self.is_initial_survey:
-            response = '\n'.join(line for line in self.survey_response.split('\n') if (len(line) == 0 or line[0] != '>'))
+            response = self.survey_cleaned
             never_start = response.find('where you never include')
             if never_start != -1:
                 response = self.survey_response[never_start:]
@@ -361,7 +365,7 @@ class Response(models.Model):
     @property
     def response(self) -> None | str:
         if not self.is_initial_survey:
-            response = '\n'.join(line for line in self.survey_response.split('\n') if (len(line) == 0 or line[0] != '>'))
+            response = self.survey_cleaned
             add_remove_start = response.find('add/remove')
             if add_remove_start != -1:
                 respose = response[add_remove_start:]
