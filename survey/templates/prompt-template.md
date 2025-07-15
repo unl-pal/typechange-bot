@@ -7,7 +7,8 @@ Please check the following description of situations a developer {{ TYPE }} a ty
 
 The coding scheme is:
 
-{% for code in codes %} - **{{ code.name }}**: {{ code.description }}{% endfor %}
+{% for code in codes %} - **{{ code.name }}**: {{ code.description }}
+{% endfor %}
 
 Please show which codes best capture the reasons for {{ TYPE }}  a type annotation in a particular spot.
 Do not include any commentary.
