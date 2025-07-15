@@ -114,7 +114,7 @@ class Command(BaseCommand):
                 break
             print(f'Coding {response}')
             llm_output = self.query_open_ai(prompt)
-            codes = self.clean_codes(llm_out)
+            codes = self.clean_codes(llm_output)
             output.append({'id': response.id,
                            'type': survey_type,
                            'llm_output': llm_output,
