@@ -30,8 +30,7 @@ class Command(BaseCommand):
         parser.add_argument('out_file')
 
     def query_open_ai(self, prompt):
-        openai.api_key = self.api_key
-        client = openai.OpenAI()
+        client = openai.OpenAI(api_key=self.api_key)
         response = client.chat.completions.create(
             model="gpt-4o-2024-05-13",
             temperature=1,
