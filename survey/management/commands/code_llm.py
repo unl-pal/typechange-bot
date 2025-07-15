@@ -38,7 +38,7 @@ class Command(BaseCommand):
 
         if len(self.change_names) == 0:
             for reason in self.change_reasons:
-                self.change_names.add(reason.name)
+                self.change_names.add(reason.name.lower())
 
         codes = []
         non_codes = []
@@ -47,7 +47,7 @@ class Command(BaseCommand):
             code = re.sub('[^a-zA-Z]+', '', code)
             if len(code) <= 3:
                 continue
-            if code in self.change_names:
+            if code.lower() in self.change_names:
                 codes.append(code)
             else:
                 non_codes.append(code)
