@@ -56,27 +56,6 @@ class Command(BaseCommand):
 
         parser.add_argument('out_file')
 
-    def clean_codes(self, in_codes):
-        original_codes = re.split('[ :,;\n]', in_codes)
-
-        if len(self.change_names) == 0:
-            for reason in self.change_reasons:
-                self.change_names.add(reason.name.lower())
-
-        codes = []
-        non_codes = []
-
-        for code in original_codes:
-            code = re.sub('[^a-zA-Z]+', '', code)
-            if len(code) <= 3:
-                continue
-            if code.lower() in self.change_names:
-                codes.append(code)
-            else:
-                non_codes.append(code)
-
-        return codes + ['**'] + non_codes
-
     def query_open_ai(self, prompt):
         client = openai.OpenAI(api_key=self.api_key)
         response = client.chat.completions.create(
