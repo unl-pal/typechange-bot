@@ -27,8 +27,7 @@ class Command(BaseCommand):
                             choices=['always', 'never', 'change'])
         parser.add_argument('--api-key',
                             type=str,
-                            default=settings.OPENAI_API_KEY,
-                            required=True)
+                            default=settings.OPENAI_API_KEY)
         parser.add_argument('--debug',
                             type=bool,
                             default=False,
