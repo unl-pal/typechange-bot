@@ -18,6 +18,27 @@ class Command(BaseCommand):
     api_key = None
     change_reasons = None
 
+    schema = {
+        "name": "string_list_code",
+        "schema": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "array",
+                    "description": "A list of string elements called 'code'.",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "code"
+            ],
+            "additionalProperties": False
+        },
+        "strict": True
+    }
+
     change_names = set()
 
     def add_arguments(self, parser):
@@ -59,8 +80,8 @@ class Command(BaseCommand):
     def query_open_ai(self, prompt):
         client = openai.OpenAI(api_key=self.api_key)
         response = client.chat.completions.create(
-            model="gpt-4o-2024-05-13",
-            temperature=1,
+            model="gpt-4.1-mini-2025-04-14",
+            temperature=0.3,
             max_tokens=1024,
             top_p=1,
             frequency_penalty=0,
@@ -70,9 +91,13 @@ class Command(BaseCommand):
                     "role": "user",
                     "content": str(prompt)
                 }
-            ]
+            ],
+            response_format={
+                "type": "json_schema",
+                "json_schema": self.schema
+            }
         )
-        return response.choices[0].message.content
+        return json.loads(response.choices[0].message.content)['code']
 
     def make_prompt(self, response):
         template = loader.get_template('prompt-template.md')
@@ -117,12 +142,10 @@ class Command(BaseCommand):
                 break
 
             print(f'Coding {response}... ', end='')
-            llm_output = self.query_open_ai(prompt)
-            codes = self.clean_codes(llm_output)
+            codes = self.query_open_ai(prompt)
             data_out = {'id': response.id,
                         'response': prompt_in,
                         'type': survey_type,
-                        'llm_output': llm_output,
                         'codes': ';'.join(codes)}
             if survey_type == 'change':
                 data_out['relevance_type'] = response.commit.relevance_type
