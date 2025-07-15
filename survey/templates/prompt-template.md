@@ -11,4 +11,4 @@ The coding scheme is:
 {% endfor %}
 Please show which codes best capture the reasons for {{ TYPE }}  a type annotation in a particular spot.
 Do not include any commentary.
-Show only the exact codes you select, and separate them only with commas.
+Show only your selected codes, separated with commas.
