@@ -29,6 +29,10 @@ class Command(BaseCommand):
                             type=str,
                             default=settings.OPENAI_API_KEY,
                             required=True)
+        parser.add_argument('--debug',
+                            type=bool,
+                            default=False,
+                            action='store_true')
 
         parser.add_argument('out_file')
 
@@ -81,6 +85,7 @@ class Command(BaseCommand):
     def handle(self, *arguments,
                survey_type=None,
                api_key=None,
+               debug=False,
                out_file=None,
                **options):
         openai.api_key = api_key
@@ -108,6 +113,9 @@ class Command(BaseCommand):
             if prompt_in is None:
                 continue
             prompt = self.make_prompt(prompt_in)
+            if debug:
+                print(prompt)
+                break
 
             print(f'Coding {response}... ', end='')
             llm_output = self.query_open_ai(prompt)
