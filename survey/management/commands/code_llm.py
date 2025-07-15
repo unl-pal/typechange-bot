@@ -34,7 +34,7 @@ class Command(BaseCommand):
         parser.add_argument('out_file')
 
     def clean_codes(self, in_codes):
-        for match in re.matchall('\*\*', in_codes):
+        for match in re.findall('\*\*', in_codes):
             in_codes = re.sub(match, '', in_codes)
         original_codes = re.split('[ :,;\n]', in_codes)
 
