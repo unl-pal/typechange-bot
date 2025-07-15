@@ -5,3 +5,4 @@ GitPython~=3.1.44
 PyGithub~=2.4.0
 python-decouple==3.1
 django-treebeard~=4.7.1
+openai~=1.78.1

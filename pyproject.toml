@@ -20,7 +20,8 @@ dependencies = [
 "django-markdownx~=4.0.7",
 "dj-database-url~=2.3.0",
 "pandas~=2.2.3",
-"scipy~=1.14.1"
+"scipy~=1.14.1",
+"openai~=1.78.1"
 ]
 
 [project.optional-dependencies]
