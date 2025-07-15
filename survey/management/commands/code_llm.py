@@ -3,6 +3,7 @@
 
 from django.core.management.base import BaseCommand, CommandError
 from django.template import loader
+from django.conf import settings
 from survey.models import Response, ChangeReason
 
 import openai
@@ -26,6 +27,7 @@ class Command(BaseCommand):
                             choices=['always', 'never', 'change'])
         parser.add_argument('--api-key',
                             type=str,
+                            default=settings.OPENAI_API_KEY,
                             required=True)
 
         parser.add_argument('out_file')

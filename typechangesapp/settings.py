@@ -199,6 +199,9 @@ GITHUB_APP_ID = config('GITHUB_APP_ID', default='FOO')
 
 GITHUB_API_KEY = config('GITHUB_API_KEY', default='FOO')
 
+# OpenAI Settings
+OPENAI_API_KEY = config('OPENAI_API_KEY', default='INVALID')
+
 # Celery Configuration
 CELERY_RESULT_EXTENDED = config('CELERY_RESULT_EXTENDED', default=True, cast=bool)
 CELERY_TIMEZONE = config("CELERY_TIMEZONE", default=TIME_ZONE)
