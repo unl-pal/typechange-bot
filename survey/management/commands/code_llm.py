@@ -48,6 +48,8 @@ class Command(BaseCommand):
                 code = code[2:]
             if code[-2:] == '**':
                 code = code[:-2]
+            if len(code) <= 3:
+                continue
             if code in self.change_names:
                 codes.append(code)
             else:
