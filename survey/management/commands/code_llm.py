@@ -6,6 +6,7 @@ from django.template import loader
 from survey.models import Response, ChangeReason
 
 import openai
+import pandas as pd
 
 class Command(BaseCommand):
     help = 'Run LLM to code responses.'
