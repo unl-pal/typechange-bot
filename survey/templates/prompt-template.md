@@ -9,6 +9,6 @@ The coding scheme is:
 
 {% for code in codes %} - **{{ code.name }}**: {{ code.description }}
 {% endfor %}
-Please show which codes best capture the reasons for {{ TYPE }}  a type annotation in a particular spot.
+Please show which codes best capture the reasons for {{ TYPEING }}  a type annotation in a particular spot.
 Do not include any commentary.
 Show only your selected codes, separated with commas.
