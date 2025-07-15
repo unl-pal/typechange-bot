@@ -118,7 +118,7 @@ class Command(BaseCommand):
             output.append({'id': response.id,
                            'type': survey_type,
                            'llm_output': llm_output,
-                           'codes': codes.join(';')})
+                           'codes': ';'.join(codes)})
 
         df = pd.DataFrame(output)
         print(df.head())
