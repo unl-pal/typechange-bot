@@ -309,7 +309,7 @@ class Response(models.Model):
     @property
     def factors(self):
         if self.is_initial_survey:
-            response = '\n'.join(line for line in self.survey_response.split('\n') if line[0] != '>')
+            response = '\n'.join(line for line in self.survey_response.split('\n') if (len(line) == 0 or line[0] != '>'))
             declaring_start = response.find("When declaring")
             if declaring_start != -1:
                 response = self.survey_response[declaring_start:]
@@ -329,7 +329,7 @@ class Response(models.Model):
     @property
     def always_include(self):
         if self.is_initial_survey:
-            response = '\n'.join(line for line in self.survey_response.split('\n') if line[0] != '>')
+            response = '\n'.join(line for line in self.survey_response.split('\n') if (len(line) == 0 or line[0] != '>'))
             always_start = response.find('where you always include')
             if always_start != -1:
                 response = self.survey_response[always_start:]
@@ -348,7 +348,7 @@ class Response(models.Model):
     @property
     def never_include(self):
         if self.is_initial_survey:
-            response = '\n'.join(line for line in self.survey_response.split('\n') if line[0] != '>')
+            response = '\n'.join(line for line in self.survey_response.split('\n') if (len(line) == 0 or line[0] != '>'))
             never_start = response.find('where you never include')
             if never_start != -1:
                 response = self.survey_response[never_start:]
@@ -361,7 +361,7 @@ class Response(models.Model):
     @property
     def response(self) -> None | str:
         if not self.is_initial_survey:
-            response = '\n'.join(line for line in self.survey_response.split('\n') if line[0] != '>')
+            response = '\n'.join(line for line in self.survey_response.split('\n') if (len(line) == 0 or line[0] != '>'))
             add_remove_start = response.find('add/remove')
             if add_remove_start != -1:
                 respose = response[add_remove_start:]
