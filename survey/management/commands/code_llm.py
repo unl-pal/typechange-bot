@@ -44,10 +44,7 @@ class Command(BaseCommand):
         non_codes = []
 
         for code in original_codes:
-            if code[:2] == '**':
-                code = code[2:]
-            if code[-2:] == '**':
-                code = code[:-2]
+            code = re.sub('[^a-zA-Z]+', '', code)
             if len(code) <= 3:
                 continue
             if code in self.change_names:
