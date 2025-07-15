@@ -11,5 +11,4 @@ The code names and descriptions are:
 {% endfor %}
 Please show which code names best capture the reasons for {{ TYPEING }} a type annotation in a particular spot.
 Do not include any commentary.
-Use only the described code names.
-Include all that are specifically relevant, but no others.
+Use only the described code names which are specifically relevant to the response.
