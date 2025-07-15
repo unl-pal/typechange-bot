@@ -5,10 +5,9 @@ Please check the following description of situations a developer {{ TYPE }} a ty
 {{ RESPONSE }}
 ```
 
-The coding scheme is:
+The code names and descriptions are:
 
 {% for code in codes %} - **{{ code.name }}**: {{ code.description }}
 {% endfor %}
-Please show which codes best capture the reasons for {{ TYPEING }}  a type annotation in a particular spot.
+Please show which code  names best capture the reasons for {{ TYPEING }}  a type annotation in a particular spot.
 Do not include any commentary.
-Show only your selected codes, separated with commas.
