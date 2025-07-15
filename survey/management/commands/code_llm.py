@@ -119,10 +119,14 @@ class Command(BaseCommand):
             print(f'Coding {response}')
             llm_output = self.query_open_ai(prompt)
             codes = self.clean_codes(llm_output)
-            output.append({'id': response.id,
-                           'type': survey_type,
-                           'llm_output': llm_output,
-                           'codes': ';'.join(codes)})
+            data_out = {'id': response.id,
+                        'response': prompt_in,
+                        'type': survey_type,
+                        'llm_output': llm_output,
+                        'codes': ';'.join(codes)}
+            if survey_type == 'change':
+                data_out['relevance_type'] = response.commit.relevance_type
+            output.append(data_out)
 
         df = pd.DataFrame(output)
         print(df.head())
