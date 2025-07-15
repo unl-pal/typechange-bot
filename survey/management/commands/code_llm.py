@@ -34,8 +34,6 @@ class Command(BaseCommand):
         parser.add_argument('out_file')
 
     def clean_codes(self, in_codes):
-        for match in re.findall('\\*\\*', in_codes):
-            in_codes = re.sub(match, '', in_codes)
         original_codes = re.split('[ :,;\n]', in_codes)
 
         if len(self.change_names) == 0:
@@ -46,6 +44,10 @@ class Command(BaseCommand):
         non_codes = []
 
         for code in original_codes:
+            if code[:2] == '**':
+                code = code[2:]
+            if code[-2:] == '**':
+                code = code[:-2]
             if code in self.change_names:
                 codes.append(code)
             else:
