@@ -83,7 +83,7 @@ class Command(BaseCommand):
             model="gpt-4.1-mini-2025-04-14",
             temperature=0.3,
             max_tokens=1024,
-            top_p=1,
+            top_p=0.5,
             frequency_penalty=0,
             presence_penalty=0,
             messages=[
