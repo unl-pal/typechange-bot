@@ -8,7 +8,6 @@ class Command(BaseCommand):
     help = "Count committers in projects."
 
     def handle(self, *args, **options):
-        node = Node.objects.get(hostname=gethostname())
         for project in Project.objects.filter(track_changes=True, installation_id__isnull=False, num_committers__isnull=True):
             try:
                 print(f'Counting commits in project {project}...')
