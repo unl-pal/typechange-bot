@@ -49,7 +49,7 @@ class Command(BaseCommand):
         df_num_commits = pd.DataFrame([{ 'project': str(prj),
                                          'num_commits': prj.num_commits,
                                          'num_committers': prj.num_committers }
-                                       for prj in Project.objects.filter(num_commits__isnull=False)])
+                                       for prj in Project.objects.filter(num_commits__isnull=False, num_committers__isnull=False)])
 
         df_freq = df_num_changes.merge(df_num_commits) \
                                 .drop(columns=['num_committers']) \
