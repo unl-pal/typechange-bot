@@ -21,10 +21,10 @@ class Command(BaseCommand):
         print(f'Number of installed projects: {num_installed_projects}')
 
 
-        num_initial_responses = len([response for response in Response.objects.all() if response.initial_survey])
+        num_initial_responses = len([response for response in Response.objects.all() if response.is_initial_survey])
         print(f'Number of initial survey responses: {num_initial_responses}')
 
-        num_non_initial_responses = len([response for response in Response.objects.all() if not response.initial_survey])
+        num_non_initial_responses = len([response for response in Response.objects.all() if not response.is_initial_survey])
         print(f'Number of on-change survey response: {num_non_initial_responses}')
 
         responding_committers = set()
