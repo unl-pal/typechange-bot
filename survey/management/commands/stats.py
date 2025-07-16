@@ -132,4 +132,6 @@ class Command(BaseCommand):
         print(pearsonr(df_prop_committers.pct_committers_involved, df_prop_committers.num_committers))
         fig, ax = plt.subplots(constrained_layout=True)
         sns.regplot(data=df_prop_committers, x='pct_committers_involved', y='num_committers', ax=ax)
+        ax.set_ylabel('# Committers')
+        ax.set_xlabel('% Commiters Changing Annotations')
         fig.savefig('correlation.pdf')
