@@ -30,6 +30,7 @@ def save_table(df, filename):
     if isinstance(df, pd.Series):
         df = df.to_frame()
     styler = df.style \
+               .format(None, precision=2) \
                .map_index(lambda x: 'textbf:--rwrap;', axis='columns') \
                .hide(names=True, axis='columns') \
                .map_index(lambda x: 'textbf:--rwrap;', axis='index') \
