@@ -187,6 +187,7 @@ class Project(models.Model):
     annotations_detected = models.BooleanField('annotations detected?', editable=False, default=False)
     metrics_collected = models.BooleanField('metrics collected?', editable=False, default=False)
     num_commits = models.IntegerField(editable=False, null=True)
+    num_committers = models.IntegerField(editable=False, null=True)
 
     _repo = None
     _gh_app = None
