@@ -90,23 +90,26 @@ class Command(BaseCommand):
                                          'num_committers': prj.num_committers }
                                        for prj in Project.objects.filter(num_commits__isnull=False, num_committers__isnull=False)])
 
+        df_freq_pool = df_freq.drop(columns=['num_commits', 'relevance_type']) \
+                      .groupby('project', as_index=False) \
+                      .sum()
+
+        pct_overall = df_freq_pool.pct_commits.describe()
+
         df_freq = df_num_changes.merge(df_num_commits) \
                                 .drop(columns=['num_committers']) \
                                 .assign(pct_commits = lambda df: 100 * df['count'] / df['num_commits'])
 
         print()
-        print('PCT of commits making change:')
+        print('pct of commits making change:')
         pct_making_change = df_freq.groupby('relevance_type')['pct_commits'].describe()
+        pct_making_change.loc['tot'] = pct_overall
         print(pct_making_change)
         save_table(pct_making_change, 'pct_commits_making_change_type.tex')
 
         print()
         print('Total pct of type-annotation-modifying commits:')
-        df_freq_pool = df_freq.drop(columns=['num_commits', 'relevance_type']) \
-                              .groupby('project', as_index=False) \
-                              .sum()
 
-        pct_overall = df_freq_pool.pct_commits.describe()
         print(pct_overall)
         save_table(pct_overall, 'pct_commits_making_change.tex')
 
