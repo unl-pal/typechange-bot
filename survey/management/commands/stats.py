@@ -109,13 +109,13 @@ class Command(BaseCommand):
         print(pct_overall)
         save_table(pct_overall, 'pct_commits_making_change.tex')
 
-        print()
-        print('Number of commiters making changes/project:')
-        df_committers = df_commit_data.groupby('project', as_index=False).author.value_counts()
-        df_count_committers = df_committers.groupby('project', as_index=False).author.count()
-        count_committers = df_count_committers.describe()
-        print(count_committers)
-        save_table(count_committers, 'committer_count.tex')
+        # print()
+        # print('Number of commiters making changes/project:')
+        # df_committers = df_commit_data.groupby('project', as_index=False).author.value_counts()
+        # df_count_committers = df_committers.groupby('project', as_index=False).author.count()
+        # count_committers = df_count_committers.describe()
+        # print(count_committers)
+        # save_table(count_committers, 'committer_count.tex')
 
         df_prop_committers = df_count_committers.merge(df_num_commits) \
             .drop(columns=['num_commits']) \
@@ -123,8 +123,10 @@ class Command(BaseCommand):
 
         print()
         print('Percent of committers making changes:')
-        pct_committers_involved = df_prop_committers.pct_committers_involved.describe()
+        pct_committers_involved = df_prop_committers[['num_committers', 'pct_committers_involved']].describe()
         print(pct_committers_involved)
+        pct_committers_involved = pct_committers_involved.rename(columns={'num_committers': '# Committers',
+                                                                          'pct_committers_involved': '% Committers'})
         save_table(pct_committers_involved, 'pct_committers.tex')
 
         print()
