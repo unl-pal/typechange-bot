@@ -104,7 +104,8 @@ class Command(BaseCommand):
         print()
         print('pct of commits making change:')
         pct_making_change = df_freq.groupby('relevance_type')['pct_commits'].describe()
-        pct_making_change.loc['tot'] = pct_overall
+        pct_making_change.loc['Tot.'] = pct_overall
+        pct_making_change = pct_making_change.convert_dtypes()
         print(pct_making_change)
         save_table(pct_making_change, 'pct_commits_making_change_type.tex')
 
