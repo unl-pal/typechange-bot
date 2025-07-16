@@ -9,6 +9,39 @@ from survey.models import Project, Committer, Commit, Response, MetricsCommit
 import pandas as pd
 from scipy.stats import pearsonr
 
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.rcParams['pdf.fonttype'] = 42
+plt.rcParams['ps.fonttype'] = 42
+
+sns.set_theme(context='paper',
+        style='whitegrid',
+        palette='colorblind',
+        font_scale=1.2)
+
+plt.rcParams['figure.figsize'] = [7.0, 4.0]
+plt.rcParams['figure.dpi'] = 600.0
+plt.rcParams['font.size'] = 24
+plt.rcParams['legend.loc'] = 'upper right'
+
+def save_table(df, filename):
+    styler = df.style \
+               .map_index(lambda x: 'textbf:--rwrap;', axis='columns') \
+               .hide(names=True, axis='columns') \
+               .map_index(lambda x: 'textbf:--rwrap;', axis='index') \
+               .hide(names=True, axis='index') \
+               .format_index(None, escape='latex', axis='columns') \
+               .format_index(None, escape='latex', axis='rows') \
+               .set_table_styles([
+                   {'selector': 'toprule', 'props': ':toprule;'},
+                   {'selector': 'bottomrule', 'props': ':bottomrule;'}],
+                  overwrite=False)
+    with open(filename, 'w+') as fh:
+        fh.write(stiler.to_latex())
+
+
 class Command(BaseCommand):
     help = "Show statistics about typechangebot installations."
 
@@ -44,8 +77,10 @@ class Command(BaseCommand):
         df_num_changes = df_commit_data.groupby(['project', 'relevance_type'], as_index=False) \
                                        .count()[['project', 'relevance_type', 'hash']] \
                                        .rename(columns={'hash': 'count'})
+        num_changes = df_num_changes.groupby('relevance_type')['count'].describe()
+        print(num_changes)
+        save_table(num_changes, 'number_relevant_changes.tex')
 
-        print(df_num_changes.groupby('relevance_type')['count'].describe())
 
         df_num_commits = pd.DataFrame([{ 'project': str(prj),
                                          'num_commits': prj.num_commits,
@@ -58,7 +93,9 @@ class Command(BaseCommand):
 
         print()
         print('PCT of commits making change:')
-        print(df_freq.groupby('relevance_type')['pct_commits'].describe())
+        pct_making_change = df_freq.groupby('relevance_type')['pct_commits'].describe()
+        print(pct_making_change)
+        save_table(pct_making_change, 'pct_commits_making_change_type.tex')
 
         print()
         print('Total pct of type-annotation-modifying commits:')
@@ -66,13 +103,17 @@ class Command(BaseCommand):
                               .groupby('project', as_index=False) \
                               .sum()
 
-        print(df_freq_pool.pct_commits.describe())
+        pct_overall = df_freq_pool.pct_commits.describe()
+        print(pct_overall)
+        save_table(pct_overall, 'pct_commits_making_change.tex')
 
         print()
         print('Number of commiters making changes/project:')
         df_committers = df_commit_data.groupby('project', as_index=False).author.value_counts()
         df_count_committers = df_committers.groupby('project', as_index=False).author.count()
-        print(df_count_committers.describe())
+        count_committers = df_count_committers.describe()
+        print(count_committers)
+        save_table(count_committers, 'committer_count.tex')
 
         df_prop_committers = df_count_committers.merge(df_num_commits) \
             .drop(columns=['num_commits']) \
@@ -80,9 +121,14 @@ class Command(BaseCommand):
 
         print()
         print('Percent of committers making changes:')
-        print(df_prop_committers.pct_committers_involved.describe())
+        pct_committers_involved = df_prop_committers.pct_committers_involved.describe()
+        print(pct_committers_involved)
+        save_table(pct_committers_involved, 'pct_committers.tex')
 
         print()
         print('Correlation between number of committers and pct involved in making type annotation changes:')
         print(pearsonr(df_prop_committers.pct_committers_involved, df_prop_committers.num_committers))
-
+        fig, ax = plt.subplots(constrained_layout=True)
+        sns.regplot(data=df_prop_committers, x='pct_committers_involved', y='num_committers', ax=ax)
+        sns.rugplot(data=df_prop_committers, x='pct_committers_involved', y='num_committers', ax=ax)
+        fig.savefig('correlation.pdf')
