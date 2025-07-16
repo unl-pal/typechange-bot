@@ -39,7 +39,7 @@ def save_table(df, filename):
                    {'selector': 'bottomrule', 'props': ':bottomrule;'}],
                   overwrite=False)
     with open(filename, 'w+') as fh:
-        fh.write(stiler.to_latex())
+        fh.write(styler.to_latex())
 
 
 class Command(BaseCommand):
