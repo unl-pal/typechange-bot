@@ -109,13 +109,8 @@ class Command(BaseCommand):
         print(pct_overall)
         save_table(pct_overall, 'pct_commits_making_change.tex')
 
-        # print()
-        # print('Number of commiters making changes/project:')
-        # df_committers = df_commit_data.groupby('project', as_index=False).author.value_counts()
-        # df_count_committers = df_committers.groupby('project', as_index=False).author.count()
-        # count_committers = df_count_committers.describe()
-        # print(count_committers)
-        # save_table(count_committers, 'committer_count.tex')
+        df_committers = df_commit_data.groupby('project', as_index=False).author.value_counts()
+        df_count_committers = df_committers.groupby('project', as_index=False).author.count()
 
         df_prop_committers = df_count_committers.merge(df_num_commits) \
             .drop(columns=['num_commits']) \
