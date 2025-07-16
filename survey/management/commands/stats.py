@@ -59,7 +59,7 @@ class Command(BaseCommand):
         print(df_freq.groupby('relevance_type')['pct_commits'].describe())
 
         print('Total pct of type-annotation-modifying commits:')
-        df_freq_pool = df_freq.drop(['num_commits', 'relevance_type']) \
+        df_freq_pool = df_freq.drop(columns=['num_commits', 'relevance_type']) \
                               .groupby('project', as_index=False) \
                               .sum()
 
