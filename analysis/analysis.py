@@ -22,17 +22,18 @@ for file in ['always', 'change', 'never']:
             stat[a] = {a: 1}
         if b not in stat.keys():
             stat[b] = {b: 1}
-        result = stats.spearmanr(df[a], df[b])
-        stat[a][b] = result.statistic
+        stat[a][b] = (df[a] & df[b]).sum() / (df[a] | df[b]).sum()
 
-    correlations = pd.DataFrame(stat)[codes_list].reindex(codes_list)
+    correlations = pd.DataFrame(stat)[codes_list].reindex(codes_list).mul(100)
     if file != 'always':
         print('\f')
     print(file)
-    print(correlations.round(3).to_string())
+    print(correlations.round(0).to_string())
+    print()
+    print(df_codes[codes_list].sum().to_string())
 
     styler = correlations.style \
-                         .format(None, precision=3, thousands=',', escape='latex', na_rep='---') \
+                         .format('{:.0f}\\%', precision=0, thousands=',', escape='latex', na_rep='---') \
                          .map_index(lambda x: 'textbf:--rwrap;', axis='columns') \
                          .hide(names=True, axis='columns') \
                          .map_index(lambda x: 'textbf:--rwrap;', axis='index') \
