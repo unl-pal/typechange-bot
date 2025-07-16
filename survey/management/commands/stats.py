@@ -90,15 +90,16 @@ class Command(BaseCommand):
                                          'num_committers': prj.num_committers }
                                        for prj in Project.objects.filter(num_commits__isnull=False, num_committers__isnull=False)])
 
+        df_freq = df_num_changes.merge(df_num_commits) \
+                                .drop(columns=['num_committers']) \
+                                .assign(pct_commits = lambda df: 100 * df['count'] / df['num_commits'])
+
         df_freq_pool = df_freq.drop(columns=['num_commits', 'relevance_type']) \
                       .groupby('project', as_index=False) \
                       .sum()
 
         pct_overall = df_freq_pool.pct_commits.describe()
 
-        df_freq = df_num_changes.merge(df_num_commits) \
-                                .drop(columns=['num_committers']) \
-                                .assign(pct_commits = lambda df: 100 * df['count'] / df['num_commits'])
 
         print()
         print('pct of commits making change:')
