@@ -132,5 +132,4 @@ class Command(BaseCommand):
         print(pearsonr(df_prop_committers.pct_committers_involved, df_prop_committers.num_committers))
         fig, ax = plt.subplots(constrained_layout=True)
         sns.regplot(data=df_prop_committers, x='pct_committers_involved', y='num_committers', ax=ax)
-        sns.rugplot(data=df_prop_committers, x='pct_committers_involved', y='num_committers', ax=ax)
         fig.savefig('correlation.pdf')
