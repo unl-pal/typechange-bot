@@ -27,6 +27,8 @@ plt.rcParams['font.size'] = 24
 plt.rcParams['legend.loc'] = 'upper right'
 
 def save_table(df, filename):
+    if isinstance(df, pd.Series):
+        df = df.to_frame()
     styler = df.style \
                .map_index(lambda x: 'textbf:--rwrap;', axis='columns') \
                .hide(names=True, axis='columns') \
