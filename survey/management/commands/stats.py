@@ -76,7 +76,7 @@ class Command(BaseCommand):
 
         df_prop_committers = df_count_committers.merge(df_num_commits) \
             .drop(columns=['num_commits']) \
-            .assign(pct_commiters_involved = lambda df: 100 * df.author / df.num_committers)
+            .assign(pct_committers_involved = lambda df: 100 * df.author / df.num_committers)
 
         print()
         print('Percent of committers making changes:')
@@ -84,5 +84,5 @@ class Command(BaseCommand):
 
         print()
         print('Correlation between number of committers and pct involved in making type annotation changes:')
-        print(pearsonr(df_prop_committers.pct_committers, df_prop_comitters.num_committers))
+        print(pearsonr(df_prop_committers.pct_committers_involved, df_prop_comitters.num_committers))
 
