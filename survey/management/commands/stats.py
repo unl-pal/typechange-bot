@@ -84,5 +84,5 @@ class Command(BaseCommand):
 
         print()
         print('Correlation between number of committers and pct involved in making type annotation changes:')
-        print(pearsonr(df_prop_committers.pct_committers_involved, df_prop_comitters.num_committers))
+        print(pearsonr(df_prop_committers.pct_committers_involved, df_prop_committers.num_committers))
 
