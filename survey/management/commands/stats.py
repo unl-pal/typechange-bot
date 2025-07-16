@@ -38,6 +38,7 @@ class Command(BaseCommand):
                                          'relevance_type': str(cmt.relevance_type) }
                                        for cmt in MetricsCommit.objects.all()])
 
+        print()
         print('Number of relevant changes:')
 
         df_num_changes = df_commit_data.groupby(['project', 'relevance_type'], as_index=False) \
@@ -55,9 +56,11 @@ class Command(BaseCommand):
                                 .drop(columns=['num_committers']) \
                                 .assign(pct_commits = lambda df: 100 * df['count'] / df['num_commits'])
 
+        print()
         print('PCT of commits making change:')
         print(df_freq.groupby('relevance_type')['pct_commits'].describe())
 
+        print()
         print('Total pct of type-annotation-modifying commits:')
         df_freq_pool = df_freq.drop(columns=['num_commits', 'relevance_type']) \
                               .groupby('project', as_index=False) \
@@ -65,19 +68,21 @@ class Command(BaseCommand):
 
         print(df_freq_pool.pct_commits.describe())
 
+        print()
         print('Number of commiters making changes/project:')
         df_committers = df_commit_data.groupby('project', as_index=False).author.value_counts()
         df_count_committers = df_committers.groupby('project', as_index=False).author.count()
-
         print(df_count_committers.describe())
 
         df_prop_committers = df_count_committers.merge(df_num_commits) \
             .drop(columns=['num_commits']) \
             .assign(pct_commiters_involved = lambda df: 100 * df.author / df.num_committers)
 
+        print()
         print('Percent of committers making changes:')
         print(df_prop_committers.pct_committers_involved.describe())
 
+        print()
         print('Correlation between number of committers and pct involved in making type annotation changes:')
         print(pearsonr(df_prop_committers.pct_committers, df_prop_comitters.num_committers))
 
