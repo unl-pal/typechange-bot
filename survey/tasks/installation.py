@@ -30,7 +30,7 @@ def process_installation(payload):
             for repo in repositories:
                 owner, name = repo['full_name'].split('/')
                 if Project.objects.filter(owner=owner, name=name).count() > 0:
-                    for project in Project.objects.filter(owner=owner, name=name):
+                    for project in Project.objects.filter(owner=owner, name=name, installation_id__is_null=False):
                         deleted_repo = DeletedRepository(node = project.host_node,
                                                          owner = project.owner,
                                                          name = project.name,
@@ -85,17 +85,17 @@ def process_installation_repositories(payload):
             for repo in payload['repositories_removed']:
                 owner, name = repo['full_name'].split('/')
                 if Project.objects.filter(owner=owner, name=name).count() > 0:
-                    for project in Project.objects.filter(owner=owner, name=name):
-                        # deleted_repo = DeletedRepository(node = project.host_node,
-                        #                                  owner = project.owner,
-                        #                                  name = project.name,
-                        #                                  reason = DeletedRepository.DeletionReason.DELETED)
-                        # if project.data_subdir is not None:
-                        #     deleted_repo.subdir = project.data_subdir
-                        # deleted_repo.save()
+                    for project in Project.objects.filter(owner=owner, name=name, installation_id__is_null=False):
+                        deleted_repo = DeletedRepository(node = project.host_node,
+                                                         owner = project.owner,
+                                                         name = project.name,
+                                                         reason = DeletedRepository.DeletionReason.DELETED)
+                        if project.data_subdir is not None:
+                            deleted_repo.subdir = project.data_subdir
+                        deleted_repo.save()
 
                         project.installation_id = None
-                        # project.data_subdir = None
+                        project.data_subdir = None
                         project.remove_date = timezone.now()
                         project.track_changes = True
                         project.save()
