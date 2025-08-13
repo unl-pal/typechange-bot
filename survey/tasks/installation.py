@@ -30,7 +30,7 @@ def process_installation(payload):
             for repo in repositories:
                 owner, name = repo['full_name'].split('/')
                 if Project.objects.filter(owner=owner, name=name).count() > 0:
-                    for project in Project.objects.filter(owner=owner, name=name, installation_id__is_null=False):
+                    for project in Project.objects.filter(owner=owner, name=name, installation_id__isnull=False):
                         deleted_repo = DeletedRepository(node = project.host_node,
                                                          owner = project.owner,
                                                          name = project.name,
@@ -85,7 +85,7 @@ def process_installation_repositories(payload):
             for repo in payload['repositories_removed']:
                 owner, name = repo['full_name'].split('/')
                 if Project.objects.filter(owner=owner, name=name).count() > 0:
-                    for project in Project.objects.filter(owner=owner, name=name, installation_id__is_null=False):
+                    for project in Project.objects.filter(owner=owner, name=name, installation_id__isnull=False):
                         deleted_repo = DeletedRepository(node = project.host_node,
                                                          owner = project.owner,
                                                          name = project.name,

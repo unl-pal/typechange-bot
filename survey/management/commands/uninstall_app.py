@@ -28,7 +28,7 @@ class Command(BaseCommand):
 
         integration = GithubIntegration(auth=application_auth)
 
-        for repo in Project.objects.filter(installation_id__is_null=False):
+        for repo in Project.objects.filter(installation_id__isnull=False):
             print(repo)
             installation = integration.get_repo_installation(repo.owner, repo.name)
             if not dry_run:
