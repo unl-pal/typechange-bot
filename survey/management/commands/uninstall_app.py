@@ -43,7 +43,8 @@ class Command(BaseCommand):
                 repo.installation_id = None
                 repo.remove_date = timezone.now()
                 repo.save()
-                requester.requestJSON('DELETE', f'/app/installations/{installation_id}')
+                out = requester.requestJson('DELETE', f'/app/installations/{installation_id}')
+                print(out)
 
         pass
 
