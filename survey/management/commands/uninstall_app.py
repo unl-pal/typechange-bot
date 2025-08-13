@@ -7,7 +7,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from survey.models import Project
-
+import requests
 
 class Command(BaseCommand):
     help = "Uninstall Application from installed repos"
@@ -28,23 +28,26 @@ class Command(BaseCommand):
                **options):
 
         application_auth = Auth.AppAuth(app_id, app_key)
-
         integration = GithubIntegration(auth=application_auth)
 
-        repos = Project.objects.filter(installation_id__isnull=False)
-        if limit is not None:
-            repos = repos[:limit]
+        for installation in integration.get_installations():
+            projects = []
+            for repo in installation.get_repos():
+                print(f'Processing {repo.full_name}')
+                owner, name = repo.full_name.split('/')
+                project = Project.objects.get(owner=owner, name=name)
+                project.installation_id = None
+                project.remove_date = timezone.now()
+                projects.append(project)
 
-        for repo in repos:
-            print(repo)
-            installation = integration.get_repo_installation(repo.owner, repo.name)
             if not dry_run:
-                requester = installation._requester
-                repo.installation_id = None
-                repo.remove_date = timezone.now()
-                repo.save()
-                out = requester.requestJson('DELETE', f'/app/installations/{installation_id}')
-                print(out)
+                response = requests.delete(f'https://api.github.com/app/installations/{installation.id}',
+                                           headers={'Accept': 'application/vnd.github+json',
+                                                    'X-GitHub-Api-Version': '2022-11-28',
+                                                    'Authorization': f'Bearer {application_auth.create_jwt()}'})
 
-        pass
+                if response.ok:
+                    for project in projects:
+                        project.save()
+                    response.close()
 
