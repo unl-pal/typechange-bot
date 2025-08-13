@@ -35,10 +35,13 @@ class Command(BaseCommand):
             for repo in installation.get_repos():
                 print(f'Processing {repo.full_name}')
                 owner, name = repo.full_name.split('/')
-                project = Project.objects.get(owner=owner, name=name)
-                project.installation_id = None
-                project.remove_date = timezone.now()
-                projects.append(project)
+                try:
+                    project = Project.objects.get(owner=owner, name=name)
+                    project.installation_id = None
+                    project.remove_date = timezone.now()
+                    projects.append(project)
+                except Project.DoesNotExist:
+                    continue
 
             if not dry_run:
                 response = requests.delete(f'https://api.github.com/app/installations/{installation.id}',
