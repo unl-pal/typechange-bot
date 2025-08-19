@@ -1,3 +1,5 @@
+**NOTE**: This study was completed at the end of July 2025. Thus, this bot was inactivated and this repository was set to archival mode.
+
 # Type Changes Bot
 
 ## Requirements
