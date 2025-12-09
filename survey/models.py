@@ -189,6 +189,8 @@ class Project(models.Model):
     num_commits = models.IntegerField(editable=False, null=True)
     num_committers = models.IntegerField(editable=False, null=True)
 
+    had_installation = models.BooleanField('Was the project ever installed?', editable=False, default=False)
+
     _repo = None
     _gh_app = None
 
