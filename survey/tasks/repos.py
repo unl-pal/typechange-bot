@@ -28,6 +28,7 @@ def install_repo(owner: str, repo: str, installation_id: str):
         project = Project(owner=owner, name=repo, installation_id=installation_id)
 
     project.remove_date = None
+    project.had_installation = True
 
     project.save()
 
