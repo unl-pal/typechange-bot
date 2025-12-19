@@ -2,7 +2,7 @@
 # coding: utf-8
 
 from django.core.management.base import BaseCommand
-from survey.models import ProjectCommitter
+from survey.models import Project
 
 class Command(BaseCommand):
     help = "Set had_installation for installed projects."
